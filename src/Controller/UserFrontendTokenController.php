@@ -10,15 +10,14 @@ use App\Response\LabelledBody;
 use App\Response\Response;
 use App\Response\User\RefreshableToken;
 use App\Response\User\User;
+use App\Security\AuthenticationToken;
 use Psr\Http\Client\ClientExceptionInterface;
-use SmartAssert\SecurityTokenExtractor\TokenExtractor;
 use SmartAssert\ServiceClient\Exception\InvalidModelDataException;
 use SmartAssert\ServiceClient\Exception\InvalidResponseDataException;
 use SmartAssert\ServiceClient\Exception\InvalidResponseTypeException;
 use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
 use SmartAssert\UsersClient\Client;
 use SmartAssert\UsersClient\Model\Token;
-use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -135,18 +134,14 @@ readonly class UserFrontendTokenController
     }
 
     #[Route('/verify', name: 'verify', methods: ['GET'])]
-    public function verify(
-        Request $request,
-        TokenExtractor $tokenExtractor,
-        HttpMessageFactoryInterface $httpMessageFactory
-    ): JsonResponse {
-        $token = $tokenExtractor->extract($httpMessageFactory->createRequest($request));
-        if (null === $token || '' === $token) {
+    public function verify(?AuthenticationToken $token): JsonResponse
+    {
+        if (null === $token) {
             return new ErrorResponse(new ErrorResponseBody('unauthorized'), 401);
         }
 
         try {
-            $user = $this->client->verifyFrontendToken(new Token($token));
+            $user = $this->client->verifyFrontendToken(new Token($token->token));
             if (null === $user) {
                 return new ErrorResponse(new ErrorResponseBody('unauthorized'), 401);
             }
