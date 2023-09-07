@@ -32,6 +32,18 @@ services:
     Psr\Http\Message\StreamFactoryInterface:
         alias: GuzzleHttp\Psr7\HttpFactory
 
+    Psr\Http\Message\ResponseFactoryInterface:
+        alias: GuzzleHttp\Psr7\HttpFactory
+
+    Psr\Http\Message\UploadedFileFactoryInterface:
+        alias: GuzzleHttp\Psr7\HttpFactory
+
+    Psr\Http\Message\ServerRequestFactoryInterface:
+        alias: GuzzleHttp\Psr7\HttpFactory
+
+    Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface:
+        class: Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory
+
     Psr\Http\Client\ClientInterface:
         class: GuzzleHttp\Client
 
@@ -45,3 +57,5 @@ services:
     SmartAssert\UsersClient\Client:
         arguments:
             $baseUrl: '%env(string:AUTHENTICATION_BASE_URL)%'
+
+    SmartAssert\SecurityTokenExtractor\TokenExtractor: ~
