@@ -19,6 +19,7 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+            - '../src/Security/AuthenticationToken.php'
 
     App\Controller\:
         resource: '../src/Controller/'
