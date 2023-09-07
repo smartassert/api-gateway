@@ -20,5 +20,26 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
+    App\Controller\:
+        resource: '../src/Controller/'
+        tags: ['controller.service_arguments']
+
+    GuzzleHttp\Psr7\HttpFactory: ~
+
+    Psr\Http\Message\RequestFactoryInterface:
+        alias: GuzzleHttp\Psr7\HttpFactory
+
+    Psr\Http\Message\StreamFactoryInterface:
+        alias: GuzzleHttp\Psr7\HttpFactory
+
+    Psr\Http\Client\ClientInterface:
+        class: GuzzleHttp\Client
+
+    SmartAssert\ServiceClient\ResponseFactory\ResponseFactory:
+        factory: ['SmartAssert\ServiceClient\ResponseFactory\ResponseFactory', 'createFactory']
+
+    SmartAssert\ServiceClient\Client: ~
+
+    SmartAssert\UsersClient\Client:
+        arguments:
+            $baseUrl: '%env(string:AUTHENTICATION_BASE_URL)%'
