@@ -78,6 +78,7 @@
         "static-analysis": "XDEBUG_MODE=off ./vendor/bin/phpstan analyse --ansi",
         "test-unit": "XDEBUG_MODE=off ./vendor/bin/phpunit --colors=always tests/Unit",
         "test-functional": "XDEBUG_MODE=off ./vendor/bin/phpunit --colors=always tests/Functional",
+        "test-integration": "XDEBUG_MODE=off ./vendor/bin/phpunit --colors=always tests/Integration",
         "test": [
             "@test-unit",
             "@test-functional"
@@ -105,7 +106,19 @@
             "@users-db-setup",
             "@users-generate-jwt-keys",
             "@users-create-user"
-        ]
+        ],
+        "integration-build": "docker-compose -f tests/build/docker-compose.yml build app",
+        "integration-pull": "docker-compose -f tests/build/docker-compose.yml pull",
+        "integration-up": "docker-compose -f ./tests/build/docker-compose.yml --profile functional --profile integration up -d",
+        "integration-setup": [
+            "@integration-build",
+            "@integration-up",
+            "sleep 2",
+            "@users-setup"
+        ],
+        "integration-status": "docker-compose -f ./tests/build/docker-compose.yml --profile functional --profile integration ps",
+        "integration-logs": "docker-compose -f tests/build/docker-compose.yml logs",
+        "integration-teardown": "docker-compose -f ./tests/build/docker-compose.yml --profile functional --profile integration down"
     },
     "conflict": {
         "symfony/symfony": "*"

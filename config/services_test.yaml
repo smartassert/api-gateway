@@ -12,3 +12,16 @@ services:
 
   SmartAssert\SymfonyTestClient\SymfonyClient:
     public: true
+
+  app.tests.integration.http.client:
+    public: true
+    class: GuzzleHttp\Client
+    arguments:
+      $config:
+        base_uri: "https://localhost/"
+        verify: false
+
+  SmartAssert\SymfonyTestClient\HttpClient:
+    public: true
+    arguments:
+      $httpClient: '@app.tests.integration.http.client'
