@@ -38,4 +38,17 @@ readonly class Client
             http_build_query($payload)
         );
     }
+
+    public function makeVerifyUserFrontendTokenRequest(?string $jwt, string $method = 'GET'): ResponseInterface
+    {
+        $headers = (is_string($jwt))
+            ? ['Authorization' => 'Bearer ' . $jwt]
+            : [];
+
+        return $this->client->makeRequest(
+            $method,
+            $this->router->generate('user_frontend_token_verify'),
+            $headers
+        );
+    }
 }
