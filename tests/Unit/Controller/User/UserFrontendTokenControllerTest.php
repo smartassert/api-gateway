@@ -21,7 +21,7 @@ use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
 use SmartAssert\ServiceClient\Response\JsonResponse as ServiceClientJsonResponse;
 use SmartAssert\ServiceClient\Response\Response as ServiceClientResponse;
 use SmartAssert\UsersClient\Client;
-use SmartAssert\UsersClient\Model\RefreshableToken;
+use SmartAssert\UsersClient\Model\RefreshableToken as UsersClientRefreshableToken;
 use SmartAssert\UsersClient\Model\Token as UsersClientToken;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -87,6 +87,45 @@ class UserFrontendTokenControllerTest extends TestCase
     }
 
     /**
+     * @dataProvider usersClientExceptionDataProvider
+     *
+     * @param array<mixed> $expectedResponseData
+     */
+    public function testRefresh(
+        \Exception $exception,
+        int $expectedResponseStatusCode,
+        array $expectedResponseData,
+    ): void {
+        $token = md5((string) rand());
+        $refreshToken = md5((string) rand());
+        $authenticationToken = new AuthenticationToken($token);
+
+        $client = \Mockery::mock(Client::class);
+        $client
+            ->shouldReceive('refreshFrontendToken')
+            ->withArgs(function (
+                UsersClientRefreshableToken $usersClientRefreshableToken
+            ) use (
+                $token,
+                $refreshToken
+            ) {
+                self::assertSame($token, $usersClientRefreshableToken->token);
+                self::assertSame($refreshToken, $usersClientRefreshableToken->refreshToken);
+
+                return true;
+            })
+            ->andThrow($exception)
+        ;
+
+        $request = new Request([], ['refresh_token' => $refreshToken]);
+
+        $controller = new UserFrontendTokenController($client);
+        $response = $controller->refresh($authenticationToken, $request);
+
+        $this->assertResponse($response, $expectedResponseStatusCode, $expectedResponseData);
+    }
+
+    /**
      * @return array<mixed>
      */
     public function usersClientExceptionDataProvider(): array
@@ -146,7 +185,7 @@ class UserFrontendTokenControllerTest extends TestCase
 
                         return $response;
                     })($exceptionCode),
-                    RefreshableToken::class,
+                    UsersClientRefreshableToken::class,
                     [],
                 ),
                 'expectedResponseStatusCode' => 500,
