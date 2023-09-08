@@ -6,6 +6,7 @@ namespace App\Tests\Unit\Controller\User;
 
 use App\Controller\UserFrontendTokenController;
 use App\Response\ErrorResponse;
+use App\Security\AuthenticationToken;
 use GuzzleHttp\Exception\TransferException;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -21,13 +22,15 @@ use SmartAssert\ServiceClient\Response\JsonResponse as ServiceClientJsonResponse
 use SmartAssert\ServiceClient\Response\Response as ServiceClientResponse;
 use SmartAssert\UsersClient\Client;
 use SmartAssert\UsersClient\Model\RefreshableToken;
+use SmartAssert\UsersClient\Model\Token as UsersClientToken;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class UserFrontendTokenControllerTest extends TestCase
 {
     /**
-     * @dataProvider createDataProvider
+     * @dataProvider usersClientExceptionDataProvider
      *
      * @param array<mixed> $expectedResponseData
      */
@@ -50,20 +53,43 @@ class UserFrontendTokenControllerTest extends TestCase
         $request = new Request([], ['email' => $email, 'password' => $password]);
         $response = $controller->create($request);
 
-        self::assertSame($expectedResponseStatusCode, $response->getStatusCode());
-        self::assertInstanceOf(ErrorResponse::class, $response);
-        self::assertInstanceOf(JsonResponse::class, $response);
-        self::assertSame('application/json', $response->headers->get('content-type'));
+        $this->assertResponse($response, $expectedResponseStatusCode, $expectedResponseData);
+    }
 
-        $responseData = json_decode((string) $response->getContent(), true);
+    /**
+     * @dataProvider usersClientExceptionDataProvider
+     *
+     * @param array<mixed> $expectedResponseData
+     */
+    public function testVerify(
+        \Exception $exception,
+        int $expectedResponseStatusCode,
+        array $expectedResponseData,
+    ): void {
+        $token = md5((string) rand());
+        $authenticationToken = new AuthenticationToken($token);
 
-        self::assertEquals($expectedResponseData, $responseData);
+        $client = \Mockery::mock(Client::class);
+        $client
+            ->shouldReceive('verifyFrontendToken')
+            ->withArgs(function (UsersClientToken $usersClientToken) use ($token) {
+                self::assertSame($token, $usersClientToken->token);
+
+                return true;
+            })
+            ->andThrow($exception)
+        ;
+
+        $controller = new UserFrontendTokenController($client);
+        $response = $controller->verify($authenticationToken);
+
+        $this->assertResponse($response, $expectedResponseStatusCode, $expectedResponseData);
     }
 
     /**
      * @return array<mixed>
      */
-    public function createDataProvider(): array
+    public function usersClientExceptionDataProvider(): array
     {
         $exceptionMessage = md5((string) rand());
         $exceptionCode = rand();
@@ -240,5 +266,20 @@ class UserFrontendTokenControllerTest extends TestCase
                 ],
             ],
         ];
+    }
+
+    /**
+     * @param array<mixed> $expectedData
+     */
+    private function assertResponse(Response $response, int $expectedCode, array $expectedData): void
+    {
+        self::assertSame($expectedCode, $response->getStatusCode());
+        self::assertInstanceOf(ErrorResponse::class, $response);
+        self::assertInstanceOf(JsonResponse::class, $response);
+        self::assertSame('application/json', $response->headers->get('content-type'));
+
+        $responseData = json_decode((string) $response->getContent(), true);
+
+        self::assertEquals($expectedData, $responseData);
     }
 }
