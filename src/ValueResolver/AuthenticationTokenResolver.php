@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\ValueResolver;
 
+use App\Exception\EmptyAuthenticationTokenException;
 use App\Security\AuthenticationToken;
 use SmartAssert\SecurityTokenExtractor\TokenExtractor;
 use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
@@ -20,7 +21,9 @@ readonly class AuthenticationTokenResolver implements ValueResolverInterface
     }
 
     /**
-     * @return array<?AuthenticationToken>
+     * @return AuthenticationToken[]
+     *
+     * @throws EmptyAuthenticationTokenException
      */
     public function resolve(Request $request, ArgumentMetadata $argument): array
     {
@@ -30,7 +33,7 @@ readonly class AuthenticationTokenResolver implements ValueResolverInterface
 
         $token = $this->tokenExtractor->extract($this->httpMessageFactory->createRequest($request));
         if (null === $token || '' === $token) {
-            return [null];
+            throw new EmptyAuthenticationTokenException();
         }
 
         return [new AuthenticationToken($token)];
