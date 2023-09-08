@@ -134,12 +134,8 @@ readonly class UserFrontendTokenController
     }
 
     #[Route('/verify', name: 'verify', methods: ['GET'])]
-    public function verify(?AuthenticationToken $token): JsonResponse
+    public function verify(AuthenticationToken $token): JsonResponse
     {
-        if (null === $token) {
-            return new ErrorResponse(new ErrorResponseBody('unauthorized'), 401);
-        }
-
         try {
             $user = $this->client->verifyFrontendToken(new Token($token->token));
             if (null === $user) {
