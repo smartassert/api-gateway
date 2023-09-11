@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Response\ErrorResponse;
 use App\Response\ErrorResponseBody;
+use App\Response\LabelledBody;
 use App\Response\LabelledCollectionBody;
 use App\Response\Response;
 use App\Response\User\ApiKey;
@@ -111,6 +112,95 @@ readonly class UserApiKeyController
 
         return new Response(
             new LabelledCollectionBody('api_keys', $apiKeys)
+        );
+    }
+
+    #[Route('/', name: 'get_default', methods: ['GET'])]
+    public function getDefault(AuthenticationToken $token): JsonResponse
+    {
+        try {
+            $apiKey = $this->client->getUserDefaultApiKey(
+                new UsersClientToken($token->token)
+            );
+        } catch (ClientExceptionInterface $e) {
+            $code = $e->getCode();
+            $message = $e->getMessage();
+
+            return new ErrorResponse(
+                new ErrorResponseBody(
+                    'service-communication-failure',
+                    [
+                        'service' => 'users',
+                        'error' => [
+                            'code' => $code,
+                            'message' => $message,
+                        ],
+                    ]
+                )
+            );
+        } catch (InvalidResponseDataException $e) {
+            return new ErrorResponse(
+                new ErrorResponseBody(
+                    'invalid-response-data',
+                    [
+                        'service' => 'users',
+                        'data' => $e->getResponse()->getBody(),
+                        'data-type' => [
+                            'expected' => $e->expected,
+                            'actual' => $e->actual,
+                        ],
+                    ]
+                )
+            );
+        } catch (InvalidResponseTypeException $e) {
+            return new ErrorResponse(
+                new ErrorResponseBody(
+                    'invalid-response-type',
+                    [
+                        'service' => 'users',
+                        'content-type' => [
+                            'expected' => $e->expected,
+                            'actual' => $e->actual,
+                        ],
+                    ]
+                )
+            );
+        } catch (NonSuccessResponseException $e) {
+            if (401 === $e->getStatusCode()) {
+                return new ErrorResponse(
+                    new ErrorResponseBody('unauthorized'),
+                    $e->getStatusCode()
+                );
+            }
+
+            if (404 === $e->getStatusCode()) {
+                return new ErrorResponse(
+                    new ErrorResponseBody('not-found'),
+                    $e->getStatusCode()
+                );
+            }
+
+            return new ErrorResponse(
+                new ErrorResponseBody(
+                    'non-successful-service-response',
+                    [
+                        'service' => 'users',
+                        'status' => $e->getStatusCode(),
+                        'message' => $e->getMessage(),
+                    ]
+                )
+            );
+        }
+
+        if (null === $apiKey) {
+            return new JsonResponse(null, 404);
+        }
+
+        return new Response(
+            new LabelledBody(
+                'api_key',
+                new ApiKey($apiKey->label, $apiKey->key)
+            )
         );
     }
 }
