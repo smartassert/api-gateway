@@ -97,4 +97,17 @@ readonly class Client
             $headers
         );
     }
+
+    public function makeCreateUserApiTokenRequest(?string $apiKey, string $method = 'POST'): ResponseInterface
+    {
+        $headers = (is_string($apiKey))
+            ? ['Authorization' => 'Bearer ' . $apiKey]
+            : [];
+
+        return $this->client->makeRequest(
+            $method,
+            $this->router->generate('user_api_token_create'),
+            $headers
+        );
+    }
 }
