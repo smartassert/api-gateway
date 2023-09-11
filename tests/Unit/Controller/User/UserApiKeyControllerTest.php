@@ -57,6 +57,36 @@ class UserApiKeyControllerTest extends TestCase
     }
 
     /**
+     * @dataProvider usersClientExceptionDataProvider
+     *
+     * @param array<mixed> $expectedResponseData
+     */
+    public function testGetDefault(
+        \Exception $exception,
+        int $expectedResponseStatusCode,
+        array $expectedResponseData,
+    ): void {
+        $token = md5((string) rand());
+        $authenticationToken = new AuthenticationToken($token);
+
+        $client = \Mockery::mock(Client::class);
+        $client
+            ->shouldReceive('getUserDefaultApiKey')
+            ->withArgs(function (UsersClientToken $usersClientToken) use ($token) {
+                self::assertSame($token, $usersClientToken->token);
+
+                return true;
+            })
+            ->andThrow($exception)
+        ;
+
+        $controller = new UserApiKeyController($client);
+        $response = $controller->getDefault($authenticationToken);
+
+        $this->assertResponse($response, $expectedResponseStatusCode, $expectedResponseData);
+    }
+
+    /**
      * @return array<mixed>
      */
     public function usersClientExceptionDataProvider(): array
