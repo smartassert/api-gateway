@@ -20,6 +20,7 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
             - '../src/Security/AuthenticationToken.php'
+            - '../src/Security/UserCredentials.php'
 
     App\Controller\:
         resource: '../src/Controller/'

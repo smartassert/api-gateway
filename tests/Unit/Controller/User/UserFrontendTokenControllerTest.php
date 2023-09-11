@@ -7,6 +7,7 @@ namespace App\Tests\Unit\Controller\User;
 use App\Controller\UserFrontendTokenController;
 use App\Response\ErrorResponse;
 use App\Security\AuthenticationToken;
+use App\Security\UserCredentials;
 use GuzzleHttp\Exception\TransferException;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -41,6 +42,7 @@ class UserFrontendTokenControllerTest extends TestCase
     ): void {
         $email = md5((string) rand());
         $password = md5((string) rand());
+        $userCredentials = new UserCredentials($email, $password);
 
         $client = \Mockery::mock(Client::class);
         $client
@@ -50,8 +52,7 @@ class UserFrontendTokenControllerTest extends TestCase
         ;
 
         $controller = new UserFrontendTokenController($client);
-        $request = new Request([], ['email' => $email, 'password' => $password]);
-        $response = $controller->create($request);
+        $response = $controller->create($userCredentials);
 
         $this->assertResponse($response, $expectedResponseStatusCode, $expectedResponseData);
     }

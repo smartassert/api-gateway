@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\EventListener;
 
 use App\Exception\EmptyAuthenticationTokenException;
+use App\Exception\EmptyUserCredentialsException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
@@ -29,6 +30,10 @@ class KernelExceptionEventSubscriber implements EventSubscriberInterface
         $response = null;
 
         if ($throwable instanceof EmptyAuthenticationTokenException) {
+            $response = new Response(null, 401);
+        }
+
+        if ($throwable instanceof EmptyUserCredentialsException) {
             $response = new Response(null, 401);
         }
 
