@@ -11,6 +11,7 @@ use App\Response\Response;
 use App\Response\User\RefreshableToken;
 use App\Response\User\User;
 use App\Security\AuthenticationToken;
+use App\Security\UserCredentials;
 use Psr\Http\Client\ClientExceptionInterface;
 use SmartAssert\ServiceClient\Exception\InvalidModelDataException;
 use SmartAssert\ServiceClient\Exception\InvalidResponseDataException;
@@ -32,20 +33,10 @@ readonly class UserFrontendTokenController
     }
 
     #[Route('/create', name: 'create', methods: ['POST'])]
-    public function create(Request $request): JsonResponse
+    public function create(UserCredentials $userCredentials): JsonResponse
     {
-        $email = $request->request->get('email');
-        if (!is_string($email)) {
-            $email = '';
-        }
-
-        $password = $request->request->get('password');
-        if (!is_string($password)) {
-            $password = '';
-        }
-
         try {
-            $token = $this->client->createFrontendToken($email, $password);
+            $token = $this->client->createFrontendToken($userCredentials->username, $userCredentials->password);
         } catch (ClientExceptionInterface $e) {
             $code = $e->getCode();
             $message = $e->getMessage();
