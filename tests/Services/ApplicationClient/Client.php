@@ -110,4 +110,36 @@ readonly class Client
             $headers
         );
     }
+
+    public function makeCreateUserRequest(
+        ?string $adminToken,
+        ?string $userIdentifier,
+        ?string $password,
+        string $method = 'POST'
+    ): ResponseInterface {
+        $headers = [
+            'Content-Type' => 'application/x-www-form-urlencoded',
+        ];
+
+        if (is_string($adminToken)) {
+            $headers['Authorization'] = 'Bearer ' . $adminToken;
+        }
+
+        $payload = [];
+
+        if (is_string($userIdentifier)) {
+            $payload['email'] = $userIdentifier;
+        }
+
+        if (is_string($password)) {
+            $payload['password'] = $password;
+        }
+
+        return $this->client->makeRequest(
+            $method,
+            $this->router->generate('admin_user_create'),
+            $headers,
+            http_build_query($payload)
+        );
+    }
 }
