@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Response\EmptyBody;
 use App\Response\ErrorResponse;
 use App\Response\ErrorResponseBody;
 use App\Response\LabelledBody;
@@ -11,6 +12,7 @@ use App\Response\Response;
 use App\Response\User\User;
 use App\Security\AuthenticationToken;
 use App\Security\UserCredentials;
+use App\Security\UserId;
 use Psr\Http\Client\ClientExceptionInterface;
 use SmartAssert\ServiceClient\Exception\InvalidModelDataException;
 use SmartAssert\ServiceClient\Exception\InvalidResponseDataException;
@@ -124,6 +126,59 @@ readonly class AdminController
                 'user',
                 new User($user->id, $user->userIdentifier)
             )
+        );
+    }
+
+    #[Route('/revoke-frontend-refresh-token', name: 'revoke_frontend_refresh_token', methods: ['POST'])]
+    public function revokeFrontendRefreshToken(AuthenticationToken $token, UserId $userId): JsonResponse
+    {
+        try {
+            $this->client->revokeFrontendRefreshToken($token->token, $userId->id);
+        } catch (ClientExceptionInterface $e) {
+            $code = $e->getCode();
+            $message = $e->getMessage();
+
+            return new ErrorResponse(
+                new ErrorResponseBody(
+                    'service-communication-failure',
+                    [
+                        'service' => 'users',
+                        'error' => [
+                            'code' => $code,
+                            'message' => $message,
+                        ],
+                    ]
+                )
+            );
+        } catch (NonSuccessResponseException $e) {
+            if (401 === $e->getStatusCode()) {
+                return new ErrorResponse(
+                    new ErrorResponseBody('unauthorized'),
+                    $e->getStatusCode()
+                );
+            }
+
+            if (404 === $e->getStatusCode()) {
+                return new ErrorResponse(
+                    new ErrorResponseBody('not-found'),
+                    $e->getStatusCode()
+                );
+            }
+
+            return new ErrorResponse(
+                new ErrorResponseBody(
+                    'non-successful-service-response',
+                    [
+                        'service' => 'users',
+                        'status' => $e->getStatusCode(),
+                        'message' => $e->getMessage(),
+                    ]
+                )
+            );
+        }
+
+        return new Response(
+            new EmptyBody()
         );
     }
 }

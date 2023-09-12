@@ -21,6 +21,7 @@ services:
             - '../src/Kernel.php'
             - '../src/Security/AuthenticationToken.php'
             - '../src/Security/UserCredentials.php'
+            - '../src/Security/UserId.php'
 
     App\Controller\:
         resource: '../src/Controller/'

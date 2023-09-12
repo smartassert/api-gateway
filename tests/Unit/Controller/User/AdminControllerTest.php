@@ -8,6 +8,7 @@ use App\Controller\AdminController;
 use App\Response\ErrorResponse;
 use App\Security\AuthenticationToken;
 use App\Security\UserCredentials;
+use App\Security\UserId;
 use GuzzleHttp\Exception\TransferException;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -29,7 +30,7 @@ use Symfony\Component\HttpFoundation\Response;
 class AdminControllerTest extends TestCase
 {
     /**
-     * @dataProvider usersClientExceptionDataProvider
+     * @dataProvider createUserUsersClientExceptionDataProvider
      *
      * @param array<mixed> $expectedResponseData
      */
@@ -60,7 +61,7 @@ class AdminControllerTest extends TestCase
     /**
      * @return array<mixed>
      */
-    public function usersClientExceptionDataProvider(): array
+    public function createUserUsersClientExceptionDataProvider(): array
     {
         $exceptionMessage = md5((string) rand());
         $exceptionCode = rand();
@@ -183,6 +184,130 @@ class AdminControllerTest extends TestCase
                         'content-type' => [
                             'expected' => ServiceClientJsonResponse::class,
                             'actual' => ServiceClientResponse::class,
+                        ],
+                    ],
+                ],
+            ],
+            NonSuccessResponseException::class . ' 404' => [
+                'exception' => new NonSuccessResponseException(
+                    (function () {
+                        $response = \Mockery::mock(ResponseInterface::class);
+                        $response
+                            ->shouldReceive('getStatusCode')
+                            ->andReturn(404)
+                        ;
+
+                        $response
+                            ->shouldReceive('getReasonPhrase')
+                            ->andReturn('Not found.')
+                        ;
+
+                        return $response;
+                    })(),
+                ),
+                'expectedResponseStatusCode' => 404,
+                'expectedResponseData' => [
+                    'type' => 'not-found',
+                ],
+            ],
+            NonSuccessResponseException::class . ' 405' => [
+                'exception' => new NonSuccessResponseException(
+                    (function () {
+                        $response = \Mockery::mock(ResponseInterface::class);
+                        $response
+                            ->shouldReceive('getStatusCode')
+                            ->andReturn(405)
+                        ;
+
+                        $response
+                            ->shouldReceive('getReasonPhrase')
+                            ->andReturn('Method not allowed.')
+                        ;
+
+                        return $response;
+                    })(),
+                ),
+                'expectedResponseStatusCode' => 500,
+                'expectedResponseData' => [
+                    'type' => 'non-successful-service-response',
+                    'context' => [
+                        'service' => 'users',
+                        'status' => 405,
+                        'message' => '405: Method not allowed.',
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider revokeFrontendRefreshTokenUsersClientExceptionDataProvider
+     *
+     * @param array<mixed> $expectedResponseData
+     */
+    public function testRevokeFrontendRefreshToken(
+        \Exception $exception,
+        int $expectedResponseStatusCode,
+        array $expectedResponseData,
+    ): void {
+        $token = md5((string) rand());
+        $authenticationToken = new AuthenticationToken($token);
+        $id = md5((string) rand());
+        $userId = new UserId($id);
+
+        $client = \Mockery::mock(Client::class);
+        $client
+            ->shouldReceive('revokeFrontendRefreshToken')
+            ->with($token, $id)
+            ->andThrow($exception)
+        ;
+
+        $controller = new AdminController($client);
+        $response = $controller->revokeFrontendRefreshToken($authenticationToken, $userId);
+
+        $this->assertResponse($response, $expectedResponseStatusCode, $expectedResponseData);
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function revokeFrontendRefreshTokenUsersClientExceptionDataProvider(): array
+    {
+        $exceptionMessage = md5((string) rand());
+        $exceptionCode = rand();
+
+        return [
+            ClientExceptionInterface::class => [
+                'exception' => new TransferException(
+                    $exceptionMessage,
+                    $exceptionCode
+                ),
+                'expectedResponseStatusCode' => 500,
+                'expectedResponseData' => [
+                    'type' => 'service-communication-failure',
+                    'context' => [
+                        'service' => 'users',
+                        'error' => [
+                            'code' => $exceptionCode,
+                            'message' => $exceptionMessage,
+                        ],
+                    ],
+                ],
+            ],
+            CurlExceptionInterface::class => [
+                'exception' => new CurlException(
+                    \Mockery::mock(RequestInterface::class),
+                    $exceptionCode,
+                    $exceptionMessage,
+                ),
+                'expectedResponseStatusCode' => 500,
+                'expectedResponseData' => [
+                    'type' => 'service-communication-failure',
+                    'context' => [
+                        'service' => 'users',
+                        'error' => [
+                            'code' => $exceptionCode,
+                            'message' => $exceptionMessage,
                         ],
                     ],
                 ],

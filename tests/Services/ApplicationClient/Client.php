@@ -155,4 +155,31 @@ readonly class Client
             http_build_query($payload)
         );
     }
+
+    public function makeRevokeFrontendRefreshTokenRequest(
+        ?string $adminToken,
+        ?string $userId,
+        string $method = 'POST'
+    ): ResponseInterface {
+        $headers = [
+            'Content-Type' => 'application/x-www-form-urlencoded',
+        ];
+
+        if (is_string($adminToken)) {
+            $headers['Authorization'] = 'Bearer ' . $adminToken;
+        }
+
+        $payload = [];
+
+        if (is_string($userId)) {
+            $payload['id'] = $userId;
+        }
+
+        return $this->client->makeRequest(
+            $method,
+            $this->router->generate('admin_revoke_frontend_refresh_token'),
+            $headers,
+            http_build_query($payload)
+        );
+    }
 }
