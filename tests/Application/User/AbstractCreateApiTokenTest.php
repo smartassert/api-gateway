@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Application\User;
 
 use App\Tests\Application\AbstractApplicationTestCase;
+use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 
 abstract class AbstractCreateApiTokenTest extends AbstractApplicationTestCase
 {
@@ -66,34 +67,11 @@ abstract class AbstractCreateApiTokenTest extends AbstractApplicationTestCase
 
     public function testCreateSuccess(): void
     {
-        $createFrontendTokenResponse = self::$staticApplicationClient->makeCreateUserFrontendTokenRequest(
-            'user@example.com',
-            'password'
-        );
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $createFrontendTokenResponseData = json_decode($createFrontendTokenResponse->getBody()->getContents(), true);
-        \assert(is_array($createFrontendTokenResponseData));
-        \assert(array_key_exists('refreshable_token', $createFrontendTokenResponseData));
-
-        $frontendTokenData = $createFrontendTokenResponseData['refreshable_token'];
-        \assert(is_array($frontendTokenData));
-
-        $frontendToken = $frontendTokenData['token'] ?? null;
-
-        $apiKeyResponse = self::$staticApplicationClient->makeGetUserDefaultApiKeyRequest($frontendToken);
-        $apiKeyResponseData = json_decode($apiKeyResponse->getBody()->getContents(), true);
-        self::assertIsArray($apiKeyResponseData);
-        self::assertArrayHasKey('api_key', $apiKeyResponseData);
-
-        $apKeyData = $apiKeyResponseData['api_key'];
-        self::assertIsArray($apKeyData);
-
-        self::assertArrayHasKey('key', $apKeyData);
-        $key = $apKeyData['key'];
-        self::assertIsString($key);
-        self::assertNotEmpty($key);
-
-        $createApiTokenResponse = self::$staticApplicationClient->makeCreateUserApiTokenRequest($key);
+        $createApiTokenResponse = self::$staticApplicationClient->makeCreateUserApiTokenRequest($apiKey->key);
         self::assertSame(200, $createApiTokenResponse->getStatusCode());
         self::assertSame('application/json', $createApiTokenResponse->getHeaderLine('content-type'));
 

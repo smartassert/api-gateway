@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Application\User;
 
 use App\Tests\Application\AbstractApplicationTestCase;
+use SmartAssert\TestAuthenticationProviderBundle\FrontendTokenProvider;
 use SmartAssert\TestAuthenticationProviderBundle\UserProvider;
 
 abstract class AbstractVerifyFrontendTokenTest extends AbstractApplicationTestCase
@@ -67,21 +68,11 @@ abstract class AbstractVerifyFrontendTokenTest extends AbstractApplicationTestCa
 
     public function testVerifySuccess(): void
     {
-        $createResponse = self::$staticApplicationClient->makeCreateUserFrontendTokenRequest(
-            'user@example.com',
-            'password'
-        );
+        $frontendTokenProvider = self::getContainer()->get(FrontendTokenProvider::class);
+        \assert($frontendTokenProvider instanceof FrontendTokenProvider);
+        $frontendToken = $frontendTokenProvider->get('user@example.com');
 
-        $createResponseData = json_decode($createResponse->getBody()->getContents(), true);
-        \assert(is_array($createResponseData));
-        \assert(array_key_exists('refreshable_token', $createResponseData));
-
-        $tokenData = $createResponseData['refreshable_token'];
-        \assert(is_array($tokenData));
-
-        $token = $tokenData['token'] ?? null;
-
-        $verifyResponse = self::$staticApplicationClient->makeVerifyUserFrontendTokenRequest($token);
+        $verifyResponse = self::$staticApplicationClient->makeVerifyUserFrontendTokenRequest($frontendToken->token);
 
         self::assertSame(200, $verifyResponse->getStatusCode());
         self::assertSame('application/json', $verifyResponse->getHeaderLine('content-type'));
