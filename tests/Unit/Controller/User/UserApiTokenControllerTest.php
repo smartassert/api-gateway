@@ -22,6 +22,7 @@ use SmartAssert\ServiceClient\Response\JsonResponse as ServiceClientJsonResponse
 use SmartAssert\ServiceClient\Response\Response as ServiceClientResponse;
 use SmartAssert\UsersClient\Client;
 use SmartAssert\UsersClient\Model\RefreshableToken as UsersClientRefreshableToken;
+use SmartAssert\UsersClient\Model\Token as UsersClientToken;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -49,6 +50,36 @@ class UserApiTokenControllerTest extends TestCase
 
         $controller = new UserApiTokenController($client);
         $response = $controller->create($authenticationToken);
+
+        $this->assertResponse($response, $expectedResponseStatusCode, $expectedResponseData);
+    }
+
+    /**
+     * @dataProvider usersClientExceptionDataProvider
+     *
+     * @param array<mixed> $expectedResponseData
+     */
+    public function testVerify(
+        \Exception $exception,
+        int $expectedResponseStatusCode,
+        array $expectedResponseData,
+    ): void {
+        $token = md5((string) rand());
+        $authenticationToken = new AuthenticationToken($token);
+
+        $client = \Mockery::mock(Client::class);
+        $client
+            ->shouldReceive('verifyApiToken')
+            ->withArgs(function (UsersClientToken $usersClientToken) use ($token) {
+                self::assertSame($token, $usersClientToken->token);
+
+                return true;
+            })
+            ->andThrow($exception)
+        ;
+
+        $controller = new UserApiTokenController($client);
+        $response = $controller->verify($authenticationToken);
 
         $this->assertResponse($response, $expectedResponseStatusCode, $expectedResponseData);
     }
