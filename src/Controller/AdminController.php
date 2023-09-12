@@ -29,9 +29,6 @@ readonly class AdminController
     ) {
     }
 
-    /**
-     * @throws UserAlreadyExistsException
-     */
     #[Route('/user/create', name: 'user_create', methods: ['POST'])]
     public function createUser(AuthenticationToken $token, UserCredentials $userCredentials): JsonResponse
     {
