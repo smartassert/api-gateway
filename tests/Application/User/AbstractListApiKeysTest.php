@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Application\User;
 
 use App\Tests\Application\AbstractApplicationTestCase;
+use SmartAssert\TestAuthenticationProviderBundle\FrontendTokenProvider;
 
 abstract class AbstractListApiKeysTest extends AbstractApplicationTestCase
 {
@@ -66,21 +67,11 @@ abstract class AbstractListApiKeysTest extends AbstractApplicationTestCase
 
     public function testListSuccess(): void
     {
-        $createResponse = self::$staticApplicationClient->makeCreateUserFrontendTokenRequest(
-            'user@example.com',
-            'password'
-        );
+        $frontendTokenProvider = self::getContainer()->get(FrontendTokenProvider::class);
+        \assert($frontendTokenProvider instanceof FrontendTokenProvider);
+        $frontendToken = $frontendTokenProvider->get('user@example.com');
 
-        $createResponseData = json_decode($createResponse->getBody()->getContents(), true);
-        \assert(is_array($createResponseData));
-        \assert(array_key_exists('refreshable_token', $createResponseData));
-
-        $tokenData = $createResponseData['refreshable_token'];
-        \assert(is_array($tokenData));
-
-        $token = $tokenData['token'] ?? null;
-
-        $listResponse = self::$staticApplicationClient->makeListUserApiKeysRequest($token);
+        $listResponse = self::$staticApplicationClient->makeListUserApiKeysRequest($frontendToken->token);
 
         self::assertSame(200, $listResponse->getStatusCode());
         self::assertSame('application/json', $listResponse->getHeaderLine('content-type'));
