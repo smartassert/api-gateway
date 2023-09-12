@@ -19,6 +19,7 @@ use SmartAssert\ServiceClient\Exception\InvalidResponseDataException;
 use SmartAssert\ServiceClient\Exception\InvalidResponseTypeException;
 use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
 use SmartAssert\UsersClient\Client;
+use SmartAssert\UsersClient\Exception\UnauthorizedException;
 use SmartAssert\UsersClient\Exception\UserAlreadyExistsException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -94,14 +95,9 @@ readonly class AdminController
                 new ErrorResponseBody('user-already-exists'),
                 409
             );
+        } catch (UnauthorizedException) {
+            return new ErrorResponse(new ErrorResponseBody('unauthorized'), 401);
         } catch (NonSuccessResponseException $e) {
-            if (401 === $e->getStatusCode()) {
-                return new ErrorResponse(
-                    new ErrorResponseBody('unauthorized'),
-                    $e->getStatusCode()
-                );
-            }
-
             if (404 === $e->getStatusCode()) {
                 return new ErrorResponse(
                     new ErrorResponseBody('not-found'),
@@ -150,14 +146,9 @@ readonly class AdminController
                     ]
                 )
             );
+        } catch (UnauthorizedException) {
+            return new ErrorResponse(new ErrorResponseBody('unauthorized'), 401);
         } catch (NonSuccessResponseException $e) {
-            if (401 === $e->getStatusCode()) {
-                return new ErrorResponse(
-                    new ErrorResponseBody('unauthorized'),
-                    $e->getStatusCode()
-                );
-            }
-
             if (404 === $e->getStatusCode()) {
                 return new ErrorResponse(
                     new ErrorResponseBody('not-found'),
