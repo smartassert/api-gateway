@@ -40,9 +40,9 @@ abstract class AbstractCreateFrontendTokenTest extends AbstractApplicationTestCa
     /**
      * @dataProvider unauthorizedUserDataProvider
      */
-    public function testCreateUnauthorizedUser(?string $email, ?string $password): void
+    public function testCreateUnauthorizedUser(?string $userIdentifier, ?string $password): void
     {
-        $response = self::$staticApplicationClient->makeCreateUserFrontendTokenRequest($email, $password);
+        $response = self::$staticApplicationClient->makeCreateUserFrontendTokenRequest($userIdentifier, $password);
 
         self::assertSame(401, $response->getStatusCode());
     }
@@ -53,32 +53,32 @@ abstract class AbstractCreateFrontendTokenTest extends AbstractApplicationTestCa
     public function unauthorizedUserDataProvider(): array
     {
         return [
-            'no email, no password' => [
-                'email' => null,
+            'no user identifier, no password' => [
+                'userIdentifier' => null,
                 'password' => null,
             ],
-            'empty email, no password' => [
-                'email' => '',
+            'empty user identifier, no password' => [
+                'userIdentifier' => '',
                 'password' => null,
             ],
-            'no email, empty password' => [
-                'email' => null,
+            'no user identifier, empty password' => [
+                'userIdentifier' => null,
                 'password' => '',
             ],
-            'empty email, empty password' => [
-                'email' => '',
+            'empty user identifier, empty password' => [
+                'userIdentifier' => '',
                 'password' => '',
             ],
-            'valid email, no password' => [
-                'email' => 'user@example.com',
+            'valid user identifier, no password' => [
+                'userIdentifier' => 'user@example.com',
                 'password' => null,
             ],
-            'valid email, empty password' => [
-                'email' => 'user@example.com',
+            'valid user identifier, empty password' => [
+                'userIdentifier' => 'user@example.com',
                 'password' => '',
             ],
-            'valid email, invalid password' => [
-                'email' => 'user@example.com',
+            'valid user identifier, invalid password' => [
+                'userIdentifier' => 'user@example.com',
                 'password' => md5((string) rand()),
             ],
         ];

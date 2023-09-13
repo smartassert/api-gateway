@@ -75,11 +75,11 @@ abstract class AbstractCreateUserTest extends AbstractApplicationTestCase
 
     public function testCreateUserUserAlreadyExists(): void
     {
-        $email = 'user@example.com';
+        $userIdentifier = 'user@example.com';
         $password = 'password';
 
         $createFrontendTokenResponse = self::$staticApplicationClient->makeCreateUserFrontendTokenRequest(
-            $email,
+            $userIdentifier,
             $password
         );
 
@@ -87,7 +87,7 @@ abstract class AbstractCreateUserTest extends AbstractApplicationTestCase
 
         $response = self::$staticApplicationClient->makeCreateUserRequest(
             'primary_admin_token',
-            $email,
+            $userIdentifier,
             $password
         );
 
@@ -101,11 +101,11 @@ abstract class AbstractCreateUserTest extends AbstractApplicationTestCase
 
     public function testCreateUserSuccess(): void
     {
-        $email = md5((string) rand());
+        $userIdentifier = md5((string) rand());
         $password = md5((string) rand());
 
         $createFrontendTokenResponse = self::$staticApplicationClient->makeCreateUserFrontendTokenRequest(
-            $email,
+            $userIdentifier,
             $password
         );
 
@@ -113,7 +113,7 @@ abstract class AbstractCreateUserTest extends AbstractApplicationTestCase
 
         $response = self::$staticApplicationClient->makeCreateUserRequest(
             'primary_admin_token',
-            $email,
+            $userIdentifier,
             $password
         );
 
@@ -130,7 +130,7 @@ abstract class AbstractCreateUserTest extends AbstractApplicationTestCase
         self::assertArrayHasKey('user_identifier', $userData);
 
         $createFrontendTokenResponse = self::$staticApplicationClient->makeCreateUserFrontendTokenRequest(
-            $email,
+            $userIdentifier,
             $password
         );
 

@@ -36,7 +36,11 @@ readonly class AdminController
     public function createUser(AuthenticationToken $token, UserCredentials $userCredentials): JsonResponse
     {
         try {
-            $user = $this->client->createUser($token->token, $userCredentials->username, $userCredentials->password);
+            $user = $this->client->createUser(
+                $token->token,
+                $userCredentials->userIdentifier,
+                $userCredentials->password
+            );
         } catch (ClientExceptionInterface $e) {
             $code = $e->getCode();
             $message = $e->getMessage();

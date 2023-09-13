@@ -37,7 +37,7 @@ readonly class UserFrontendTokenController
     public function create(UserCredentials $userCredentials): JsonResponse
     {
         try {
-            $token = $this->client->createFrontendToken($userCredentials->username, $userCredentials->password);
+            $token = $this->client->createFrontendToken($userCredentials->userIdentifier, $userCredentials->password);
         } catch (ClientExceptionInterface $e) {
             $code = $e->getCode();
             $message = $e->getMessage();

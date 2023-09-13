@@ -24,7 +24,7 @@ readonly class Client
         $payload = [];
 
         if (is_string($userIdentifier)) {
-            $payload['email'] = $userIdentifier;
+            $payload['user-identifier'] = $userIdentifier;
         }
 
         if (is_string($password)) {
@@ -141,7 +141,7 @@ readonly class Client
         $payload = [];
 
         if (is_string($userIdentifier)) {
-            $payload['email'] = $userIdentifier;
+            $payload['user-identifier'] = $userIdentifier;
         }
 
         if (is_string($password)) {
