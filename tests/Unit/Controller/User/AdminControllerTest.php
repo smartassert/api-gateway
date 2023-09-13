@@ -39,16 +39,16 @@ class AdminControllerTest extends TestCase
         int $expectedResponseStatusCode,
         array $expectedResponseData,
     ): void {
-        $email = md5((string) rand());
+        $userIdentifier = md5((string) rand());
         $password = md5((string) rand());
-        $userCredentials = new UserCredentials($email, $password);
+        $userCredentials = new UserCredentials($userIdentifier, $password);
         $token = md5((string) rand());
         $authenticationToken = new AuthenticationToken($token);
 
         $client = \Mockery::mock(Client::class);
         $client
             ->shouldReceive('createUser')
-            ->with($token, $email, $password)
+            ->with($token, $userIdentifier, $password)
             ->andThrow($exception)
         ;
 

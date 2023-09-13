@@ -23,8 +23,8 @@ class UserCredentialsResolver implements ValueResolverInterface
             return [];
         }
 
-        $email = $request->request->get('email');
-        if (!is_string($email) || '' === $email) {
+        $userIdentifier = $request->request->get('user-identifier');
+        if (!is_string($userIdentifier) || '' === $userIdentifier) {
             throw new EmptyUserCredentialsException();
         }
 
@@ -33,6 +33,6 @@ class UserCredentialsResolver implements ValueResolverInterface
             throw new EmptyUserCredentialsException();
         }
 
-        return [new UserCredentials($email, $password)];
+        return [new UserCredentials($userIdentifier, $password)];
     }
 }
