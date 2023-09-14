@@ -33,7 +33,7 @@ readonly class Client
 
         return $this->client->makeRequest(
             $method,
-            $this->router->generate('user_frontend_token_create'),
+            $this->router->generate('user_token_create'),
             ['Content-Type' => 'application/x-www-form-urlencoded'],
             http_build_query($payload)
         );
@@ -47,7 +47,7 @@ readonly class Client
 
         return $this->client->makeRequest(
             $method,
-            $this->router->generate('user_frontend_token_verify'),
+            $this->router->generate('user_token_verify'),
             $headers
         );
     }
@@ -66,7 +66,7 @@ readonly class Client
 
         return $this->client->makeRequest(
             $method,
-            $this->router->generate('user_frontend_token_refresh'),
+            $this->router->generate('user_token_refresh'),
             $headers,
             http_build_query($payload)
         );
