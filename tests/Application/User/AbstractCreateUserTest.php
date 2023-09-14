@@ -78,12 +78,12 @@ abstract class AbstractCreateUserTest extends AbstractApplicationTestCase
         $userIdentifier = 'user@example.com';
         $password = 'password';
 
-        $createFrontendTokenResponse = self::$staticApplicationClient->makeCreateUserFrontendTokenRequest(
+        $createTokenResponse = self::$staticApplicationClient->makeCreateUserTokenRequest(
             $userIdentifier,
             $password
         );
 
-        self::assertSame(200, $createFrontendTokenResponse->getStatusCode());
+        self::assertSame(200, $createTokenResponse->getStatusCode());
 
         $response = self::$staticApplicationClient->makeCreateUserRequest(
             'primary_admin_token',
@@ -104,12 +104,12 @@ abstract class AbstractCreateUserTest extends AbstractApplicationTestCase
         $userIdentifier = md5((string) rand());
         $password = md5((string) rand());
 
-        $createFrontendTokenResponse = self::$staticApplicationClient->makeCreateUserFrontendTokenRequest(
+        $createTokenResponse = self::$staticApplicationClient->makeCreateUserTokenRequest(
             $userIdentifier,
             $password
         );
 
-        self::assertSame(401, $createFrontendTokenResponse->getStatusCode());
+        self::assertSame(401, $createTokenResponse->getStatusCode());
 
         $response = self::$staticApplicationClient->makeCreateUserRequest(
             'primary_admin_token',
@@ -129,11 +129,11 @@ abstract class AbstractCreateUserTest extends AbstractApplicationTestCase
         self::assertArrayHasKey('id', $userData);
         self::assertArrayHasKey('user-identifier', $userData);
 
-        $createFrontendTokenResponse = self::$staticApplicationClient->makeCreateUserFrontendTokenRequest(
+        $createTokenResponse = self::$staticApplicationClient->makeCreateUserTokenRequest(
             $userIdentifier,
             $password
         );
 
-        self::assertSame(200, $createFrontendTokenResponse->getStatusCode());
+        self::assertSame(200, $createTokenResponse->getStatusCode());
     }
 }

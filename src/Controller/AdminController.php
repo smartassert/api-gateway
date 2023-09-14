@@ -129,8 +129,8 @@ readonly class AdminController
         );
     }
 
-    #[Route('/revoke-frontend-refresh-token', name: 'revoke_frontend_refresh_token', methods: ['POST'])]
-    public function revokeFrontendRefreshToken(AuthenticationToken $token, UserId $userId): JsonResponse
+    #[Route('/revoke-refresh-token', name: 'revoke_refresh_token', methods: ['POST'])]
+    public function revokeRefreshToken(AuthenticationToken $token, UserId $userId): JsonResponse
     {
         try {
             $this->client->revokeFrontendRefreshToken($token->token, $userId->id);

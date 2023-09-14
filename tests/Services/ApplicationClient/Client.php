@@ -16,7 +16,7 @@ readonly class Client
     ) {
     }
 
-    public function makeCreateUserFrontendTokenRequest(
+    public function makeCreateUserTokenRequest(
         ?string $userIdentifier,
         ?string $password,
         string $method = 'POST'
@@ -33,13 +33,13 @@ readonly class Client
 
         return $this->client->makeRequest(
             $method,
-            $this->router->generate('user_frontend_token_create'),
+            $this->router->generate('user_token_create'),
             ['Content-Type' => 'application/x-www-form-urlencoded'],
             http_build_query($payload)
         );
     }
 
-    public function makeVerifyUserFrontendTokenRequest(?string $jwt, string $method = 'GET'): ResponseInterface
+    public function makeVerifyUserTokenRequest(?string $jwt, string $method = 'GET'): ResponseInterface
     {
         $headers = (is_string($jwt))
             ? ['Authorization' => 'Bearer ' . $jwt]
@@ -47,12 +47,12 @@ readonly class Client
 
         return $this->client->makeRequest(
             $method,
-            $this->router->generate('user_frontend_token_verify'),
+            $this->router->generate('user_token_verify'),
             $headers
         );
     }
 
-    public function makeRefreshUserFrontendTokenRequest(
+    public function makeRefreshUserTokenRequest(
         ?string $jwt,
         ?string $refreshToken,
         string $method = 'POST'
@@ -66,7 +66,7 @@ readonly class Client
 
         return $this->client->makeRequest(
             $method,
-            $this->router->generate('user_frontend_token_refresh'),
+            $this->router->generate('user_token_refresh'),
             $headers,
             http_build_query($payload)
         );
@@ -130,7 +130,7 @@ readonly class Client
         );
     }
 
-    public function makeRevokeFrontendRefreshTokenRequest(
+    public function makeRevokeRefreshTokenRequest(
         ?string $adminToken,
         ?string $userId,
         string $method = 'POST'
@@ -151,7 +151,7 @@ readonly class Client
 
         return $this->client->makeRequest(
             $method,
-            $this->router->generate('admin_revoke_frontend_refresh_token'),
+            $this->router->generate('admin_revoke_refresh_token'),
             $headers,
             http_build_query($payload)
         );

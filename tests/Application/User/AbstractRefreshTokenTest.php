@@ -7,14 +7,14 @@ namespace App\Tests\Application\User;
 use App\Tests\Application\AbstractApplicationTestCase;
 use SmartAssert\TestAuthenticationProviderBundle\FrontendTokenProvider;
 
-abstract class AbstractRefreshFrontendTokenTest extends AbstractApplicationTestCase
+abstract class AbstractRefreshTokenTest extends AbstractApplicationTestCase
 {
     /**
      * @dataProvider refreshBadMethodDataProvider
      */
     public function testRefreshBadMethod(string $method): void
     {
-        $response = self::$staticApplicationClient->makeRefreshUserFrontendTokenRequest(
+        $response = self::$staticApplicationClient->makeRefreshUserTokenRequest(
             md5((string) rand()),
             md5((string) rand()),
             $method
@@ -46,7 +46,7 @@ abstract class AbstractRefreshFrontendTokenTest extends AbstractApplicationTestC
      */
     public function testRefreshUnauthorizedUser(?string $token, ?string $refreshToken): void
     {
-        $response = self::$staticApplicationClient->makeRefreshUserFrontendTokenRequest($token, $refreshToken);
+        $response = self::$staticApplicationClient->makeRefreshUserTokenRequest($token, $refreshToken);
 
         self::assertSame(401, $response->getStatusCode());
     }
@@ -86,7 +86,7 @@ abstract class AbstractRefreshFrontendTokenTest extends AbstractApplicationTestC
         \assert($frontendTokenProvider instanceof FrontendTokenProvider);
         $frontendToken = $frontendTokenProvider->get('user@example.com');
 
-        $response = self::$staticApplicationClient->makeRefreshUserFrontendTokenRequest(
+        $response = self::$staticApplicationClient->makeRefreshUserTokenRequest(
             $frontendToken->token,
             md5((string) rand())
         );
@@ -100,7 +100,7 @@ abstract class AbstractRefreshFrontendTokenTest extends AbstractApplicationTestC
         \assert($frontendTokenProvider instanceof FrontendTokenProvider);
         $frontendToken = $frontendTokenProvider->get('user@example.com');
 
-        $response = self::$staticApplicationClient->makeRefreshUserFrontendTokenRequest(
+        $response = self::$staticApplicationClient->makeRefreshUserTokenRequest(
             $frontendToken->token,
             $frontendToken->refreshToken
         );

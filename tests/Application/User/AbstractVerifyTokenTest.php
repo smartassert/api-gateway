@@ -8,14 +8,14 @@ use App\Tests\Application\AbstractApplicationTestCase;
 use SmartAssert\TestAuthenticationProviderBundle\FrontendTokenProvider;
 use SmartAssert\TestAuthenticationProviderBundle\UserProvider;
 
-abstract class AbstractVerifyFrontendTokenTest extends AbstractApplicationTestCase
+abstract class AbstractVerifyTokenTest extends AbstractApplicationTestCase
 {
     /**
      * @dataProvider createBadMethodDataProvider
      */
     public function testVerifyBadMethod(string $method): void
     {
-        $response = self::$staticApplicationClient->makeVerifyUserFrontendTokenRequest('token', $method);
+        $response = self::$staticApplicationClient->makeVerifyUserTokenRequest('token', $method);
 
         self::assertSame(405, $response->getStatusCode());
     }
@@ -43,7 +43,7 @@ abstract class AbstractVerifyFrontendTokenTest extends AbstractApplicationTestCa
      */
     public function testVerifyUnauthorizedUser(?string $token): void
     {
-        $response = self::$staticApplicationClient->makeVerifyUserFrontendTokenRequest($token);
+        $response = self::$staticApplicationClient->makeVerifyUserTokenRequest($token);
 
         self::assertSame(401, $response->getStatusCode());
     }
@@ -72,7 +72,7 @@ abstract class AbstractVerifyFrontendTokenTest extends AbstractApplicationTestCa
         \assert($frontendTokenProvider instanceof FrontendTokenProvider);
         $frontendToken = $frontendTokenProvider->get('user@example.com');
 
-        $verifyResponse = self::$staticApplicationClient->makeVerifyUserFrontendTokenRequest($frontendToken->token);
+        $verifyResponse = self::$staticApplicationClient->makeVerifyUserTokenRequest($frontendToken->token);
 
         self::assertSame(200, $verifyResponse->getStatusCode());
         self::assertSame('application/json', $verifyResponse->getHeaderLine('content-type'));
