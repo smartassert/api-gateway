@@ -241,11 +241,11 @@ class AdminControllerTest extends TestCase
     }
 
     /**
-     * @dataProvider revokeFrontendRefreshTokenUsersClientExceptionDataProvider
+     * @dataProvider revokeRefreshTokenUsersClientExceptionDataProvider
      *
      * @param array<mixed> $expectedResponseData
      */
-    public function testRevokeFrontendRefreshToken(
+    public function testRevokeRefreshToken(
         \Exception $exception,
         int $expectedResponseStatusCode,
         array $expectedResponseData,
@@ -263,7 +263,7 @@ class AdminControllerTest extends TestCase
         ;
 
         $controller = new AdminController($client);
-        $response = $controller->revokeFrontendRefreshToken($authenticationToken, $userId);
+        $response = $controller->revokeRefreshToken($authenticationToken, $userId);
 
         $this->assertResponse($response, $expectedResponseStatusCode, $expectedResponseData);
     }
@@ -271,7 +271,7 @@ class AdminControllerTest extends TestCase
     /**
      * @return array<mixed>
      */
-    public function revokeFrontendRefreshTokenUsersClientExceptionDataProvider(): array
+    public function revokeRefreshTokenUsersClientExceptionDataProvider(): array
     {
         $exceptionMessage = md5((string) rand());
         $exceptionCode = rand();
