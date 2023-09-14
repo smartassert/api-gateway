@@ -52,19 +52,6 @@ readonly class Client
         );
     }
 
-    public function makeVerifyUserApiTokenRequest(?string $jwt, string $method = 'GET'): ResponseInterface
-    {
-        $headers = (is_string($jwt))
-            ? ['Authorization' => 'Bearer ' . $jwt]
-            : [];
-
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('user_api_token_verify'),
-            $headers
-        );
-    }
-
     public function makeRefreshUserFrontendTokenRequest(
         ?string $jwt,
         ?string $refreshToken,
