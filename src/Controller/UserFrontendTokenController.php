@@ -25,7 +25,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/user/frontend/token', name: 'user_frontend_token_')]
+#[Route('/user/token', name: 'user_frontend_token_')]
 readonly class UserFrontendTokenController
 {
     public function __construct(
