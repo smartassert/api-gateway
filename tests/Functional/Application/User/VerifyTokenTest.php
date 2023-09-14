@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Application\User;
 
-use App\Tests\Application\User\AbstractVerifyFrontendTokenTest;
+use App\Tests\Application\User\AbstractVerifyTokenTest;
 use App\Tests\Functional\Application\GetClientAdapterTrait;
 
-class VerifyFrontendTokenTest extends AbstractVerifyFrontendTokenTest
+class VerifyTokenTest extends AbstractVerifyTokenTest
 {
     use GetClientAdapterTrait;
 }

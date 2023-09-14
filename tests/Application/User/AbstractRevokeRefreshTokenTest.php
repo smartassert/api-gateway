@@ -8,7 +8,7 @@ use App\Tests\Application\AbstractApplicationTestCase;
 use SmartAssert\TestAuthenticationProviderBundle\FrontendTokenProvider;
 use SmartAssert\TestAuthenticationProviderBundle\UserProvider;
 
-abstract class AbstractRevokeFrontendRefreshTokenTest extends AbstractApplicationTestCase
+abstract class AbstractRevokeRefreshTokenTest extends AbstractApplicationTestCase
 {
     /**
      * @dataProvider badMethodDataProvider

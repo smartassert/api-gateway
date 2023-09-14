@@ -6,7 +6,7 @@ namespace App\Tests\Application\User;
 
 use App\Tests\Application\AbstractApplicationTestCase;
 
-abstract class AbstractCreateFrontendTokenTest extends AbstractApplicationTestCase
+abstract class AbstractCreateTokenTest extends AbstractApplicationTestCase
 {
     /**
      * @dataProvider createBadMethodDataProvider

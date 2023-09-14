@@ -7,7 +7,7 @@ namespace App\Tests\Application\User;
 use App\Tests\Application\AbstractApplicationTestCase;
 use SmartAssert\TestAuthenticationProviderBundle\FrontendTokenProvider;
 
-abstract class AbstractRefreshFrontendTokenTest extends AbstractApplicationTestCase
+abstract class AbstractRefreshTokenTest extends AbstractApplicationTestCase
 {
     /**
      * @dataProvider refreshBadMethodDataProvider
