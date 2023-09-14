@@ -213,10 +213,15 @@ readonly class UserTokenController
     #[Route('/refresh', name: 'refresh', methods: ['POST'])]
     public function refresh(AuthenticationToken $token, Request $request): JsonResponse
     {
+        var_dump($token->token);
+        exit();
+
         $refreshToken = $request->request->get('refresh_token');
         if (!is_string($refreshToken) || '' === $refreshToken) {
             return new ErrorResponse(new ErrorResponseBody('unauthorized'), 401);
         }
+
+        var_dump($refreshToken);
 
         try {
             $refreshableToken = $this->client->refreshFrontendToken(

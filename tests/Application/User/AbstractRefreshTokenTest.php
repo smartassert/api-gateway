@@ -101,7 +101,6 @@ abstract class AbstractRefreshTokenTest extends AbstractApplicationTestCase
         $frontendToken = $frontendTokenProvider->get('user@example.com');
 
         $response = self::$staticApplicationClient->makeRefreshUserTokenRequest(
-            $frontendToken->token,
             $frontendToken->refreshToken
         );
 
