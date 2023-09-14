@@ -127,7 +127,7 @@ abstract class AbstractCreateUserTest extends AbstractApplicationTestCase
         $userData = $responseData['user'];
         self::assertIsArray($userData);
         self::assertArrayHasKey('id', $userData);
-        self::assertArrayHasKey('user_identifier', $userData);
+        self::assertArrayHasKey('user-identifier', $userData);
 
         $createFrontendTokenResponse = self::$staticApplicationClient->makeCreateUserFrontendTokenRequest(
             $userIdentifier,

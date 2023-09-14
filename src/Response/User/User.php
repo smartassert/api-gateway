@@ -19,13 +19,13 @@ readonly class User implements BodyInterface
     }
 
     /**
-     * @return array{id: non-empty-string, user_identifier: non-empty-string}
+     * @return array{id: non-empty-string, user-identifier: non-empty-string}
      */
     public function toArray(): array
     {
         return [
             'id' => $this->id,
-            'user_identifier' => $this->userIdentifier,
+            'user-identifier' => $this->userIdentifier,
         ];
     }
 }
