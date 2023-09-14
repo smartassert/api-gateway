@@ -13,7 +13,7 @@ abstract class AbstractRevokeRefreshTokenTest extends AbstractApplicationTestCas
     /**
      * @dataProvider badMethodDataProvider
      */
-    public function testRevokeFrontendRefreshTokenBadMethod(string $method): void
+    public function testRevokeRefreshTokenBadMethod(string $method): void
     {
         $response = self::$staticApplicationClient->makeRevokeRefreshTokenRequest(
             'primary_admin_token',
@@ -45,7 +45,7 @@ abstract class AbstractRevokeRefreshTokenTest extends AbstractApplicationTestCas
     /**
      * @dataProvider unauthorizedUserDataProvider
      */
-    public function testRevokeFrontendRefreshTokenUnauthorizedUser(?string $adminToken): void
+    public function testRevokeRefreshTokenUnauthorizedUser(?string $adminToken): void
     {
         $response = self::$staticApplicationClient->makeRevokeRefreshTokenRequest(
             $adminToken,
@@ -73,7 +73,7 @@ abstract class AbstractRevokeRefreshTokenTest extends AbstractApplicationTestCas
         ];
     }
 
-    public function testRevokeFrontendRefreshTokenInvalidUserId(): void
+    public function testRevokeRefreshTokenInvalidUserId(): void
     {
         $response = self::$staticApplicationClient->makeRevokeRefreshTokenRequest(
             'primary_admin_token',
@@ -83,7 +83,7 @@ abstract class AbstractRevokeRefreshTokenTest extends AbstractApplicationTestCas
         self::assertSame(200, $response->getStatusCode());
     }
 
-    public function testRevokeFrontendRefreshTokenSuccess(): void
+    public function testRevokeRefreshTokenSuccess(): void
     {
         $frontendTokenProvider = self::getContainer()->get(FrontendTokenProvider::class);
         \assert($frontendTokenProvider instanceof FrontendTokenProvider);
