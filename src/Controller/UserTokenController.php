@@ -26,7 +26,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route('/user/token', name: 'user_token_')]
-readonly class UserFrontendTokenController
+readonly class UserTokenController
 {
     public function __construct(
         private Client $client

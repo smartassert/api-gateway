@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Controller\User;
 
-use App\Controller\UserFrontendTokenController;
+use App\Controller\UserTokenController;
 use App\Response\ErrorResponse;
 use App\Security\AuthenticationToken;
 use App\Security\UserCredentials;
@@ -28,7 +28,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class UserFrontendTokenControllerTest extends TestCase
+class UserTokenControllerTest extends TestCase
 {
     /**
      * @dataProvider usersClientExceptionDataProvider
@@ -51,7 +51,7 @@ class UserFrontendTokenControllerTest extends TestCase
             ->andThrow($exception)
         ;
 
-        $controller = new UserFrontendTokenController($client);
+        $controller = new UserTokenController($client);
         $response = $controller->create($userCredentials);
 
         $this->assertResponse($response, $expectedResponseStatusCode, $expectedResponseData);
@@ -81,7 +81,7 @@ class UserFrontendTokenControllerTest extends TestCase
             ->andThrow($exception)
         ;
 
-        $controller = new UserFrontendTokenController($client);
+        $controller = new UserTokenController($client);
         $response = $controller->verify($authenticationToken);
 
         $this->assertResponse($response, $expectedResponseStatusCode, $expectedResponseData);
@@ -120,7 +120,7 @@ class UserFrontendTokenControllerTest extends TestCase
 
         $request = new Request([], ['refresh_token' => $refreshToken]);
 
-        $controller = new UserFrontendTokenController($client);
+        $controller = new UserTokenController($client);
         $response = $controller->refresh($authenticationToken, $request);
 
         $this->assertResponse($response, $expectedResponseStatusCode, $expectedResponseData);
