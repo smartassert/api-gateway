@@ -15,7 +15,7 @@ abstract class AbstractVerifyTokenTest extends AbstractApplicationTestCase
      */
     public function testVerifyBadMethod(string $method): void
     {
-        $response = self::$staticApplicationClient->makeVerifyUserFrontendTokenRequest('token', $method);
+        $response = self::$staticApplicationClient->makeVerifyUserTokenRequest('token', $method);
 
         self::assertSame(405, $response->getStatusCode());
     }
@@ -43,7 +43,7 @@ abstract class AbstractVerifyTokenTest extends AbstractApplicationTestCase
      */
     public function testVerifyUnauthorizedUser(?string $token): void
     {
-        $response = self::$staticApplicationClient->makeVerifyUserFrontendTokenRequest($token);
+        $response = self::$staticApplicationClient->makeVerifyUserTokenRequest($token);
 
         self::assertSame(401, $response->getStatusCode());
     }
@@ -72,7 +72,7 @@ abstract class AbstractVerifyTokenTest extends AbstractApplicationTestCase
         \assert($frontendTokenProvider instanceof FrontendTokenProvider);
         $frontendToken = $frontendTokenProvider->get('user@example.com');
 
-        $verifyResponse = self::$staticApplicationClient->makeVerifyUserFrontendTokenRequest($frontendToken->token);
+        $verifyResponse = self::$staticApplicationClient->makeVerifyUserTokenRequest($frontendToken->token);
 
         self::assertSame(200, $verifyResponse->getStatusCode());
         self::assertSame('application/json', $verifyResponse->getHeaderLine('content-type'));

@@ -16,7 +16,7 @@ readonly class Client
     ) {
     }
 
-    public function makeCreateUserFrontendTokenRequest(
+    public function makeCreateUserTokenRequest(
         ?string $userIdentifier,
         ?string $password,
         string $method = 'POST'
@@ -39,7 +39,7 @@ readonly class Client
         );
     }
 
-    public function makeVerifyUserFrontendTokenRequest(?string $jwt, string $method = 'GET'): ResponseInterface
+    public function makeVerifyUserTokenRequest(?string $jwt, string $method = 'GET'): ResponseInterface
     {
         $headers = (is_string($jwt))
             ? ['Authorization' => 'Bearer ' . $jwt]
@@ -52,7 +52,7 @@ readonly class Client
         );
     }
 
-    public function makeRefreshUserFrontendTokenRequest(
+    public function makeRefreshUserTokenRequest(
         ?string $jwt,
         ?string $refreshToken,
         string $method = 'POST'
@@ -130,7 +130,7 @@ readonly class Client
         );
     }
 
-    public function makeRevokeFrontendRefreshTokenRequest(
+    public function makeRevokeRefreshTokenRequest(
         ?string $adminToken,
         ?string $userId,
         string $method = 'POST'

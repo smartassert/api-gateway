@@ -78,7 +78,7 @@ abstract class AbstractCreateUserTest extends AbstractApplicationTestCase
         $userIdentifier = 'user@example.com';
         $password = 'password';
 
-        $createFrontendTokenResponse = self::$staticApplicationClient->makeCreateUserFrontendTokenRequest(
+        $createFrontendTokenResponse = self::$staticApplicationClient->makeCreateUserTokenRequest(
             $userIdentifier,
             $password
         );
@@ -104,7 +104,7 @@ abstract class AbstractCreateUserTest extends AbstractApplicationTestCase
         $userIdentifier = md5((string) rand());
         $password = md5((string) rand());
 
-        $createFrontendTokenResponse = self::$staticApplicationClient->makeCreateUserFrontendTokenRequest(
+        $createFrontendTokenResponse = self::$staticApplicationClient->makeCreateUserTokenRequest(
             $userIdentifier,
             $password
         );
@@ -129,7 +129,7 @@ abstract class AbstractCreateUserTest extends AbstractApplicationTestCase
         self::assertArrayHasKey('id', $userData);
         self::assertArrayHasKey('user-identifier', $userData);
 
-        $createFrontendTokenResponse = self::$staticApplicationClient->makeCreateUserFrontendTokenRequest(
+        $createFrontendTokenResponse = self::$staticApplicationClient->makeCreateUserTokenRequest(
             $userIdentifier,
             $password
         );

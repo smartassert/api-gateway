@@ -15,7 +15,7 @@ abstract class AbstractRevokeRefreshTokenTest extends AbstractApplicationTestCas
      */
     public function testRevokeFrontendRefreshTokenBadMethod(string $method): void
     {
-        $response = self::$staticApplicationClient->makeRevokeFrontendRefreshTokenRequest(
+        $response = self::$staticApplicationClient->makeRevokeRefreshTokenRequest(
             'primary_admin_token',
             md5((string) rand()),
             $method
@@ -47,7 +47,7 @@ abstract class AbstractRevokeRefreshTokenTest extends AbstractApplicationTestCas
      */
     public function testRevokeFrontendRefreshTokenUnauthorizedUser(?string $adminToken): void
     {
-        $response = self::$staticApplicationClient->makeRevokeFrontendRefreshTokenRequest(
+        $response = self::$staticApplicationClient->makeRevokeRefreshTokenRequest(
             $adminToken,
             md5((string) rand()),
         );
@@ -75,7 +75,7 @@ abstract class AbstractRevokeRefreshTokenTest extends AbstractApplicationTestCas
 
     public function testRevokeFrontendRefreshTokenInvalidUserId(): void
     {
-        $response = self::$staticApplicationClient->makeRevokeFrontendRefreshTokenRequest(
+        $response = self::$staticApplicationClient->makeRevokeRefreshTokenRequest(
             'primary_admin_token',
             md5((string) rand()),
         );
@@ -89,7 +89,7 @@ abstract class AbstractRevokeRefreshTokenTest extends AbstractApplicationTestCas
         \assert($frontendTokenProvider instanceof FrontendTokenProvider);
         $frontendToken = $frontendTokenProvider->get('user@example.com');
 
-        $refreshResponse = self::$staticApplicationClient->makeRefreshUserFrontendTokenRequest(
+        $refreshResponse = self::$staticApplicationClient->makeRefreshUserTokenRequest(
             $frontendToken->token,
             $frontendToken->refreshToken
         );
@@ -101,14 +101,14 @@ abstract class AbstractRevokeRefreshTokenTest extends AbstractApplicationTestCas
         \assert($userProvider instanceof UserProvider);
         $user = $userProvider->get('user@example.com');
 
-        $revokeResponse = self::$staticApplicationClient->makeRevokeFrontendRefreshTokenRequest(
+        $revokeResponse = self::$staticApplicationClient->makeRevokeRefreshTokenRequest(
             'primary_admin_token',
             $user->id,
         );
 
         self::assertSame(200, $revokeResponse->getStatusCode());
 
-        $refreshResponse = self::$staticApplicationClient->makeRefreshUserFrontendTokenRequest(
+        $refreshResponse = self::$staticApplicationClient->makeRefreshUserTokenRequest(
             $frontendToken->token,
             $frontendToken->refreshToken
         );
