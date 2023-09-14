@@ -89,10 +89,7 @@ abstract class AbstractRevokeRefreshTokenTest extends AbstractApplicationTestCas
         \assert($frontendTokenProvider instanceof FrontendTokenProvider);
         $frontendToken = $frontendTokenProvider->get('user@example.com');
 
-        $refreshResponse = self::$staticApplicationClient->makeRefreshUserTokenRequest(
-            $frontendToken->token,
-            $frontendToken->refreshToken
-        );
+        $refreshResponse = self::$staticApplicationClient->makeRefreshUserTokenRequest($frontendToken->refreshToken);
 
         self::assertSame(200, $refreshResponse->getStatusCode());
         self::assertSame('application/json', $refreshResponse->getHeaderLine('content-type'));
@@ -103,16 +100,11 @@ abstract class AbstractRevokeRefreshTokenTest extends AbstractApplicationTestCas
 
         $revokeResponse = self::$staticApplicationClient->makeRevokeRefreshTokenRequest(
             'primary_admin_token',
-            $user->id,
+            $user->id
         );
-
         self::assertSame(200, $revokeResponse->getStatusCode());
 
-        $refreshResponse = self::$staticApplicationClient->makeRefreshUserTokenRequest(
-            $frontendToken->token,
-            $frontendToken->refreshToken
-        );
-
+        $refreshResponse = self::$staticApplicationClient->makeRefreshUserTokenRequest($frontendToken->refreshToken);
         self::assertSame(401, $refreshResponse->getStatusCode());
     }
 }

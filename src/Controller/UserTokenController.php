@@ -19,10 +19,8 @@ use SmartAssert\ServiceClient\Exception\InvalidResponseTypeException;
 use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
 use SmartAssert\UsersClient\Client;
 use SmartAssert\UsersClient\Exception\UnauthorizedException;
-use SmartAssert\UsersClient\Model\RefreshableToken as UsersClientRefreshableToken;
 use SmartAssert\UsersClient\Model\Token as UsersClientToken;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route('/user/token', name: 'user_token_')]
@@ -211,17 +209,10 @@ readonly class UserTokenController
     }
 
     #[Route('/refresh', name: 'refresh', methods: ['POST'])]
-    public function refresh(AuthenticationToken $token, Request $request): JsonResponse
+    public function refresh(AuthenticationToken $token): JsonResponse
     {
-        $refreshToken = $request->request->get('refresh_token');
-        if (!is_string($refreshToken) || '' === $refreshToken) {
-            return new ErrorResponse(new ErrorResponseBody('unauthorized'), 401);
-        }
-
         try {
-            $refreshableToken = $this->client->refreshFrontendToken(
-                new UsersClientRefreshableToken($token->token, $refreshToken)
-            );
+            $refreshableToken = $this->client->refreshFrontendToken($token->token);
 
             if (null === $refreshableToken) {
                 return new ErrorResponse(new ErrorResponseBody('unauthorized'), 401);

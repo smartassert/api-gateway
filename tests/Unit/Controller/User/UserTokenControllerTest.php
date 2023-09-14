@@ -25,7 +25,6 @@ use SmartAssert\UsersClient\Client;
 use SmartAssert\UsersClient\Model\RefreshableToken as UsersClientRefreshableToken;
 use SmartAssert\UsersClient\Model\Token as UsersClientToken;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class UserTokenControllerTest extends TestCase
@@ -97,31 +96,18 @@ class UserTokenControllerTest extends TestCase
         int $expectedResponseStatusCode,
         array $expectedResponseData,
     ): void {
-        $token = md5((string) rand());
         $refreshToken = md5((string) rand());
-        $authenticationToken = new AuthenticationToken($token);
+        $authenticationToken = new AuthenticationToken($refreshToken);
 
         $client = \Mockery::mock(Client::class);
         $client
             ->shouldReceive('refreshFrontendToken')
-            ->withArgs(function (
-                UsersClientRefreshableToken $usersClientRefreshableToken
-            ) use (
-                $token,
-                $refreshToken
-            ) {
-                self::assertSame($token, $usersClientRefreshableToken->token);
-                self::assertSame($refreshToken, $usersClientRefreshableToken->refreshToken);
-
-                return true;
-            })
+            ->with($refreshToken)
             ->andThrow($exception)
         ;
 
-        $request = new Request([], ['refresh_token' => $refreshToken]);
-
         $controller = new UserTokenController($client);
-        $response = $controller->refresh($authenticationToken, $request);
+        $response = $controller->refresh($authenticationToken);
 
         $this->assertResponse($response, $expectedResponseStatusCode, $expectedResponseData);
     }

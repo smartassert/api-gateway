@@ -52,23 +52,17 @@ readonly class Client
         );
     }
 
-    public function makeRefreshUserTokenRequest(
-        ?string $jwt,
-        ?string $refreshToken,
-        string $method = 'POST'
-    ): ResponseInterface {
+    public function makeRefreshUserTokenRequest(?string $refreshToken, string $method = 'POST'): ResponseInterface
+    {
         $headers = ['Content-Type' => 'application/x-www-form-urlencoded'];
-        if (is_string($jwt)) {
-            $headers['Authorization'] = 'Bearer ' . $jwt;
+        if (is_string($refreshToken)) {
+            $headers['Authorization'] = 'Bearer ' . $refreshToken;
         }
-
-        $payload = is_string($refreshToken) ? ['refresh_token' => $refreshToken] : [];
 
         return $this->client->makeRequest(
             $method,
             $this->router->generate('user_token_refresh'),
-            $headers,
-            http_build_query($payload)
+            $headers
         );
     }
 
