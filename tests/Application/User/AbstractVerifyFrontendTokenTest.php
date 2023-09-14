@@ -89,6 +89,6 @@ abstract class AbstractVerifyFrontendTokenTest extends AbstractApplicationTestCa
         $user = $userProvider->get('user@example.com');
 
         self::assertSame($user->id, $userData['id']);
-        self::assertSame($user->userIdentifier, $userData['user_identifier']);
+        self::assertSame($user->userIdentifier, $userData['user-identifier']);
     }
 }
