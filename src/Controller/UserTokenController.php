@@ -19,7 +19,6 @@ use SmartAssert\ServiceClient\Exception\InvalidResponseTypeException;
 use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
 use SmartAssert\UsersClient\Client;
 use SmartAssert\UsersClient\Exception\UnauthorizedException;
-use SmartAssert\UsersClient\Model\Token as UsersClientToken;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -123,7 +122,7 @@ readonly class UserTokenController
     public function verify(AuthenticationToken $token): JsonResponse
     {
         try {
-            $user = $this->client->verifyFrontendToken(new UsersClientToken($token->token));
+            $user = $this->client->verifyFrontendToken($token->token);
             if (null === $user) {
                 return new ErrorResponse(new ErrorResponseBody('unauthorized'), 401);
             }

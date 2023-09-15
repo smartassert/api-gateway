@@ -20,7 +20,6 @@ use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
 use SmartAssert\ServiceClient\Response\JsonResponse as ServiceClientJsonResponse;
 use SmartAssert\ServiceClient\Response\Response as ServiceClientResponse;
 use SmartAssert\UsersClient\Client;
-use SmartAssert\UsersClient\Model\Token as UsersClientToken;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -42,11 +41,7 @@ class UserApiKeyControllerTest extends TestCase
         $client = \Mockery::mock(Client::class);
         $client
             ->shouldReceive('listUserApiKeys')
-            ->withArgs(function (UsersClientToken $usersClientToken) use ($token) {
-                self::assertSame($token, $usersClientToken->token);
-
-                return true;
-            })
+            ->with($token)
             ->andThrow($exception)
         ;
 
@@ -72,11 +67,7 @@ class UserApiKeyControllerTest extends TestCase
         $client = \Mockery::mock(Client::class);
         $client
             ->shouldReceive('getUserDefaultApiKey')
-            ->withArgs(function (UsersClientToken $usersClientToken) use ($token) {
-                self::assertSame($token, $usersClientToken->token);
-
-                return true;
-            })
+            ->with($token)
             ->andThrow($exception)
         ;
 

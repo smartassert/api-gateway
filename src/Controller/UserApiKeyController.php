@@ -17,7 +17,6 @@ use SmartAssert\ServiceClient\Exception\InvalidResponseTypeException;
 use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
 use SmartAssert\UsersClient\Client;
 use SmartAssert\UsersClient\Exception\UnauthorizedException;
-use SmartAssert\UsersClient\Model\Token as UsersClientToken;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -33,9 +32,7 @@ readonly class UserApiKeyController
     public function list(AuthenticationToken $token): JsonResponse
     {
         try {
-            $apiKeyCollection = $this->client->listUserApiKeys(
-                new UsersClientToken($token->token)
-            );
+            $apiKeyCollection = $this->client->listUserApiKeys($token->token);
         } catch (ClientExceptionInterface $e) {
             $code = $e->getCode();
             $message = $e->getMessage();
@@ -115,9 +112,7 @@ readonly class UserApiKeyController
     public function getDefault(AuthenticationToken $token): JsonResponse
     {
         try {
-            $apiKey = $this->client->getUserDefaultApiKey(
-                new UsersClientToken($token->token)
-            );
+            $apiKey = $this->client->getUserDefaultApiKey($token->token);
         } catch (ClientExceptionInterface $e) {
             $code = $e->getCode();
             $message = $e->getMessage();
