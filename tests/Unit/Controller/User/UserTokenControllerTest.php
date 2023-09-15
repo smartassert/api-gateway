@@ -23,7 +23,6 @@ use SmartAssert\ServiceClient\Response\JsonResponse as ServiceClientJsonResponse
 use SmartAssert\ServiceClient\Response\Response as ServiceClientResponse;
 use SmartAssert\UsersClient\Client;
 use SmartAssert\UsersClient\Model\RefreshableToken as UsersClientRefreshableToken;
-use SmartAssert\UsersClient\Model\Token as UsersClientToken;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -72,11 +71,7 @@ class UserTokenControllerTest extends TestCase
         $client = \Mockery::mock(Client::class);
         $client
             ->shouldReceive('verifyFrontendToken')
-            ->withArgs(function (UsersClientToken $usersClientToken) use ($token) {
-                self::assertSame($token, $usersClientToken->token);
-
-                return true;
-            })
+            ->with($token)
             ->andThrow($exception)
         ;
 
