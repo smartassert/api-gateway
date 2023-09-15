@@ -9,7 +9,7 @@
         "ext-iconv": "*",
         "guzzlehttp/guzzle": "^7.8",
         "smartassert/security-token-extractor": "^1.0",
-        "smartassert/users-client": "^7.0",
+        "smartassert/users-client": "^8.0",
         "symfony/console": "6.3.*",
         "symfony/dotenv": "6.3.*",
         "symfony/flex": "^2",
@@ -99,7 +99,7 @@
         ],
         "users-generate-jwt-keys": "docker-compose -f tests/build/docker-compose.yml exec -T users-service php bin/console lexik:jwt:generate-keypair --overwrite --no-interaction",
         "users-create-user": [
-            "curl --header 'Authorization: primary_admin_token' --data 'email=user@example.com&password=password' http://localhost:9080/admin/user/create",
+            "curl --header 'Authorization: primary_admin_token' --data 'email=user@example.com&password=password' http://localhost:9080/user/create",
             ""
         ],
         "users-setup": [
