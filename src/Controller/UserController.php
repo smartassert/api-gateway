@@ -29,7 +29,7 @@ readonly class UserController
     ) {
     }
 
-    #[Route('/admin/user/create', name: 'user_create', methods: ['POST'])]
+    #[Route('/user/create', name: 'user_create', methods: ['POST'])]
     public function create(AuthenticationToken $token, UserCredentials $userCredentials): JsonResponse
     {
         try {
