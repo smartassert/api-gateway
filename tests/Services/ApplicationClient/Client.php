@@ -118,7 +118,7 @@ readonly class Client
 
         return $this->client->makeRequest(
             $method,
-            $this->router->generate('admin_user_create'),
+            $this->router->generate('user_create'),
             $headers,
             http_build_query($payload)
         );
@@ -145,7 +145,7 @@ readonly class Client
 
         return $this->client->makeRequest(
             $method,
-            $this->router->generate('admin_revoke_refresh_token'),
+            $this->router->generate('revoke_refresh_token'),
             $headers,
             http_build_query($payload)
         );
