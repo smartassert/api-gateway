@@ -24,7 +24,7 @@ readonly class RefreshTokenController
     ) {
     }
 
-    #[Route('/refresh_token/revoke', name: 'revoke_refresh_token', methods: ['POST'])]
+    #[Route('/user/refresh_token/revoke', name: 'user_revoke_refresh_token', methods: ['POST'])]
     public function revoke(AuthenticationToken $token, UserId $userId): JsonResponse
     {
         try {

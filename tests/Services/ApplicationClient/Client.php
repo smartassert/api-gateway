@@ -145,7 +145,7 @@ readonly class Client
 
         return $this->client->makeRequest(
             $method,
-            $this->router->generate('revoke_refresh_token'),
+            $this->router->generate('user_revoke_refresh_token'),
             $headers,
             http_build_query($payload)
         );
