@@ -7,6 +7,7 @@ namespace App\Tests\Unit\Controller\User;
 use App\Controller\RefreshTokenController;
 use App\Response\ErrorResponse;
 use App\Security\AuthenticationToken;
+use App\Security\RefreshToken;
 use App\Security\UserId;
 use GuzzleHttp\Exception\TransferException;
 use PHPUnit\Framework\TestCase;
@@ -26,7 +27,7 @@ class RefreshTokenControllerTest extends TestCase
      *
      * @param array<mixed> $expectedResponseData
      */
-    public function testRevokeRefreshToken(
+    public function testRevokeAllForUser(
         \Exception $exception,
         int $expectedResponseStatusCode,
         array $expectedResponseData,
@@ -44,7 +45,42 @@ class RefreshTokenControllerTest extends TestCase
         ;
 
         $controller = new RefreshTokenController($client);
-        $response = $controller->revoke($authenticationToken, $userId);
+        $response = $controller->revokeAllForUser($authenticationToken, $userId);
+
+        self::assertSame($expectedResponseStatusCode, $response->getStatusCode());
+        self::assertInstanceOf(ErrorResponse::class, $response);
+        self::assertInstanceOf(JsonResponse::class, $response);
+        self::assertSame('application/json', $response->headers->get('content-type'));
+
+        $responseData = json_decode((string) $response->getContent(), true);
+
+        self::assertEquals($expectedResponseData, $responseData);
+    }
+
+    /**
+     * @dataProvider revokeRefreshTokenUsersClientExceptionDataProvider
+     *
+     * @param array<mixed> $expectedResponseData
+     */
+    public function testRevoke(
+        \Exception $exception,
+        int $expectedResponseStatusCode,
+        array $expectedResponseData,
+    ): void {
+        $token = md5((string) rand());
+        $authenticationToken = new AuthenticationToken($token);
+        $refreshTokenValue = md5((string) rand());
+        $refreshToken = new RefreshToken($refreshTokenValue);
+
+        $client = \Mockery::mock(Client::class);
+        $client
+            ->shouldReceive('revokeFrontendRefreshToken')
+            ->with($token, $refreshTokenValue)
+            ->andThrow($exception)
+        ;
+
+        $controller = new RefreshTokenController($client);
+        $response = $controller->revoke($authenticationToken, $refreshToken);
 
         self::assertSame($expectedResponseStatusCode, $response->getStatusCode());
         self::assertInstanceOf(ErrorResponse::class, $response);
