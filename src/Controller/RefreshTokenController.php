@@ -24,11 +24,11 @@ readonly class RefreshTokenController
     ) {
     }
 
-    #[Route('/user/refresh_token/revoke', name: 'user_revoke_refresh_token', methods: ['POST'])]
+    #[Route('/user/refresh_token/revoke-all', name: 'user_revoke_all_refresh_token', methods: ['POST'])]
     public function revoke(AuthenticationToken $token, UserId $userId): JsonResponse
     {
         try {
-            $this->client->revokeFrontendRefreshToken($token->token, $userId->id);
+            $this->client->revokeFrontendRefreshTokensForUser($token->token, $userId->id);
         } catch (ClientExceptionInterface $e) {
             $code = $e->getCode();
             $message = $e->getMessage();

@@ -8,14 +8,14 @@ use App\Tests\Application\AbstractApplicationTestCase;
 use SmartAssert\TestAuthenticationProviderBundle\FrontendTokenProvider;
 use SmartAssert\TestAuthenticationProviderBundle\UserProvider;
 
-abstract class AbstractRevokeRefreshTokenTest extends AbstractApplicationTestCase
+abstract class AbstractRevokeAllRefreshTokensTest extends AbstractApplicationTestCase
 {
     /**
      * @dataProvider badMethodDataProvider
      */
     public function testRevokeRefreshTokenBadMethod(string $method): void
     {
-        $response = self::$staticApplicationClient->makeRevokeRefreshTokenRequest(
+        $response = self::$staticApplicationClient->makeRevokeAllRefreshTokensForUserRequest(
             'primary_admin_token',
             md5((string) rand()),
             $method
@@ -47,7 +47,7 @@ abstract class AbstractRevokeRefreshTokenTest extends AbstractApplicationTestCas
      */
     public function testRevokeRefreshTokenUnauthorizedUser(?string $adminToken): void
     {
-        $response = self::$staticApplicationClient->makeRevokeRefreshTokenRequest(
+        $response = self::$staticApplicationClient->makeRevokeAllRefreshTokensForUserRequest(
             $adminToken,
             md5((string) rand()),
         );
@@ -75,7 +75,7 @@ abstract class AbstractRevokeRefreshTokenTest extends AbstractApplicationTestCas
 
     public function testRevokeRefreshTokenInvalidUserId(): void
     {
-        $response = self::$staticApplicationClient->makeRevokeRefreshTokenRequest(
+        $response = self::$staticApplicationClient->makeRevokeAllRefreshTokensForUserRequest(
             'primary_admin_token',
             md5((string) rand()),
         );
@@ -98,7 +98,7 @@ abstract class AbstractRevokeRefreshTokenTest extends AbstractApplicationTestCas
         \assert($userProvider instanceof UserProvider);
         $user = $userProvider->get('user@example.com');
 
-        $revokeResponse = self::$staticApplicationClient->makeRevokeRefreshTokenRequest(
+        $revokeResponse = self::$staticApplicationClient->makeRevokeAllRefreshTokensForUserRequest(
             'primary_admin_token',
             $user->id
         );
