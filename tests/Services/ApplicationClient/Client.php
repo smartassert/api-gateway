@@ -124,7 +124,7 @@ readonly class Client
         );
     }
 
-    public function makeRevokeRefreshTokenRequest(
+    public function makeRevokeAllRefreshTokensForUserRequest(
         ?string $adminToken,
         ?string $userId,
         string $method = 'POST'
@@ -145,7 +145,7 @@ readonly class Client
 
         return $this->client->makeRequest(
             $method,
-            $this->router->generate('user_revoke_refresh_token'),
+            $this->router->generate('user_revoke_all_refresh_token'),
             $headers,
             http_build_query($payload)
         );

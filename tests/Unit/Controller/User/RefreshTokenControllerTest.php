@@ -38,7 +38,7 @@ class RefreshTokenControllerTest extends TestCase
 
         $client = \Mockery::mock(Client::class);
         $client
-            ->shouldReceive('revokeFrontendRefreshToken')
+            ->shouldReceive('revokeFrontendRefreshTokensForUser')
             ->with($token, $id)
             ->andThrow($exception)
         ;

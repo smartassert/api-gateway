@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Application\User;
 
-use App\Tests\Application\User\AbstractRevokeRefreshTokenTest;
+use App\Tests\Application\User\AbstractRevokeAllRefreshTokensTest;
 use App\Tests\Functional\Application\GetClientAdapterTrait;
 
-class RevokeRefreshTokenTest extends AbstractRevokeRefreshTokenTest
+class RevokeAllRefreshTokensTest extends AbstractRevokeAllRefreshTokensTest
 {
     use GetClientAdapterTrait;
 }
