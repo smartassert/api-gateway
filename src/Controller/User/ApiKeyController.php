@@ -21,7 +21,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route('/user/apikey', name: 'user_apikey_')]
-readonly class UserApiKeyController
+readonly class ApiKeyController
 {
     public function __construct(
         private Client $client

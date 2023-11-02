@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Controller\User;
 
-use App\Controller\User\UserApiKeyController;
+use App\Controller\User\ApiKeyController;
 use App\Response\ErrorResponse;
 use App\Security\AuthenticationToken;
 use GuzzleHttp\Exception\TransferException;
@@ -23,7 +23,7 @@ use SmartAssert\UsersClient\Client;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
-class UserApiKeyControllerTest extends TestCase
+class ApiKeyControllerTest extends TestCase
 {
     /**
      * @dataProvider usersClientExceptionDataProvider
@@ -45,7 +45,7 @@ class UserApiKeyControllerTest extends TestCase
             ->andThrow($exception)
         ;
 
-        $controller = new UserApiKeyController($client);
+        $controller = new ApiKeyController($client);
         $response = $controller->list($authenticationToken);
 
         $this->assertResponse($response, $expectedResponseStatusCode, $expectedResponseData);
@@ -71,7 +71,7 @@ class UserApiKeyControllerTest extends TestCase
             ->andThrow($exception)
         ;
 
-        $controller = new UserApiKeyController($client);
+        $controller = new ApiKeyController($client);
         $response = $controller->getDefault($authenticationToken);
 
         $this->assertResponse($response, $expectedResponseStatusCode, $expectedResponseData);
