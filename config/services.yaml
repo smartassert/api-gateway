@@ -71,3 +71,14 @@ services:
     App\ServiceExceptionResponseFactory\Factory:
         arguments:
             - !tagged 'app.service_exception_response_factory.handler'
+
+    SmartAssert\SourcesClient\RequestFactory:
+        arguments:
+            $baseUrl: '%env(string:SOURCES_BASE_URL)%'
+
+    SmartAssert\SourcesClient\SourceFactory: ~
+
+    SmartAssert\SourcesClient\ExceptionFactory: ~
+
+    SmartAssert\SourcesClient\FileSourceClientInterface:
+        class: SmartAssert\SourcesClient\FileSourceClient
