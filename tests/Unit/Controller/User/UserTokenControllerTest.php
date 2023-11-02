@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Controller\User;
 
-use App\Controller\UserTokenController;
+use App\Controller\User\UserTokenController;
 use App\Response\ErrorResponse;
 use App\Security\AuthenticationToken;
 use App\Security\UserCredentials;

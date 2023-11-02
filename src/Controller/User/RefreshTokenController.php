@@ -2,37 +2,34 @@
 
 declare(strict_types=1);
 
-namespace App\Controller;
+namespace App\Controller\User;
 
+use App\Response\EmptyBody;
 use App\Response\ErrorResponse;
 use App\Response\ErrorResponseBody;
-use App\Response\LabelledBody;
-use App\Response\LabelledCollectionBody;
 use App\Response\Response;
-use App\Response\User\ApiKey;
 use App\Security\AuthenticationToken;
+use App\Security\RefreshToken;
+use App\Security\UserId;
 use Psr\Http\Client\ClientExceptionInterface;
-use SmartAssert\ServiceClient\Exception\InvalidResponseDataException;
-use SmartAssert\ServiceClient\Exception\InvalidResponseTypeException;
 use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
 use SmartAssert\UsersClient\Client;
 use SmartAssert\UsersClient\Exception\UnauthorizedException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/user/apikey', name: 'user_apikey_')]
-readonly class UserApiKeyController
+readonly class RefreshTokenController
 {
     public function __construct(
         private Client $client
     ) {
     }
 
-    #[Route('/list', name: 'list', methods: ['GET'])]
-    public function list(AuthenticationToken $token): JsonResponse
+    #[Route('/user/refresh_token/revoke-all', name: 'user_revoke_all_refresh_token', methods: ['POST'])]
+    public function revokeAllForUser(AuthenticationToken $token, UserId $userId): JsonResponse
     {
         try {
-            $apiKeyCollection = $this->client->listUserApiKeys($token->token);
+            $this->client->revokeFrontendRefreshTokensForUser($token->token, $userId->id);
         } catch (ClientExceptionInterface $e) {
             $code = $e->getCode();
             $message = $e->getMessage();
@@ -45,33 +42,6 @@ readonly class UserApiKeyController
                         'error' => [
                             'code' => $code,
                             'message' => $message,
-                        ],
-                    ]
-                )
-            );
-        } catch (InvalidResponseDataException $e) {
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'invalid-response-data',
-                    [
-                        'service' => 'users',
-                        'data' => $e->getResponse()->getBody(),
-                        'data-type' => [
-                            'expected' => $e->expected,
-                            'actual' => $e->actual,
-                        ],
-                    ]
-                )
-            );
-        } catch (InvalidResponseTypeException $e) {
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'invalid-response-type',
-                    [
-                        'service' => 'users',
-                        'content-type' => [
-                            'expected' => $e->expected,
-                            'actual' => $e->actual,
                         ],
                     ]
                 )
@@ -98,21 +68,16 @@ readonly class UserApiKeyController
             );
         }
 
-        $apiKeys = [];
-        foreach ($apiKeyCollection as $usersClientApiKey) {
-            $apiKeys[] = new ApiKey($usersClientApiKey->label, $usersClientApiKey->key);
-        }
-
         return new Response(
-            new LabelledCollectionBody('api_keys', $apiKeys)
+            new EmptyBody()
         );
     }
 
-    #[Route('/', name: 'get_default', methods: ['GET'])]
-    public function getDefault(AuthenticationToken $token): JsonResponse
+    #[Route('/user/refresh_token/revoke', name: 'user_revoke_refresh_token', methods: ['POST'])]
+    public function revoke(AuthenticationToken $token, RefreshToken $refreshToken): JsonResponse
     {
         try {
-            $apiKey = $this->client->getUserDefaultApiKey($token->token);
+            $this->client->revokeFrontendRefreshToken($token->token, $refreshToken->refreshToken);
         } catch (ClientExceptionInterface $e) {
             $code = $e->getCode();
             $message = $e->getMessage();
@@ -125,33 +90,6 @@ readonly class UserApiKeyController
                         'error' => [
                             'code' => $code,
                             'message' => $message,
-                        ],
-                    ]
-                )
-            );
-        } catch (InvalidResponseDataException $e) {
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'invalid-response-data',
-                    [
-                        'service' => 'users',
-                        'data' => $e->getResponse()->getBody(),
-                        'data-type' => [
-                            'expected' => $e->expected,
-                            'actual' => $e->actual,
-                        ],
-                    ]
-                )
-            );
-        } catch (InvalidResponseTypeException $e) {
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'invalid-response-type',
-                    [
-                        'service' => 'users',
-                        'content-type' => [
-                            'expected' => $e->expected,
-                            'actual' => $e->actual,
                         ],
                     ]
                 )
@@ -178,15 +116,8 @@ readonly class UserApiKeyController
             );
         }
 
-        if (null === $apiKey) {
-            return new JsonResponse(null, 404);
-        }
-
         return new Response(
-            new LabelledBody(
-                'api_key',
-                new ApiKey($apiKey->label, $apiKey->key)
-            )
+            new EmptyBody()
         );
     }
 }

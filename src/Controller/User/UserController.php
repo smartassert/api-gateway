@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Controller;
+namespace App\Controller\User;
 
 use App\Response\ErrorResponse;
 use App\Response\ErrorResponseBody;

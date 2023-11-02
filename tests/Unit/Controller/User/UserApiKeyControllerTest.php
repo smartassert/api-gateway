@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Controller\User;
 
-use App\Controller\UserApiKeyController;
+use App\Controller\User\UserApiKeyController;
 use App\Response\ErrorResponse;
 use App\Security\AuthenticationToken;
 use GuzzleHttp\Exception\TransferException;
