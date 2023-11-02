@@ -23,7 +23,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route('/user/token', name: 'user_token_')]
-readonly class UserTokenController
+readonly class TokenController
 {
     public function __construct(
         private Client $client
