@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Controller\User;
 
-use App\Controller\UserTokenController;
+use App\Controller\User\ApiKeyController;
 use App\Response\ErrorResponse;
 use App\Security\AuthenticationToken;
-use App\Security\UserCredentials;
 use GuzzleHttp\Exception\TransferException;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -15,52 +14,23 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use SmartAssert\ServiceClient\Exception\CurlException;
 use SmartAssert\ServiceClient\Exception\CurlExceptionInterface;
-use SmartAssert\ServiceClient\Exception\InvalidModelDataException;
 use SmartAssert\ServiceClient\Exception\InvalidResponseDataException;
 use SmartAssert\ServiceClient\Exception\InvalidResponseTypeException;
 use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
 use SmartAssert\ServiceClient\Response\JsonResponse as ServiceClientJsonResponse;
 use SmartAssert\ServiceClient\Response\Response as ServiceClientResponse;
 use SmartAssert\UsersClient\Client;
-use SmartAssert\UsersClient\Model\RefreshableToken as UsersClientRefreshableToken;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
-class UserTokenControllerTest extends TestCase
+class ApiKeyControllerTest extends TestCase
 {
     /**
      * @dataProvider usersClientExceptionDataProvider
      *
      * @param array<mixed> $expectedResponseData
      */
-    public function testCreate(
-        \Exception $exception,
-        int $expectedResponseStatusCode,
-        array $expectedResponseData,
-    ): void {
-        $userIdentifier = md5((string) rand());
-        $password = md5((string) rand());
-        $userCredentials = new UserCredentials($userIdentifier, $password);
-
-        $client = \Mockery::mock(Client::class);
-        $client
-            ->shouldReceive('createFrontendToken')
-            ->with($userIdentifier, $password)
-            ->andThrow($exception)
-        ;
-
-        $controller = new UserTokenController($client);
-        $response = $controller->create($userCredentials);
-
-        $this->assertResponse($response, $expectedResponseStatusCode, $expectedResponseData);
-    }
-
-    /**
-     * @dataProvider usersClientExceptionDataProvider
-     *
-     * @param array<mixed> $expectedResponseData
-     */
-    public function testVerify(
+    public function testList(
         \Exception $exception,
         int $expectedResponseStatusCode,
         array $expectedResponseData,
@@ -70,13 +40,13 @@ class UserTokenControllerTest extends TestCase
 
         $client = \Mockery::mock(Client::class);
         $client
-            ->shouldReceive('verifyFrontendToken')
+            ->shouldReceive('listUserApiKeys')
             ->with($token)
             ->andThrow($exception)
         ;
 
-        $controller = new UserTokenController($client);
-        $response = $controller->verify($authenticationToken);
+        $controller = new ApiKeyController($client);
+        $response = $controller->list($authenticationToken);
 
         $this->assertResponse($response, $expectedResponseStatusCode, $expectedResponseData);
     }
@@ -86,23 +56,23 @@ class UserTokenControllerTest extends TestCase
      *
      * @param array<mixed> $expectedResponseData
      */
-    public function testRefresh(
+    public function testGetDefault(
         \Exception $exception,
         int $expectedResponseStatusCode,
         array $expectedResponseData,
     ): void {
-        $refreshToken = md5((string) rand());
-        $authenticationToken = new AuthenticationToken($refreshToken);
+        $token = md5((string) rand());
+        $authenticationToken = new AuthenticationToken($token);
 
         $client = \Mockery::mock(Client::class);
         $client
-            ->shouldReceive('refreshFrontendToken')
-            ->with($refreshToken)
+            ->shouldReceive('getUserDefaultApiKey')
+            ->with($token)
             ->andThrow($exception)
         ;
 
-        $controller = new UserTokenController($client);
-        $response = $controller->refresh($authenticationToken);
+        $controller = new ApiKeyController($client);
+        $response = $controller->getDefault($authenticationToken);
 
         $this->assertResponse($response, $expectedResponseStatusCode, $expectedResponseData);
     }
@@ -148,34 +118,6 @@ class UserTokenControllerTest extends TestCase
                             'code' => $exceptionCode,
                             'message' => $exceptionMessage,
                         ],
-                    ],
-                ],
-            ],
-            InvalidModelDataException::class => [
-                'exception' => new InvalidModelDataException(
-                    (function (int $exceptionCode) {
-                        $response = \Mockery::mock(ResponseInterface::class);
-                        $response
-                            ->shouldReceive('getStatusCode')
-                            ->andReturn($exceptionCode)
-                        ;
-
-                        $response
-                            ->shouldReceive('getBody')
-                            ->andReturn(json_encode(['token' => 123]))
-                        ;
-
-                        return $response;
-                    })($exceptionCode),
-                    UsersClientRefreshableToken::class,
-                    [],
-                ),
-                'expectedResponseStatusCode' => 500,
-                'expectedResponseData' => [
-                    'type' => 'invalid-model-data',
-                    'context' => [
-                        'service' => 'users',
-                        'data' => '{"token":123}',
                     ],
                 ],
             ],

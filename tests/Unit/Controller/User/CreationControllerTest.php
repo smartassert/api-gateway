@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Controller\User;
 
-use App\Controller\UserApiKeyController;
+use App\Controller\User\CreationController;
 use App\Response\ErrorResponse;
 use App\Security\AuthenticationToken;
+use App\Security\UserCredentials;
 use GuzzleHttp\Exception\TransferException;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -14,73 +15,58 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use SmartAssert\ServiceClient\Exception\CurlException;
 use SmartAssert\ServiceClient\Exception\CurlExceptionInterface;
+use SmartAssert\ServiceClient\Exception\InvalidModelDataException;
 use SmartAssert\ServiceClient\Exception\InvalidResponseDataException;
 use SmartAssert\ServiceClient\Exception\InvalidResponseTypeException;
 use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
 use SmartAssert\ServiceClient\Response\JsonResponse as ServiceClientJsonResponse;
 use SmartAssert\ServiceClient\Response\Response as ServiceClientResponse;
 use SmartAssert\UsersClient\Client;
+use SmartAssert\UsersClient\Model\RefreshableToken as UsersClientRefreshableToken;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
 
-class UserApiKeyControllerTest extends TestCase
+class CreationControllerTest extends TestCase
 {
     /**
-     * @dataProvider usersClientExceptionDataProvider
+     * @dataProvider createUsersClientExceptionDataProvider
      *
      * @param array<mixed> $expectedResponseData
      */
-    public function testList(
+    public function testCreate(
         \Exception $exception,
         int $expectedResponseStatusCode,
         array $expectedResponseData,
     ): void {
+        $userIdentifier = md5((string) rand());
+        $password = md5((string) rand());
+        $userCredentials = new UserCredentials($userIdentifier, $password);
         $token = md5((string) rand());
         $authenticationToken = new AuthenticationToken($token);
 
         $client = \Mockery::mock(Client::class);
         $client
-            ->shouldReceive('listUserApiKeys')
-            ->with($token)
+            ->shouldReceive('createUser')
+            ->with($token, $userIdentifier, $password)
             ->andThrow($exception)
         ;
 
-        $controller = new UserApiKeyController($client);
-        $response = $controller->list($authenticationToken);
+        $controller = new CreationController($client);
+        $response = $controller->create($authenticationToken, $userCredentials);
 
-        $this->assertResponse($response, $expectedResponseStatusCode, $expectedResponseData);
-    }
+        self::assertSame($expectedResponseStatusCode, $response->getStatusCode());
+        self::assertInstanceOf(ErrorResponse::class, $response);
+        self::assertInstanceOf(JsonResponse::class, $response);
+        self::assertSame('application/json', $response->headers->get('content-type'));
 
-    /**
-     * @dataProvider usersClientExceptionDataProvider
-     *
-     * @param array<mixed> $expectedResponseData
-     */
-    public function testGetDefault(
-        \Exception $exception,
-        int $expectedResponseStatusCode,
-        array $expectedResponseData,
-    ): void {
-        $token = md5((string) rand());
-        $authenticationToken = new AuthenticationToken($token);
+        $responseData = json_decode((string) $response->getContent(), true);
 
-        $client = \Mockery::mock(Client::class);
-        $client
-            ->shouldReceive('getUserDefaultApiKey')
-            ->with($token)
-            ->andThrow($exception)
-        ;
-
-        $controller = new UserApiKeyController($client);
-        $response = $controller->getDefault($authenticationToken);
-
-        $this->assertResponse($response, $expectedResponseStatusCode, $expectedResponseData);
+        self::assertEquals($expectedResponseData, $responseData);
     }
 
     /**
      * @return array<mixed>
      */
-    public function usersClientExceptionDataProvider(): array
+    public function createUsersClientExceptionDataProvider(): array
     {
         $exceptionMessage = md5((string) rand());
         $exceptionCode = rand();
@@ -118,6 +104,34 @@ class UserApiKeyControllerTest extends TestCase
                             'code' => $exceptionCode,
                             'message' => $exceptionMessage,
                         ],
+                    ],
+                ],
+            ],
+            InvalidModelDataException::class => [
+                'exception' => new InvalidModelDataException(
+                    (function (int $exceptionCode) {
+                        $response = \Mockery::mock(ResponseInterface::class);
+                        $response
+                            ->shouldReceive('getStatusCode')
+                            ->andReturn($exceptionCode)
+                        ;
+
+                        $response
+                            ->shouldReceive('getBody')
+                            ->andReturn(json_encode(['token' => 123]))
+                        ;
+
+                        return $response;
+                    })($exceptionCode),
+                    UsersClientRefreshableToken::class,
+                    [],
+                ),
+                'expectedResponseStatusCode' => 500,
+                'expectedResponseData' => [
+                    'type' => 'invalid-model-data',
+                    'context' => [
+                        'service' => 'users',
+                        'data' => '{"token":123}',
                     ],
                 ],
             ],
@@ -229,20 +243,5 @@ class UserApiKeyControllerTest extends TestCase
                 ],
             ],
         ];
-    }
-
-    /**
-     * @param array<mixed> $expectedData
-     */
-    private function assertResponse(Response $response, int $expectedCode, array $expectedData): void
-    {
-        self::assertSame($expectedCode, $response->getStatusCode());
-        self::assertInstanceOf(ErrorResponse::class, $response);
-        self::assertInstanceOf(JsonResponse::class, $response);
-        self::assertSame('application/json', $response->headers->get('content-type'));
-
-        $responseData = json_decode((string) $response->getContent(), true);
-
-        self::assertEquals($expectedData, $responseData);
     }
 }

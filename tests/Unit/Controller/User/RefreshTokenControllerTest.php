@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Controller\User;
 
-use App\Controller\RefreshTokenController;
+use App\Controller\User\RefreshTokenController;
 use App\Response\ErrorResponse;
 use App\Security\AuthenticationToken;
 use App\Security\RefreshToken;

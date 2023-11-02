@@ -2,16 +2,18 @@
 
 declare(strict_types=1);
 
-namespace App\Controller;
+namespace App\Controller\User;
 
 use App\Response\ErrorResponse;
 use App\Response\ErrorResponseBody;
 use App\Response\LabelledBody;
-use App\Response\LabelledCollectionBody;
 use App\Response\Response;
-use App\Response\User\ApiKey;
+use App\Response\User\RefreshableToken;
+use App\Response\User\User;
 use App\Security\AuthenticationToken;
+use App\Security\UserCredentials;
 use Psr\Http\Client\ClientExceptionInterface;
+use SmartAssert\ServiceClient\Exception\InvalidModelDataException;
 use SmartAssert\ServiceClient\Exception\InvalidResponseDataException;
 use SmartAssert\ServiceClient\Exception\InvalidResponseTypeException;
 use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
@@ -20,19 +22,19 @@ use SmartAssert\UsersClient\Exception\UnauthorizedException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/user/apikey', name: 'user_apikey_')]
-readonly class UserApiKeyController
+#[Route('/user/token', name: 'user_token_')]
+readonly class TokenController
 {
     public function __construct(
         private Client $client
     ) {
     }
 
-    #[Route('/list', name: 'list', methods: ['GET'])]
-    public function list(AuthenticationToken $token): JsonResponse
+    #[Route('/create', name: 'create', methods: ['POST'])]
+    public function create(UserCredentials $userCredentials): JsonResponse
     {
         try {
-            $apiKeyCollection = $this->client->listUserApiKeys($token->token);
+            $token = $this->client->createFrontendToken($userCredentials->userIdentifier, $userCredentials->password);
         } catch (ClientExceptionInterface $e) {
             $code = $e->getCode();
             $message = $e->getMessage();
@@ -46,6 +48,16 @@ readonly class UserApiKeyController
                             'code' => $code,
                             'message' => $message,
                         ],
+                    ]
+                )
+            );
+        } catch (InvalidModelDataException $e) {
+            return new ErrorResponse(
+                new ErrorResponseBody(
+                    'invalid-model-data',
+                    [
+                        'service' => 'users',
+                        'data' => $e->getResponse()->getBody(),
                     ]
                 )
             );
@@ -96,96 +108,191 @@ readonly class UserApiKeyController
                     ]
                 )
             );
-        }
-
-        $apiKeys = [];
-        foreach ($apiKeyCollection as $usersClientApiKey) {
-            $apiKeys[] = new ApiKey($usersClientApiKey->label, $usersClientApiKey->key);
-        }
-
-        return new Response(
-            new LabelledCollectionBody('api_keys', $apiKeys)
-        );
-    }
-
-    #[Route('/', name: 'get_default', methods: ['GET'])]
-    public function getDefault(AuthenticationToken $token): JsonResponse
-    {
-        try {
-            $apiKey = $this->client->getUserDefaultApiKey($token->token);
-        } catch (ClientExceptionInterface $e) {
-            $code = $e->getCode();
-            $message = $e->getMessage();
-
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'service-communication-failure',
-                    [
-                        'service' => 'users',
-                        'error' => [
-                            'code' => $code,
-                            'message' => $message,
-                        ],
-                    ]
-                )
-            );
-        } catch (InvalidResponseDataException $e) {
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'invalid-response-data',
-                    [
-                        'service' => 'users',
-                        'data' => $e->getResponse()->getBody(),
-                        'data-type' => [
-                            'expected' => $e->expected,
-                            'actual' => $e->actual,
-                        ],
-                    ]
-                )
-            );
-        } catch (InvalidResponseTypeException $e) {
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'invalid-response-type',
-                    [
-                        'service' => 'users',
-                        'content-type' => [
-                            'expected' => $e->expected,
-                            'actual' => $e->actual,
-                        ],
-                    ]
-                )
-            );
-        } catch (UnauthorizedException) {
-            return new ErrorResponse(new ErrorResponseBody('unauthorized'), 401);
-        } catch (NonSuccessResponseException $e) {
-            if (404 === $e->getStatusCode()) {
-                return new ErrorResponse(
-                    new ErrorResponseBody('not-found'),
-                    $e->getStatusCode()
-                );
-            }
-
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'non-successful-service-response',
-                    [
-                        'service' => 'users',
-                        'status' => $e->getStatusCode(),
-                        'message' => $e->getMessage(),
-                    ]
-                )
-            );
-        }
-
-        if (null === $apiKey) {
-            return new JsonResponse(null, 404);
         }
 
         return new Response(
             new LabelledBody(
-                'api_key',
-                new ApiKey($apiKey->label, $apiKey->key)
+                'refreshable_token',
+                new RefreshableToken($token->token, $token->refreshToken)
+            )
+        );
+    }
+
+    #[Route('/verify', name: 'verify', methods: ['GET'])]
+    public function verify(AuthenticationToken $token): JsonResponse
+    {
+        try {
+            $user = $this->client->verifyFrontendToken($token->token);
+            if (null === $user) {
+                return new ErrorResponse(new ErrorResponseBody('unauthorized'), 401);
+            }
+        } catch (ClientExceptionInterface $e) {
+            $code = $e->getCode();
+            $message = $e->getMessage();
+
+            return new ErrorResponse(
+                new ErrorResponseBody(
+                    'service-communication-failure',
+                    [
+                        'service' => 'users',
+                        'error' => [
+                            'code' => $code,
+                            'message' => $message,
+                        ],
+                    ]
+                )
+            );
+        } catch (InvalidModelDataException $e) {
+            return new ErrorResponse(
+                new ErrorResponseBody(
+                    'invalid-model-data',
+                    [
+                        'service' => 'users',
+                        'data' => $e->getResponse()->getBody(),
+                    ]
+                )
+            );
+        } catch (InvalidResponseDataException $e) {
+            return new ErrorResponse(
+                new ErrorResponseBody(
+                    'invalid-response-data',
+                    [
+                        'service' => 'users',
+                        'data' => $e->getResponse()->getBody(),
+                        'data-type' => [
+                            'expected' => $e->expected,
+                            'actual' => $e->actual,
+                        ],
+                    ]
+                )
+            );
+        } catch (InvalidResponseTypeException $e) {
+            return new ErrorResponse(
+                new ErrorResponseBody(
+                    'invalid-response-type',
+                    [
+                        'service' => 'users',
+                        'content-type' => [
+                            'expected' => $e->expected,
+                            'actual' => $e->actual,
+                        ],
+                    ]
+                )
+            );
+        } catch (NonSuccessResponseException $e) {
+            if (404 === $e->getStatusCode()) {
+                return new ErrorResponse(
+                    new ErrorResponseBody('not-found'),
+                    $e->getStatusCode()
+                );
+            }
+
+            return new ErrorResponse(
+                new ErrorResponseBody(
+                    'non-successful-service-response',
+                    [
+                        'service' => 'users',
+                        'status' => $e->getStatusCode(),
+                        'message' => $e->getMessage(),
+                    ]
+                )
+            );
+        }
+
+        return new Response(
+            new LabelledBody(
+                'user',
+                new User($user->id, $user->userIdentifier)
+            )
+        );
+    }
+
+    #[Route('/refresh', name: 'refresh', methods: ['POST'])]
+    public function refresh(AuthenticationToken $token): JsonResponse
+    {
+        try {
+            $refreshableToken = $this->client->refreshFrontendToken($token->token);
+
+            if (null === $refreshableToken) {
+                return new ErrorResponse(new ErrorResponseBody('unauthorized'), 401);
+            }
+        } catch (ClientExceptionInterface $e) {
+            $code = $e->getCode();
+            $message = $e->getMessage();
+
+            return new ErrorResponse(
+                new ErrorResponseBody(
+                    'service-communication-failure',
+                    [
+                        'service' => 'users',
+                        'error' => [
+                            'code' => $code,
+                            'message' => $message,
+                        ],
+                    ]
+                )
+            );
+        } catch (InvalidModelDataException $e) {
+            return new ErrorResponse(
+                new ErrorResponseBody(
+                    'invalid-model-data',
+                    [
+                        'service' => 'users',
+                        'data' => $e->getResponse()->getBody(),
+                    ]
+                )
+            );
+        } catch (InvalidResponseDataException $e) {
+            return new ErrorResponse(
+                new ErrorResponseBody(
+                    'invalid-response-data',
+                    [
+                        'service' => 'users',
+                        'data' => $e->getResponse()->getBody(),
+                        'data-type' => [
+                            'expected' => $e->expected,
+                            'actual' => $e->actual,
+                        ],
+                    ]
+                )
+            );
+        } catch (InvalidResponseTypeException $e) {
+            return new ErrorResponse(
+                new ErrorResponseBody(
+                    'invalid-response-type',
+                    [
+                        'service' => 'users',
+                        'content-type' => [
+                            'expected' => $e->expected,
+                            'actual' => $e->actual,
+                        ],
+                    ]
+                )
+            );
+        } catch (NonSuccessResponseException $e) {
+            if (404 === $e->getStatusCode()) {
+                return new ErrorResponse(
+                    new ErrorResponseBody('not-found'),
+                    $e->getStatusCode()
+                );
+            }
+
+            return new ErrorResponse(
+                new ErrorResponseBody(
+                    'non-successful-service-response',
+                    [
+                        'service' => 'users',
+                        'status' => $e->getStatusCode(),
+                        'message' => $e->getMessage(),
+                    ]
+                )
+            );
+        }
+
+        return new Response(
+            new LabelledBody(
+                'refreshable_token',
+                new RefreshableToken($refreshableToken->token, $refreshableToken->refreshToken)
             )
         );
     }
