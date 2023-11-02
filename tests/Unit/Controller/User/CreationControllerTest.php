@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Controller\User;
 
-use App\Controller\User\UserController;
+use App\Controller\User\CreationController;
 use App\Response\ErrorResponse;
 use App\Security\AuthenticationToken;
 use App\Security\UserCredentials;
@@ -25,7 +25,7 @@ use SmartAssert\UsersClient\Client;
 use SmartAssert\UsersClient\Model\RefreshableToken as UsersClientRefreshableToken;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
-class UserControllerTest extends TestCase
+class CreationControllerTest extends TestCase
 {
     /**
      * @dataProvider createUsersClientExceptionDataProvider
@@ -50,7 +50,7 @@ class UserControllerTest extends TestCase
             ->andThrow($exception)
         ;
 
-        $controller = new UserController($client);
+        $controller = new CreationController($client);
         $response = $controller->create($authenticationToken, $userCredentials);
 
         self::assertSame($expectedResponseStatusCode, $response->getStatusCode());

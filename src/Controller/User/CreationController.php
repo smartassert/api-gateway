@@ -22,7 +22,7 @@ use SmartAssert\UsersClient\Exception\UserAlreadyExistsException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
-readonly class UserController
+readonly class CreationController
 {
     public function __construct(
         private Client $client
