@@ -28,6 +28,9 @@ readonly class ApiKeyController
     ) {
     }
 
+    /**
+     * @throws UnauthorizedException
+     */
     #[Route('/list', name: 'list', methods: ['GET'])]
     public function list(AuthenticationToken $token): JsonResponse
     {
@@ -76,8 +79,6 @@ readonly class ApiKeyController
                     ]
                 )
             );
-        } catch (UnauthorizedException) {
-            return new ErrorResponse(new ErrorResponseBody('unauthorized'), 401);
         } catch (NonSuccessResponseException $e) {
             if (404 === $e->getStatusCode()) {
                 return new ErrorResponse(
@@ -108,6 +109,9 @@ readonly class ApiKeyController
         );
     }
 
+    /**
+     * @throws UnauthorizedException
+     */
     #[Route('/', name: 'get_default', methods: ['GET'])]
     public function getDefault(AuthenticationToken $token): JsonResponse
     {
@@ -156,8 +160,6 @@ readonly class ApiKeyController
                     ]
                 )
             );
-        } catch (UnauthorizedException) {
-            return new ErrorResponse(new ErrorResponseBody('unauthorized'), 401);
         } catch (NonSuccessResponseException $e) {
             if (404 === $e->getStatusCode()) {
                 return new ErrorResponse(

@@ -25,6 +25,9 @@ readonly class RefreshTokenController
     ) {
     }
 
+    /**
+     * @throws UnauthorizedException
+     */
     #[Route('/user/refresh_token/revoke-all', name: 'user_revoke_all_refresh_token', methods: ['POST'])]
     public function revokeAllForUser(AuthenticationToken $token, UserId $userId): JsonResponse
     {
@@ -46,8 +49,6 @@ readonly class RefreshTokenController
                     ]
                 )
             );
-        } catch (UnauthorizedException) {
-            return new ErrorResponse(new ErrorResponseBody('unauthorized'), 401);
         } catch (NonSuccessResponseException $e) {
             if (404 === $e->getStatusCode()) {
                 return new ErrorResponse(
@@ -73,6 +74,9 @@ readonly class RefreshTokenController
         );
     }
 
+    /**
+     * @throws UnauthorizedException
+     */
     #[Route('/user/refresh_token/revoke', name: 'user_revoke_refresh_token', methods: ['POST'])]
     public function revoke(AuthenticationToken $token, RefreshToken $refreshToken): JsonResponse
     {
@@ -94,8 +98,6 @@ readonly class RefreshTokenController
                     ]
                 )
             );
-        } catch (UnauthorizedException) {
-            return new ErrorResponse(new ErrorResponseBody('unauthorized'), 401);
         } catch (NonSuccessResponseException $e) {
             if (404 === $e->getStatusCode()) {
                 return new ErrorResponse(

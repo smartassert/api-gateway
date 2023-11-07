@@ -7,6 +7,9 @@ namespace App\EventListener;
 use App\Exception\EmptyAuthenticationTokenException;
 use App\Exception\EmptyUserCredentialsException;
 use App\Exception\EmptyUserIdException;
+use App\Response\ErrorResponse;
+use App\Response\ErrorResponseBody;
+use SmartAssert\ServiceClient\Exception\UnauthorizedException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
@@ -40,6 +43,10 @@ class KernelExceptionEventSubscriber implements EventSubscriberInterface
 
         if ($throwable instanceof EmptyUserIdException) {
             $response = new Response(null, 400);
+        }
+
+        if ($throwable instanceof UnauthorizedException) {
+            $response = new ErrorResponse(new ErrorResponseBody('unauthorized'), 401);
         }
 
         if ($response instanceof Response) {
