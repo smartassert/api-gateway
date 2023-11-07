@@ -14,7 +14,7 @@ abstract class AbstractGetDefaultApiKeyTest extends AbstractApplicationTestCase
      */
     public function testGetDefaultApiKeyBadMethod(string $method): void
     {
-        $response = self::$staticApplicationClient->makeListUserApiKeysRequest('token', $method);
+        $response = $this->staticApplicationClient->makeListUserApiKeysRequest('token', $method);
 
         self::assertSame(405, $response->getStatusCode());
     }
@@ -42,7 +42,7 @@ abstract class AbstractGetDefaultApiKeyTest extends AbstractApplicationTestCase
      */
     public function testGetDefaultApiKeyUnauthorizedUser(?string $token): void
     {
-        $response = self::$staticApplicationClient->makeGetUserDefaultApiKeyRequest($token);
+        $response = $this->staticApplicationClient->makeGetUserDefaultApiKeyRequest($token);
 
         self::assertSame(401, $response->getStatusCode());
     }
@@ -71,7 +71,7 @@ abstract class AbstractGetDefaultApiKeyTest extends AbstractApplicationTestCase
         \assert($frontendTokenProvider instanceof FrontendTokenProvider);
         $frontendToken = $frontendTokenProvider->get('user@example.com');
 
-        $apiKeyResponse = self::$staticApplicationClient->makeGetUserDefaultApiKeyRequest($frontendToken->token);
+        $apiKeyResponse = $this->staticApplicationClient->makeGetUserDefaultApiKeyRequest($frontendToken->token);
 
         self::assertSame(200, $apiKeyResponse->getStatusCode());
         self::assertSame('application/json', $apiKeyResponse->getHeaderLine('content-type'));

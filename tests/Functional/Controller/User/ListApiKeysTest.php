@@ -2,13 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Unit\Controller\User;
+namespace App\Tests\Functional\Controller\User;
 
-use App\Controller\User\ApiKeyController;
-use App\Response\ErrorResponse;
-use App\Security\AuthenticationToken;
-use GuzzleHttp\Exception\TransferException;
-use PHPUnit\Framework\TestCase;
+use App\Tests\Application\AbstractApplicationTestCase;
+use App\Tests\Exception\Http\ClientException;
+use App\Tests\Functional\GetClientAdapterTrait;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -19,62 +17,53 @@ use SmartAssert\ServiceClient\Exception\InvalidResponseTypeException;
 use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
 use SmartAssert\ServiceClient\Response\JsonResponse as ServiceClientJsonResponse;
 use SmartAssert\ServiceClient\Response\Response as ServiceClientResponse;
-use SmartAssert\UsersClient\ClientInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
+use SmartAssert\UsersClient\ClientInterface as UsersClient;
 
-class ApiKeyControllerTest extends TestCase
+class ListApiKeysTest extends AbstractApplicationTestCase
 {
+    use GetClientAdapterTrait;
+
     /**
      * @dataProvider usersClientExceptionDataProvider
      *
-     * @param array<mixed> $expectedResponseData
+     * @param array<mixed> $expectedData
      */
-    public function testList(
-        \Exception $exception,
-        int $expectedResponseStatusCode,
-        array $expectedResponseData,
-    ): void {
-        $token = md5((string) rand());
-        $authenticationToken = new AuthenticationToken($token);
-
-        $client = \Mockery::mock(ClientInterface::class);
-        $client
+    public function testListHandlesException(\Exception $exception, int $expectedStatusCode, array $expectedData): void
+    {
+        $usersClient = \Mockery::mock(UsersClient::class);
+        $usersClient
             ->shouldReceive('listUserApiKeys')
-            ->with($token)
             ->andThrow($exception)
         ;
 
-        $controller = new ApiKeyController($client);
-        $response = $controller->list($authenticationToken);
+        self::getContainer()->set(UsersClient::class, $usersClient);
 
-        $this->assertResponse($response, $expectedResponseStatusCode, $expectedResponseData);
+        $response = $this->staticApplicationClient->makeListUserApiKeysRequest('token');
+
+        $this->assertResponse($response, $expectedStatusCode, $expectedData);
     }
 
     /**
      * @dataProvider usersClientExceptionDataProvider
      *
-     * @param array<mixed> $expectedResponseData
+     * @param array<mixed> $expectedData
      */
-    public function testGetDefault(
+    public function testGetDefaultHandlesException(
         \Exception $exception,
-        int $expectedResponseStatusCode,
-        array $expectedResponseData,
+        int $expectedStatusCode,
+        array $expectedData
     ): void {
-        $token = md5((string) rand());
-        $authenticationToken = new AuthenticationToken($token);
-
-        $client = \Mockery::mock(ClientInterface::class);
-        $client
+        $usersClient = \Mockery::mock(UsersClient::class);
+        $usersClient
             ->shouldReceive('getUserDefaultApiKey')
-            ->with($token)
             ->andThrow($exception)
         ;
 
-        $controller = new ApiKeyController($client);
-        $response = $controller->getDefault($authenticationToken);
+        self::getContainer()->set(UsersClient::class, $usersClient);
 
-        $this->assertResponse($response, $expectedResponseStatusCode, $expectedResponseData);
+        $response = $this->staticApplicationClient->makeGetUserDefaultApiKeyRequest('token');
+
+        $this->assertResponse($response, $expectedStatusCode, $expectedData);
     }
 
     /**
@@ -87,12 +76,12 @@ class ApiKeyControllerTest extends TestCase
 
         return [
             ClientExceptionInterface::class => [
-                'exception' => new TransferException(
+                'exception' => new ClientException(
                     $exceptionMessage,
                     $exceptionCode
                 ),
-                'expectedResponseStatusCode' => 500,
-                'expectedResponseData' => [
+                'expectedStatusCode' => 500,
+                'expectedData' => [
                     'type' => 'service-communication-failure',
                     'context' => [
                         'service' => 'users',
@@ -109,8 +98,8 @@ class ApiKeyControllerTest extends TestCase
                     $exceptionCode,
                     $exceptionMessage,
                 ),
-                'expectedResponseStatusCode' => 500,
-                'expectedResponseData' => [
+                'expectedStatusCode' => 500,
+                'expectedData' => [
                     'type' => 'service-communication-failure',
                     'context' => [
                         'service' => 'users',
@@ -140,8 +129,8 @@ class ApiKeyControllerTest extends TestCase
                         return $response;
                     })($exceptionCode),
                 ),
-                'expectedResponseStatusCode' => 500,
-                'expectedResponseData' => [
+                'expectedStatusCode' => 500,
+                'expectedData' => [
                     'type' => 'invalid-response-data',
                     'context' => [
                         'service' => 'users',
@@ -167,8 +156,8 @@ class ApiKeyControllerTest extends TestCase
                     ServiceClientJsonResponse::class,
                     ServiceClientResponse::class,
                 ),
-                'expectedResponseStatusCode' => 500,
-                'expectedResponseData' => [
+                'expectedStatusCode' => 500,
+                'expectedData' => [
                     'type' => 'invalid-response-type',
                     'context' => [
                         'service' => 'users',
@@ -196,8 +185,8 @@ class ApiKeyControllerTest extends TestCase
                         return $response;
                     })(),
                 ),
-                'expectedResponseStatusCode' => 404,
-                'expectedResponseData' => [
+                'expectedStatusCode' => 404,
+                'expectedData' => [
                     'type' => 'not-found',
                 ],
             ],
@@ -218,8 +207,8 @@ class ApiKeyControllerTest extends TestCase
                         return $response;
                     })(),
                 ),
-                'expectedResponseStatusCode' => 500,
-                'expectedResponseData' => [
+                'expectedStatusCode' => 500,
+                'expectedData' => [
                     'type' => 'non-successful-service-response',
                     'context' => [
                         'service' => 'users',
@@ -234,14 +223,12 @@ class ApiKeyControllerTest extends TestCase
     /**
      * @param array<mixed> $expectedData
      */
-    private function assertResponse(Response $response, int $expectedCode, array $expectedData): void
+    private function assertResponse(ResponseInterface $response, int $expectedCode, array $expectedData): void
     {
         self::assertSame($expectedCode, $response->getStatusCode());
-        self::assertInstanceOf(ErrorResponse::class, $response);
-        self::assertInstanceOf(JsonResponse::class, $response);
-        self::assertSame('application/json', $response->headers->get('content-type'));
+        self::assertSame('application/json', $response->getHeaderLine('content-type'));
 
-        $responseData = json_decode((string) $response->getContent(), true);
+        $responseData = json_decode($response->getBody()->getContents(), true);
 
         self::assertEquals($expectedData, $responseData);
     }
