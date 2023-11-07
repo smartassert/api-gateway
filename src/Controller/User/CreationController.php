@@ -29,6 +29,9 @@ readonly class CreationController
     ) {
     }
 
+    /**
+     * @throws UnauthorizedException
+     */
     #[Route('/user/create', name: 'user_create', methods: ['POST'])]
     public function create(AuthenticationToken $token, UserCredentials $userCredentials): JsonResponse
     {
@@ -96,8 +99,6 @@ readonly class CreationController
                 new ErrorResponseBody('user-already-exists'),
                 409
             );
-        } catch (UnauthorizedException) {
-            return new ErrorResponse(new ErrorResponseBody('unauthorized'), 401);
         } catch (NonSuccessResponseException $e) {
             if (404 === $e->getStatusCode()) {
                 return new ErrorResponse(
