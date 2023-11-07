@@ -16,8 +16,8 @@ use SmartAssert\ServiceClient\Exception\InvalidModelDataException;
 use SmartAssert\ServiceClient\Exception\InvalidResponseDataException;
 use SmartAssert\ServiceClient\Exception\InvalidResponseTypeException;
 use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
-use SmartAssert\UsersClient\Client;
-use SmartAssert\UsersClient\Exception\UnauthorizedException;
+use SmartAssert\ServiceClient\Exception\UnauthorizedException;
+use SmartAssert\UsersClient\ClientInterface as UsersClient;
 use SmartAssert\UsersClient\Exception\UserAlreadyExistsException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -25,7 +25,7 @@ use Symfony\Component\Routing\Annotation\Route;
 readonly class CreationController
 {
     public function __construct(
-        private Client $client
+        private UsersClient $client
     ) {
     }
 

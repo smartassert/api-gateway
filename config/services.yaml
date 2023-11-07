@@ -57,7 +57,8 @@ services:
 
     SmartAssert\ServiceClient\Client: ~
 
-    SmartAssert\UsersClient\Client:
+    SmartAssert\UsersClient\ClientInterface:
+        class: SmartAssert\UsersClient\Client
         arguments:
             $baseUrl: '%env(string:AUTHENTICATION_BASE_URL)%'
 

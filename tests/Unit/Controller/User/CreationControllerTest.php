@@ -21,7 +21,7 @@ use SmartAssert\ServiceClient\Exception\InvalidResponseTypeException;
 use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
 use SmartAssert\ServiceClient\Response\JsonResponse as ServiceClientJsonResponse;
 use SmartAssert\ServiceClient\Response\Response as ServiceClientResponse;
-use SmartAssert\UsersClient\Client;
+use SmartAssert\UsersClient\ClientInterface;
 use SmartAssert\UsersClient\Model\RefreshableToken as UsersClientRefreshableToken;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -43,7 +43,7 @@ class CreationControllerTest extends TestCase
         $token = md5((string) rand());
         $authenticationToken = new AuthenticationToken($token);
 
-        $client = \Mockery::mock(Client::class);
+        $client = \Mockery::mock(ClientInterface::class);
         $client
             ->shouldReceive('createUser')
             ->with($token, $userIdentifier, $password)
