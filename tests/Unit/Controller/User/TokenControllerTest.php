@@ -21,7 +21,7 @@ use SmartAssert\ServiceClient\Exception\InvalidResponseTypeException;
 use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
 use SmartAssert\ServiceClient\Response\JsonResponse as ServiceClientJsonResponse;
 use SmartAssert\ServiceClient\Response\Response as ServiceClientResponse;
-use SmartAssert\UsersClient\Client;
+use SmartAssert\UsersClient\ClientInterface;
 use SmartAssert\UsersClient\Model\RefreshableToken as UsersClientRefreshableToken;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -42,7 +42,7 @@ class TokenControllerTest extends TestCase
         $password = md5((string) rand());
         $userCredentials = new UserCredentials($userIdentifier, $password);
 
-        $client = \Mockery::mock(Client::class);
+        $client = \Mockery::mock(ClientInterface::class);
         $client
             ->shouldReceive('createFrontendToken')
             ->with($userIdentifier, $password)
@@ -68,7 +68,7 @@ class TokenControllerTest extends TestCase
         $token = md5((string) rand());
         $authenticationToken = new AuthenticationToken($token);
 
-        $client = \Mockery::mock(Client::class);
+        $client = \Mockery::mock(ClientInterface::class);
         $client
             ->shouldReceive('verifyFrontendToken')
             ->with($token)
@@ -94,7 +94,7 @@ class TokenControllerTest extends TestCase
         $refreshToken = md5((string) rand());
         $authenticationToken = new AuthenticationToken($refreshToken);
 
-        $client = \Mockery::mock(Client::class);
+        $client = \Mockery::mock(ClientInterface::class);
         $client
             ->shouldReceive('refreshFrontendToken')
             ->with($refreshToken)

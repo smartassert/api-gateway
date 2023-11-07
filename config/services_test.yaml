@@ -25,3 +25,6 @@ services:
     public: true
     arguments:
       $httpClient: '@app.tests.integration.http.client'
+
+  SmartAssert\UsersClient\Client:
+    alias: SmartAssert\UsersClient\ClientInterface

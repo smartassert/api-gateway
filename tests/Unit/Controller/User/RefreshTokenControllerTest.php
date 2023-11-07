@@ -17,7 +17,7 @@ use Psr\Http\Message\ResponseInterface;
 use SmartAssert\ServiceClient\Exception\CurlException;
 use SmartAssert\ServiceClient\Exception\CurlExceptionInterface;
 use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
-use SmartAssert\UsersClient\Client;
+use SmartAssert\UsersClient\ClientInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class RefreshTokenControllerTest extends TestCase
@@ -37,7 +37,7 @@ class RefreshTokenControllerTest extends TestCase
         $id = md5((string) rand());
         $userId = new UserId($id);
 
-        $client = \Mockery::mock(Client::class);
+        $client = \Mockery::mock(ClientInterface::class);
         $client
             ->shouldReceive('revokeFrontendRefreshTokensForUser')
             ->with($token, $id)
@@ -72,7 +72,7 @@ class RefreshTokenControllerTest extends TestCase
         $refreshTokenValue = md5((string) rand());
         $refreshToken = new RefreshToken($refreshTokenValue);
 
-        $client = \Mockery::mock(Client::class);
+        $client = \Mockery::mock(ClientInterface::class);
         $client
             ->shouldReceive('revokeFrontendRefreshToken')
             ->with($token, $refreshTokenValue)
