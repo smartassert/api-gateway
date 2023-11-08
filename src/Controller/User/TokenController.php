@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\User;
 
+use App\Exception\ServiceException;
 use App\Response\ErrorResponse;
 use App\Response\ErrorResponseBody;
 use App\Response\LabelledBody;
@@ -32,81 +33,21 @@ readonly class TokenController
 
     /**
      * @throws UnauthorizedException
-     * @throws NonSuccessResponseException
+     * @throws ServiceException
      */
     #[Route('/create', name: 'create', methods: ['POST'])]
     public function create(UserCredentials $userCredentials): JsonResponse
     {
         try {
             $token = $this->client->createFrontendToken($userCredentials->userIdentifier, $userCredentials->password);
-        } catch (ClientExceptionInterface $e) {
-            $code = $e->getCode();
-            $message = $e->getMessage();
-
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'service-communication-failure',
-                    [
-                        'service' => 'users',
-                        'error' => [
-                            'code' => $code,
-                            'message' => $message,
-                        ],
-                    ]
-                )
-            );
-        } catch (InvalidModelDataException $e) {
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'invalid-model-data',
-                    [
-                        'service' => 'users',
-                        'data' => $e->getResponse()->getBody(),
-                    ]
-                )
-            );
-        } catch (InvalidResponseDataException $e) {
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'invalid-response-data',
-                    [
-                        'service' => 'users',
-                        'data' => $e->getResponse()->getBody(),
-                        'data-type' => [
-                            'expected' => $e->expected,
-                            'actual' => $e->actual,
-                        ],
-                    ]
-                )
-            );
-        } catch (InvalidResponseTypeException $e) {
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'invalid-response-type',
-                    [
-                        'service' => 'users',
-                        'content-type' => [
-                            'expected' => $e->expected,
-                            'actual' => $e->actual,
-                        ],
-                    ]
-                )
-            );
-        } catch (NonSuccessResponseException $e) {
-            if (404 === $e->getStatusCode()) {
-                throw $e;
-            }
-
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'non-successful-service-response',
-                    [
-                        'service' => 'users',
-                        'status' => $e->getStatusCode(),
-                        'message' => $e->getMessage(),
-                    ]
-                )
-            );
+        } catch (
+            ClientExceptionInterface |
+            InvalidModelDataException |
+            InvalidResponseDataException |
+            InvalidResponseTypeException |
+            NonSuccessResponseException $e
+        ) {
+            throw new ServiceException('users', $e);
         }
 
         return new Response(
@@ -117,6 +58,9 @@ readonly class TokenController
         );
     }
 
+    /**
+     * @throws ServiceException
+     */
     #[Route('/verify', name: 'verify', methods: ['GET'])]
     public function verify(AuthenticationToken $token): JsonResponse
     {
@@ -125,77 +69,14 @@ readonly class TokenController
             if (null === $user) {
                 return new ErrorResponse(new ErrorResponseBody('unauthorized'), 401);
             }
-        } catch (ClientExceptionInterface $e) {
-            $code = $e->getCode();
-            $message = $e->getMessage();
-
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'service-communication-failure',
-                    [
-                        'service' => 'users',
-                        'error' => [
-                            'code' => $code,
-                            'message' => $message,
-                        ],
-                    ]
-                )
-            );
-        } catch (InvalidModelDataException $e) {
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'invalid-model-data',
-                    [
-                        'service' => 'users',
-                        'data' => $e->getResponse()->getBody(),
-                    ]
-                )
-            );
-        } catch (InvalidResponseDataException $e) {
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'invalid-response-data',
-                    [
-                        'service' => 'users',
-                        'data' => $e->getResponse()->getBody(),
-                        'data-type' => [
-                            'expected' => $e->expected,
-                            'actual' => $e->actual,
-                        ],
-                    ]
-                )
-            );
-        } catch (InvalidResponseTypeException $e) {
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'invalid-response-type',
-                    [
-                        'service' => 'users',
-                        'content-type' => [
-                            'expected' => $e->expected,
-                            'actual' => $e->actual,
-                        ],
-                    ]
-                )
-            );
-        } catch (NonSuccessResponseException $e) {
-            if (404 === $e->getStatusCode()) {
-                return new ErrorResponse(
-                    new ErrorResponseBody('not-found'),
-                    $e->getStatusCode()
-                );
-            }
-
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'non-successful-service-response',
-                    [
-                        'service' => 'users',
-                        'status' => $e->getStatusCode(),
-                        'message' => $e->getMessage(),
-                    ]
-                )
-            );
+        } catch (
+            ClientExceptionInterface |
+            InvalidModelDataException |
+            InvalidResponseDataException |
+            InvalidResponseTypeException |
+            NonSuccessResponseException $e
+        ) {
+            throw new ServiceException('users', $e);
         }
 
         return new Response(
@@ -206,6 +87,9 @@ readonly class TokenController
         );
     }
 
+    /**
+     * @throws ServiceException
+     */
     #[Route('/refresh', name: 'refresh', methods: ['POST'])]
     public function refresh(AuthenticationToken $token): JsonResponse
     {
@@ -215,77 +99,14 @@ readonly class TokenController
             if (null === $refreshableToken) {
                 return new ErrorResponse(new ErrorResponseBody('unauthorized'), 401);
             }
-        } catch (ClientExceptionInterface $e) {
-            $code = $e->getCode();
-            $message = $e->getMessage();
-
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'service-communication-failure',
-                    [
-                        'service' => 'users',
-                        'error' => [
-                            'code' => $code,
-                            'message' => $message,
-                        ],
-                    ]
-                )
-            );
-        } catch (InvalidModelDataException $e) {
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'invalid-model-data',
-                    [
-                        'service' => 'users',
-                        'data' => $e->getResponse()->getBody(),
-                    ]
-                )
-            );
-        } catch (InvalidResponseDataException $e) {
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'invalid-response-data',
-                    [
-                        'service' => 'users',
-                        'data' => $e->getResponse()->getBody(),
-                        'data-type' => [
-                            'expected' => $e->expected,
-                            'actual' => $e->actual,
-                        ],
-                    ]
-                )
-            );
-        } catch (InvalidResponseTypeException $e) {
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'invalid-response-type',
-                    [
-                        'service' => 'users',
-                        'content-type' => [
-                            'expected' => $e->expected,
-                            'actual' => $e->actual,
-                        ],
-                    ]
-                )
-            );
-        } catch (NonSuccessResponseException $e) {
-            if (404 === $e->getStatusCode()) {
-                return new ErrorResponse(
-                    new ErrorResponseBody('not-found'),
-                    $e->getStatusCode()
-                );
-            }
-
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'non-successful-service-response',
-                    [
-                        'service' => 'users',
-                        'status' => $e->getStatusCode(),
-                        'message' => $e->getMessage(),
-                    ]
-                )
-            );
+        } catch (
+            ClientExceptionInterface |
+            InvalidModelDataException |
+            InvalidResponseDataException |
+            InvalidResponseTypeException |
+            NonSuccessResponseException $e
+        ) {
+            throw new ServiceException('users', $e);
         }
 
         return new Response(

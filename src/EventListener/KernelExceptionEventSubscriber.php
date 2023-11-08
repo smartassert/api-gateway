@@ -7,16 +7,22 @@ namespace App\EventListener;
 use App\Exception\EmptyAuthenticationTokenException;
 use App\Exception\EmptyUserCredentialsException;
 use App\Exception\EmptyUserIdException;
+use App\Exception\ServiceException;
 use App\Response\ErrorResponse;
 use App\Response\ErrorResponseBody;
-use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
+use App\ServiceExceptionResponseFactory\Factory;
 use SmartAssert\ServiceClient\Exception\UnauthorizedException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 
-class KernelExceptionEventSubscriber implements EventSubscriberInterface
+readonly class KernelExceptionEventSubscriber implements EventSubscriberInterface
 {
+    public function __construct(
+        private Factory $serviceExceptionResponseFactory,
+    ) {
+    }
+
     /**
      * @return array<class-string, array<mixed>>
      */
@@ -50,11 +56,8 @@ class KernelExceptionEventSubscriber implements EventSubscriberInterface
             $response = new ErrorResponse(new ErrorResponseBody('unauthorized'), 401);
         }
 
-        if ($throwable instanceof NonSuccessResponseException) {
-            $response = new ErrorResponse(
-                new ErrorResponseBody('not-found'),
-                $throwable->getStatusCode()
-            );
+        if ($throwable instanceof ServiceException) {
+            $response = $this->serviceExceptionResponseFactory->create($throwable);
         }
 
         if ($response instanceof Response) {
