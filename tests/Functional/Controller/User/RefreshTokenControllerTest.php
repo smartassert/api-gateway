@@ -2,94 +2,75 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Unit\Controller\User;
+namespace App\Tests\Functional\Controller\User;
 
-use App\Controller\User\RefreshTokenController;
-use App\Response\ErrorResponse;
-use App\Security\AuthenticationToken;
-use App\Security\RefreshToken;
-use App\Security\UserId;
-use GuzzleHttp\Exception\TransferException;
-use PHPUnit\Framework\TestCase;
+use App\Tests\Application\AbstractApplicationTestCase;
+use App\Tests\Exception\Http\ClientException;
+use App\Tests\Functional\GetClientAdapterTrait;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use SmartAssert\ServiceClient\Exception\CurlException;
 use SmartAssert\ServiceClient\Exception\CurlExceptionInterface;
 use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
-use SmartAssert\UsersClient\ClientInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use SmartAssert\UsersClient\ClientInterface as UsersClient;
 
-class RefreshTokenControllerTest extends TestCase
+class RefreshTokenControllerTest extends AbstractApplicationTestCase
 {
+    use GetClientAdapterTrait;
+
     /**
      * @dataProvider revokeRefreshTokenUsersClientExceptionDataProvider
      *
-     * @param array<mixed> $expectedResponseData
+     * @param array<mixed> $expectedData
      */
-    public function testRevokeAllForUser(
+    public function testRevokeAllForUserHandlesException(
         \Exception $exception,
-        int $expectedResponseStatusCode,
-        array $expectedResponseData,
+        int $expectedStatusCode,
+        array $expectedData
     ): void {
         $token = md5((string) rand());
-        $authenticationToken = new AuthenticationToken($token);
         $id = md5((string) rand());
-        $userId = new UserId($id);
 
-        $client = \Mockery::mock(ClientInterface::class);
-        $client
+        $usersClient = \Mockery::mock(UsersClient::class);
+        $usersClient
             ->shouldReceive('revokeFrontendRefreshTokensForUser')
             ->with($token, $id)
             ->andThrow($exception)
         ;
 
-        $controller = new RefreshTokenController($client);
-        $response = $controller->revokeAllForUser($authenticationToken, $userId);
+        self::getContainer()->set(UsersClient::class, $usersClient);
 
-        self::assertSame($expectedResponseStatusCode, $response->getStatusCode());
-        self::assertInstanceOf(ErrorResponse::class, $response);
-        self::assertInstanceOf(JsonResponse::class, $response);
-        self::assertSame('application/json', $response->headers->get('content-type'));
+        $response = $this->staticApplicationClient->makeRevokeAllRefreshTokensForUserRequest($token, $id);
 
-        $responseData = json_decode((string) $response->getContent(), true);
-
-        self::assertEquals($expectedResponseData, $responseData);
+        $this->assertResponse($response, $expectedStatusCode, $expectedData);
     }
 
     /**
      * @dataProvider revokeRefreshTokenUsersClientExceptionDataProvider
      *
-     * @param array<mixed> $expectedResponseData
+     * @param array<mixed> $expectedData
      */
-    public function testRevoke(
+    public function testRevokeHandlesException(
         \Exception $exception,
-        int $expectedResponseStatusCode,
-        array $expectedResponseData,
+        int $expectedStatusCode,
+        array $expectedData
     ): void {
         $token = md5((string) rand());
-        $authenticationToken = new AuthenticationToken($token);
-        $refreshTokenValue = md5((string) rand());
-        $refreshToken = new RefreshToken($refreshTokenValue);
+        $refreshToken = md5((string) rand());
 
-        $client = \Mockery::mock(ClientInterface::class);
-        $client
+        $usersClient = \Mockery::mock(UsersClient::class);
+        $usersClient
             ->shouldReceive('revokeFrontendRefreshToken')
-            ->with($token, $refreshTokenValue)
+            ->with($token, $refreshToken)
             ->andThrow($exception)
         ;
 
-        $controller = new RefreshTokenController($client);
-        $response = $controller->revoke($authenticationToken, $refreshToken);
+        self::getContainer()->set(UsersClient::class, $usersClient);
 
-        self::assertSame($expectedResponseStatusCode, $response->getStatusCode());
-        self::assertInstanceOf(ErrorResponse::class, $response);
-        self::assertInstanceOf(JsonResponse::class, $response);
-        self::assertSame('application/json', $response->headers->get('content-type'));
+        $response = $this->staticApplicationClient->makeRevokeRefreshTokenRequest($token, $refreshToken);
 
-        $responseData = json_decode((string) $response->getContent(), true);
-
-        self::assertEquals($expectedResponseData, $responseData);
+        $this->assertResponse($response, $expectedStatusCode, $expectedData);
     }
 
     /**
@@ -102,12 +83,12 @@ class RefreshTokenControllerTest extends TestCase
 
         return [
             ClientExceptionInterface::class => [
-                'exception' => new TransferException(
+                'exception' => new ClientException(
                     $exceptionMessage,
                     $exceptionCode
                 ),
-                'expectedResponseStatusCode' => 500,
-                'expectedResponseData' => [
+                'expectedStatusCode' => 500,
+                'expectedData' => [
                     'type' => 'service-communication-failure',
                     'context' => [
                         'service' => 'users',
@@ -124,8 +105,8 @@ class RefreshTokenControllerTest extends TestCase
                     $exceptionCode,
                     $exceptionMessage,
                 ),
-                'expectedResponseStatusCode' => 500,
-                'expectedResponseData' => [
+                'expectedStatusCode' => 500,
+                'expectedData' => [
                     'type' => 'service-communication-failure',
                     'context' => [
                         'service' => 'users',
@@ -153,8 +134,8 @@ class RefreshTokenControllerTest extends TestCase
                         return $response;
                     })(),
                 ),
-                'expectedResponseStatusCode' => 404,
-                'expectedResponseData' => [
+                'expectedStatusCode' => 404,
+                'expectedData' => [
                     'type' => 'not-found',
                 ],
             ],
@@ -175,8 +156,8 @@ class RefreshTokenControllerTest extends TestCase
                         return $response;
                     })(),
                 ),
-                'expectedResponseStatusCode' => 500,
-                'expectedResponseData' => [
+                'expectedStatusCode' => 500,
+                'expectedData' => [
                     'type' => 'non-successful-service-response',
                     'context' => [
                         'service' => 'users',
@@ -186,5 +167,18 @@ class RefreshTokenControllerTest extends TestCase
                 ],
             ],
         ];
+    }
+
+    /**
+     * @param array<mixed> $expectedData
+     */
+    private function assertResponse(ResponseInterface $response, int $expectedCode, array $expectedData): void
+    {
+        self::assertSame($expectedCode, $response->getStatusCode());
+        self::assertSame('application/json', $response->getHeaderLine('content-type'));
+
+        $responseData = json_decode($response->getBody()->getContents(), true);
+
+        self::assertEquals($expectedData, $responseData);
     }
 }
