@@ -45,21 +45,12 @@ readonly class CreationController
             );
         } catch (
             ClientExceptionInterface |
+            InvalidModelDataException |
             InvalidResponseDataException |
             InvalidResponseTypeException |
             NonSuccessResponseException $e
         ) {
             throw new ServiceException('users', $e);
-        } catch (InvalidModelDataException $e) {
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'invalid-model-data',
-                    [
-                        'service' => 'users',
-                        'data' => $e->getResponse()->getBody(),
-                    ]
-                )
-            );
         } catch (UserAlreadyExistsException $e) {
             return new ErrorResponse(
                 new ErrorResponseBody('user-already-exists'),

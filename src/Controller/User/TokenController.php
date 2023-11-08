@@ -42,21 +42,12 @@ readonly class TokenController
             $token = $this->client->createFrontendToken($userCredentials->userIdentifier, $userCredentials->password);
         } catch (
             ClientExceptionInterface |
+            InvalidModelDataException |
             InvalidResponseDataException |
             InvalidResponseTypeException |
             NonSuccessResponseException $e
         ) {
             throw new ServiceException('users', $e);
-        } catch (InvalidModelDataException $e) {
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'invalid-model-data',
-                    [
-                        'service' => 'users',
-                        'data' => $e->getResponse()->getBody(),
-                    ]
-                )
-            );
         }
 
         return new Response(
@@ -80,21 +71,12 @@ readonly class TokenController
             }
         } catch (
             ClientExceptionInterface |
+            InvalidModelDataException |
             InvalidResponseDataException |
             InvalidResponseTypeException |
             NonSuccessResponseException $e
         ) {
             throw new ServiceException('users', $e);
-        } catch (InvalidModelDataException $e) {
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'invalid-model-data',
-                    [
-                        'service' => 'users',
-                        'data' => $e->getResponse()->getBody(),
-                    ]
-                )
-            );
         }
 
         return new Response(
@@ -119,21 +101,12 @@ readonly class TokenController
             }
         } catch (
             ClientExceptionInterface |
+            InvalidModelDataException |
             InvalidResponseDataException |
             InvalidResponseTypeException |
             NonSuccessResponseException $e
         ) {
             throw new ServiceException('users', $e);
-        } catch (InvalidModelDataException $e) {
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'invalid-model-data',
-                    [
-                        'service' => 'users',
-                        'data' => $e->getResponse()->getBody(),
-                    ]
-                )
-            );
         }
 
         return new Response(

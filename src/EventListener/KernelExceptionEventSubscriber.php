@@ -11,6 +11,7 @@ use App\Exception\ServiceException;
 use App\Response\ErrorResponse;
 use App\Response\ErrorResponseBody;
 use Psr\Http\Client\ClientExceptionInterface;
+use SmartAssert\ServiceClient\Exception\InvalidModelDataException;
 use SmartAssert\ServiceClient\Exception\InvalidResponseDataException;
 use SmartAssert\ServiceClient\Exception\InvalidResponseTypeException;
 use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
@@ -129,6 +130,18 @@ class KernelExceptionEventSubscriber implements EventSubscriberInterface
                         'service' => $serviceException->serviceName,
                         'status' => $previous->getStatusCode(),
                         'message' => $previous->getMessage(),
+                    ]
+                )
+            );
+        }
+
+        if ($previous instanceof InvalidModelDataException) {
+            return new ErrorResponse(
+                new ErrorResponseBody(
+                    'invalid-model-data',
+                    [
+                        'service' => $serviceException->serviceName,
+                        'data' => $previous->getResponse()->getBody(),
                     ]
                 )
             );
