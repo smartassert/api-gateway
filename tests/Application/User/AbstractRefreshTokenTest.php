@@ -14,7 +14,7 @@ abstract class AbstractRefreshTokenTest extends AbstractApplicationTestCase
      */
     public function testRefreshBadMethod(string $method): void
     {
-        $response = $this->staticApplicationClient->makeRefreshUserTokenRequest(md5((string) rand()), $method);
+        $response = $this->applicationClient->makeRefreshUserTokenRequest(md5((string) rand()), $method);
 
         self::assertSame(405, $response->getStatusCode());
     }
@@ -42,7 +42,7 @@ abstract class AbstractRefreshTokenTest extends AbstractApplicationTestCase
      */
     public function testRefreshUnauthorizedUser(?string $refreshToken): void
     {
-        $response = $this->staticApplicationClient->makeRefreshUserTokenRequest($refreshToken);
+        $response = $this->applicationClient->makeRefreshUserTokenRequest($refreshToken);
 
         self::assertSame(401, $response->getStatusCode());
     }
@@ -71,7 +71,7 @@ abstract class AbstractRefreshTokenTest extends AbstractApplicationTestCase
         \assert($frontendTokenProvider instanceof FrontendTokenProvider);
         $frontendToken = $frontendTokenProvider->get('user@example.com');
 
-        $response = $this->staticApplicationClient->makeRefreshUserTokenRequest($frontendToken->refreshToken);
+        $response = $this->applicationClient->makeRefreshUserTokenRequest($frontendToken->refreshToken);
 
         self::assertSame(200, $response->getStatusCode());
         self::assertSame('application/json', $response->getHeaderLine('content-type'));

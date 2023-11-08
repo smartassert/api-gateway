@@ -13,7 +13,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 abstract class AbstractApplicationTestCase extends WebTestCase
 {
     protected KernelBrowser $kernelBrowser;
-    protected Client $staticApplicationClient;
+    protected Client $applicationClient;
 
     protected function setUp(): void
     {
@@ -24,7 +24,7 @@ abstract class AbstractApplicationTestCase extends WebTestCase
         $factory = self::getContainer()->get(ClientFactory::class);
         \assert($factory instanceof ClientFactory);
 
-        $this->staticApplicationClient = $factory->create($this->getClientAdapter());
+        $this->applicationClient = $factory->create($this->getClientAdapter());
     }
 
     public function getClientAdapter(): ClientInterface

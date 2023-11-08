@@ -13,7 +13,7 @@ abstract class AbstractCreateTokenTest extends AbstractApplicationTestCase
      */
     public function testCreateBadMethod(string $method): void
     {
-        $response = $this->staticApplicationClient->makeCreateUserTokenRequest(
+        $response = $this->applicationClient->makeCreateUserTokenRequest(
             'user@example.com',
             'password',
             $method
@@ -42,7 +42,7 @@ abstract class AbstractCreateTokenTest extends AbstractApplicationTestCase
      */
     public function testCreateUnauthorizedUser(?string $userIdentifier, ?string $password): void
     {
-        $response = $this->staticApplicationClient->makeCreateUserTokenRequest($userIdentifier, $password);
+        $response = $this->applicationClient->makeCreateUserTokenRequest($userIdentifier, $password);
 
         self::assertSame(401, $response->getStatusCode());
     }
@@ -86,10 +86,7 @@ abstract class AbstractCreateTokenTest extends AbstractApplicationTestCase
 
     public function testCreateSuccess(): void
     {
-        $response = $this->staticApplicationClient->makeCreateUserTokenRequest(
-            'user@example.com',
-            'password'
-        );
+        $response = $this->applicationClient->makeCreateUserTokenRequest('user@example.com', 'password');
 
         self::assertSame(200, $response->getStatusCode());
         self::assertSame('application/json', $response->getHeaderLine('content-type'));

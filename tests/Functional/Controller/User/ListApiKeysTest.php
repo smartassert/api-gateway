@@ -33,7 +33,7 @@ class ListApiKeysTest extends AbstractApplicationTestCase
 
         self::getContainer()->set(UsersClient::class, $usersClient);
 
-        $response = $this->staticApplicationClient->makeListUserApiKeysRequest('token');
+        $response = $this->applicationClient->makeListUserApiKeysRequest('token');
 
         $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
     }
@@ -56,7 +56,7 @@ class ListApiKeysTest extends AbstractApplicationTestCase
 
         self::getContainer()->set(UsersClient::class, $usersClient);
 
-        $response = $this->staticApplicationClient->makeGetUserDefaultApiKeyRequest('token');
+        $response = $this->applicationClient->makeGetUserDefaultApiKeyRequest('token');
 
         $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
     }

@@ -40,7 +40,7 @@ class TokenControllerTest extends AbstractApplicationTestCase
 
         self::getContainer()->set(UsersClient::class, $usersClient);
 
-        $response = $this->staticApplicationClient->makeCreateUserTokenRequest($userIdentifier, $password);
+        $response = $this->applicationClient->makeCreateUserTokenRequest($userIdentifier, $password);
 
         $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
     }
@@ -66,7 +66,7 @@ class TokenControllerTest extends AbstractApplicationTestCase
 
         self::getContainer()->set(UsersClient::class, $usersClient);
 
-        $response = $this->staticApplicationClient->makeVerifyUserTokenRequest($token);
+        $response = $this->applicationClient->makeVerifyUserTokenRequest($token);
 
         $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
     }
@@ -92,7 +92,7 @@ class TokenControllerTest extends AbstractApplicationTestCase
 
         self::getContainer()->set(UsersClient::class, $usersClient);
 
-        $response = $this->staticApplicationClient->makeRefreshUserTokenRequest($refreshToken);
+        $response = $this->applicationClient->makeRefreshUserTokenRequest($refreshToken);
 
         $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
     }
