@@ -13,7 +13,7 @@ abstract class AbstractCreateUserTest extends AbstractApplicationTestCase
      */
     public function testCreateUserBadMethod(string $method): void
     {
-        $response = self::$staticApplicationClient->makeCreateUserRequest(
+        $response = $this->staticApplicationClient->makeCreateUserRequest(
             'primary_admin_token',
             'user@example.com',
             'password',
@@ -46,7 +46,7 @@ abstract class AbstractCreateUserTest extends AbstractApplicationTestCase
      */
     public function testCreateUserUnauthorizedUser(?string $adminToken): void
     {
-        $response = self::$staticApplicationClient->makeCreateUserRequest(
+        $response = $this->staticApplicationClient->makeCreateUserRequest(
             $adminToken,
             md5((string) rand()),
             md5((string) rand())
@@ -78,14 +78,14 @@ abstract class AbstractCreateUserTest extends AbstractApplicationTestCase
         $userIdentifier = 'user@example.com';
         $password = 'password';
 
-        $createTokenResponse = self::$staticApplicationClient->makeCreateUserTokenRequest(
+        $createTokenResponse = $this->staticApplicationClient->makeCreateUserTokenRequest(
             $userIdentifier,
             $password
         );
 
         self::assertSame(200, $createTokenResponse->getStatusCode());
 
-        $response = self::$staticApplicationClient->makeCreateUserRequest(
+        $response = $this->staticApplicationClient->makeCreateUserRequest(
             'primary_admin_token',
             $userIdentifier,
             $password
@@ -104,14 +104,14 @@ abstract class AbstractCreateUserTest extends AbstractApplicationTestCase
         $userIdentifier = md5((string) rand());
         $password = md5((string) rand());
 
-        $createTokenResponse = self::$staticApplicationClient->makeCreateUserTokenRequest(
+        $createTokenResponse = $this->staticApplicationClient->makeCreateUserTokenRequest(
             $userIdentifier,
             $password
         );
 
         self::assertSame(401, $createTokenResponse->getStatusCode());
 
-        $response = self::$staticApplicationClient->makeCreateUserRequest(
+        $response = $this->staticApplicationClient->makeCreateUserRequest(
             'primary_admin_token',
             $userIdentifier,
             $password
@@ -129,7 +129,7 @@ abstract class AbstractCreateUserTest extends AbstractApplicationTestCase
         self::assertArrayHasKey('id', $userData);
         self::assertArrayHasKey('user-identifier', $userData);
 
-        $createTokenResponse = self::$staticApplicationClient->makeCreateUserTokenRequest(
+        $createTokenResponse = $this->staticApplicationClient->makeCreateUserTokenRequest(
             $userIdentifier,
             $password
         );

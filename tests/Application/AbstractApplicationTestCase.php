@@ -12,22 +12,22 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 abstract class AbstractApplicationTestCase extends WebTestCase
 {
-    protected static KernelBrowser $kernelBrowser;
-    protected static Client $staticApplicationClient;
+    protected KernelBrowser $kernelBrowser;
+    protected Client $staticApplicationClient;
 
-    public static function setUpBeforeClass(): void
+    protected function setUp(): void
     {
-        parent::setUpBeforeClass();
+        parent::setUp();
 
-        self::$kernelBrowser = self::createClient();
+        $this->kernelBrowser = self::createClient();
 
         $factory = self::getContainer()->get(ClientFactory::class);
         \assert($factory instanceof ClientFactory);
 
-        self::$staticApplicationClient = $factory->create(static::getClientAdapter());
+        $this->staticApplicationClient = $factory->create($this->getClientAdapter());
     }
 
-    public static function getClientAdapter(): ClientInterface
+    public function getClientAdapter(): ClientInterface
     {
         return \Mockery::mock(ClientInterface::class);
     }
