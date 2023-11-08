@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\User;
 
+use App\Exception\ServiceException;
 use App\Response\ErrorResponse;
 use App\Response\ErrorResponseBody;
 use App\Response\LabelledBody;
@@ -32,6 +33,7 @@ readonly class CreationController
     /**
      * @throws UnauthorizedException
      * @throws NonSuccessResponseException
+     * @throws ServiceException
      */
     #[Route('/user/create', name: 'user_create', methods: ['POST'])]
     public function create(AuthenticationToken $token, UserCredentials $userCredentials): JsonResponse
@@ -43,21 +45,7 @@ readonly class CreationController
                 $userCredentials->password
             );
         } catch (ClientExceptionInterface $e) {
-            $code = $e->getCode();
-            $message = $e->getMessage();
-
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'service-communication-failure',
-                    [
-                        'service' => 'users',
-                        'error' => [
-                            'code' => $code,
-                            'message' => $message,
-                        ],
-                    ]
-                )
-            );
+            throw new ServiceException('users', $e);
         } catch (InvalidModelDataException $e) {
             return new ErrorResponse(
                 new ErrorResponseBody(

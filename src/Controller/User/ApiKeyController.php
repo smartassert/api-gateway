@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\User;
 
+use App\Exception\ServiceException;
 use App\Response\ErrorResponse;
 use App\Response\ErrorResponseBody;
 use App\Response\LabelledBody;
@@ -31,6 +32,7 @@ readonly class ApiKeyController
     /**
      * @throws UnauthorizedException
      * @throws NonSuccessResponseException
+     * @throws ServiceException
      */
     #[Route('/list', name: 'list', methods: ['GET'])]
     public function list(AuthenticationToken $token): JsonResponse
@@ -38,21 +40,7 @@ readonly class ApiKeyController
         try {
             $apiKeyCollection = $this->client->listUserApiKeys($token->token);
         } catch (ClientExceptionInterface $e) {
-            $code = $e->getCode();
-            $message = $e->getMessage();
-
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'service-communication-failure',
-                    [
-                        'service' => 'users',
-                        'error' => [
-                            'code' => $code,
-                            'message' => $message,
-                        ],
-                    ]
-                )
-            );
+            throw new ServiceException('users', $e);
         } catch (InvalidResponseDataException $e) {
             return new ErrorResponse(
                 new ErrorResponseBody(
@@ -109,6 +97,8 @@ readonly class ApiKeyController
 
     /**
      * @throws UnauthorizedException
+     * @throws ServiceException
+     * @throws NonSuccessResponseException
      */
     #[Route('/', name: 'get_default', methods: ['GET'])]
     public function getDefault(AuthenticationToken $token): JsonResponse
@@ -116,21 +106,7 @@ readonly class ApiKeyController
         try {
             $apiKey = $this->client->getUserDefaultApiKey($token->token);
         } catch (ClientExceptionInterface $e) {
-            $code = $e->getCode();
-            $message = $e->getMessage();
-
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'service-communication-failure',
-                    [
-                        'service' => 'users',
-                        'error' => [
-                            'code' => $code,
-                            'message' => $message,
-                        ],
-                    ]
-                )
-            );
+            throw new ServiceException('users', $e);
         } catch (InvalidResponseDataException $e) {
             return new ErrorResponse(
                 new ErrorResponseBody(
@@ -160,10 +136,7 @@ readonly class ApiKeyController
             );
         } catch (NonSuccessResponseException $e) {
             if (404 === $e->getStatusCode()) {
-                return new ErrorResponse(
-                    new ErrorResponseBody('not-found'),
-                    $e->getStatusCode()
-                );
+                throw $e;
             }
 
             return new ErrorResponse(

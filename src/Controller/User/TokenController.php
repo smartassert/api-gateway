@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\User;
 
+use App\Exception\ServiceException;
 use App\Response\ErrorResponse;
 use App\Response\ErrorResponseBody;
 use App\Response\LabelledBody;
@@ -33,6 +34,7 @@ readonly class TokenController
     /**
      * @throws UnauthorizedException
      * @throws NonSuccessResponseException
+     * @throws ServiceException
      */
     #[Route('/create', name: 'create', methods: ['POST'])]
     public function create(UserCredentials $userCredentials): JsonResponse
@@ -40,21 +42,7 @@ readonly class TokenController
         try {
             $token = $this->client->createFrontendToken($userCredentials->userIdentifier, $userCredentials->password);
         } catch (ClientExceptionInterface $e) {
-            $code = $e->getCode();
-            $message = $e->getMessage();
-
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'service-communication-failure',
-                    [
-                        'service' => 'users',
-                        'error' => [
-                            'code' => $code,
-                            'message' => $message,
-                        ],
-                    ]
-                )
-            );
+            throw new ServiceException('users', $e);
         } catch (InvalidModelDataException $e) {
             return new ErrorResponse(
                 new ErrorResponseBody(
@@ -117,6 +105,10 @@ readonly class TokenController
         );
     }
 
+    /**
+     * @throws ServiceException
+     * @throws NonSuccessResponseException
+     */
     #[Route('/verify', name: 'verify', methods: ['GET'])]
     public function verify(AuthenticationToken $token): JsonResponse
     {
@@ -126,21 +118,7 @@ readonly class TokenController
                 return new ErrorResponse(new ErrorResponseBody('unauthorized'), 401);
             }
         } catch (ClientExceptionInterface $e) {
-            $code = $e->getCode();
-            $message = $e->getMessage();
-
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'service-communication-failure',
-                    [
-                        'service' => 'users',
-                        'error' => [
-                            'code' => $code,
-                            'message' => $message,
-                        ],
-                    ]
-                )
-            );
+            throw new ServiceException('users', $e);
         } catch (InvalidModelDataException $e) {
             return new ErrorResponse(
                 new ErrorResponseBody(
@@ -180,10 +158,7 @@ readonly class TokenController
             );
         } catch (NonSuccessResponseException $e) {
             if (404 === $e->getStatusCode()) {
-                return new ErrorResponse(
-                    new ErrorResponseBody('not-found'),
-                    $e->getStatusCode()
-                );
+                throw $e;
             }
 
             return new ErrorResponse(
@@ -206,6 +181,10 @@ readonly class TokenController
         );
     }
 
+    /**
+     * @throws ServiceException
+     * @throws NonSuccessResponseException
+     */
     #[Route('/refresh', name: 'refresh', methods: ['POST'])]
     public function refresh(AuthenticationToken $token): JsonResponse
     {
@@ -216,21 +195,7 @@ readonly class TokenController
                 return new ErrorResponse(new ErrorResponseBody('unauthorized'), 401);
             }
         } catch (ClientExceptionInterface $e) {
-            $code = $e->getCode();
-            $message = $e->getMessage();
-
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'service-communication-failure',
-                    [
-                        'service' => 'users',
-                        'error' => [
-                            'code' => $code,
-                            'message' => $message,
-                        ],
-                    ]
-                )
-            );
+            throw new ServiceException('users', $e);
         } catch (InvalidModelDataException $e) {
             return new ErrorResponse(
                 new ErrorResponseBody(
@@ -270,10 +235,7 @@ readonly class TokenController
             );
         } catch (NonSuccessResponseException $e) {
             if (404 === $e->getStatusCode()) {
-                return new ErrorResponse(
-                    new ErrorResponseBody('not-found'),
-                    $e->getStatusCode()
-                );
+                throw $e;
             }
 
             return new ErrorResponse(

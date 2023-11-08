@@ -7,8 +7,10 @@ namespace App\EventListener;
 use App\Exception\EmptyAuthenticationTokenException;
 use App\Exception\EmptyUserCredentialsException;
 use App\Exception\EmptyUserIdException;
+use App\Exception\ServiceException;
 use App\Response\ErrorResponse;
 use App\Response\ErrorResponseBody;
+use Psr\Http\Client\ClientExceptionInterface;
 use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
 use SmartAssert\ServiceClient\Exception\UnauthorizedException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -57,9 +59,35 @@ class KernelExceptionEventSubscriber implements EventSubscriberInterface
             );
         }
 
+        if ($throwable instanceof ServiceException) {
+            $response = $this->createResponseFromServiceException($throwable);
+        }
+
         if ($response instanceof Response) {
             $event->setResponse($response);
             $event->stopPropagation();
         }
+    }
+
+    private function createResponseFromServiceException(ServiceException $serviceException): ?Response
+    {
+        $previous = $serviceException->previousException;
+
+        if ($previous instanceof ClientExceptionInterface) {
+            return new ErrorResponse(
+                new ErrorResponseBody(
+                    'service-communication-failure',
+                    [
+                        'service' => $serviceException->serviceName,
+                        'error' => [
+                            'code' => $previous->getCode(),
+                            'message' => $previous->getMessage(),
+                        ],
+                    ]
+                )
+            );
+        }
+
+        return null;
     }
 }
