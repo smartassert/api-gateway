@@ -51,7 +51,7 @@ readonly class CreationController
             NonSuccessResponseException $e
         ) {
             throw new ServiceException('users', $e);
-        } catch (UserAlreadyExistsException $e) {
+        } catch (UserAlreadyExistsException) {
             return new ErrorResponse(
                 new ErrorResponseBody('user-already-exists'),
                 409
