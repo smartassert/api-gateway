@@ -30,6 +30,7 @@ readonly class ApiKeyController
 
     /**
      * @throws UnauthorizedException
+     * @throws NonSuccessResponseException
      */
     #[Route('/list', name: 'list', methods: ['GET'])]
     public function list(AuthenticationToken $token): JsonResponse
@@ -81,10 +82,7 @@ readonly class ApiKeyController
             );
         } catch (NonSuccessResponseException $e) {
             if (404 === $e->getStatusCode()) {
-                return new ErrorResponse(
-                    new ErrorResponseBody('not-found'),
-                    $e->getStatusCode()
-                );
+                throw $e;
             }
 
             return new ErrorResponse(

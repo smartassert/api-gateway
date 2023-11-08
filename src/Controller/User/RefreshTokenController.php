@@ -76,6 +76,7 @@ readonly class RefreshTokenController
 
     /**
      * @throws UnauthorizedException
+     * @throws NonSuccessResponseException
      */
     #[Route('/user/refresh_token/revoke', name: 'user_revoke_refresh_token', methods: ['POST'])]
     public function revoke(AuthenticationToken $token, RefreshToken $refreshToken): JsonResponse
@@ -100,10 +101,7 @@ readonly class RefreshTokenController
             );
         } catch (NonSuccessResponseException $e) {
             if (404 === $e->getStatusCode()) {
-                return new ErrorResponse(
-                    new ErrorResponseBody('not-found'),
-                    $e->getStatusCode()
-                );
+                throw $e;
             }
 
             return new ErrorResponse(
