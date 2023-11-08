@@ -38,7 +38,7 @@ class RefreshTokenControllerTest extends AbstractApplicationTestCase
 
         self::getContainer()->set(UsersClient::class, $usersClient);
 
-        $response = $this->staticApplicationClient->makeRevokeAllRefreshTokensForUserRequest($token, $id);
+        $response = $this->applicationClient->makeRevokeAllRefreshTokensForUserRequest($token, $id);
 
         $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
     }
@@ -65,7 +65,7 @@ class RefreshTokenControllerTest extends AbstractApplicationTestCase
 
         self::getContainer()->set(UsersClient::class, $usersClient);
 
-        $response = $this->staticApplicationClient->makeRevokeRefreshTokenRequest($token, $refreshToken);
+        $response = $this->applicationClient->makeRevokeRefreshTokenRequest($token, $refreshToken);
 
         $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
     }

@@ -15,7 +15,7 @@ abstract class AbstractRevokeAllRefreshTokensTest extends AbstractApplicationTes
      */
     public function testRevokeRefreshTokenBadMethod(string $method): void
     {
-        $response = $this->staticApplicationClient->makeRevokeAllRefreshTokensForUserRequest(
+        $response = $this->applicationClient->makeRevokeAllRefreshTokensForUserRequest(
             'primary_admin_token',
             md5((string) rand()),
             $method
@@ -47,7 +47,7 @@ abstract class AbstractRevokeAllRefreshTokensTest extends AbstractApplicationTes
      */
     public function testRevokeRefreshTokenUnauthorizedUser(?string $adminToken): void
     {
-        $response = $this->staticApplicationClient->makeRevokeAllRefreshTokensForUserRequest(
+        $response = $this->applicationClient->makeRevokeAllRefreshTokensForUserRequest(
             $adminToken,
             md5((string) rand()),
         );
@@ -75,7 +75,7 @@ abstract class AbstractRevokeAllRefreshTokensTest extends AbstractApplicationTes
 
     public function testRevokeRefreshTokenInvalidUserId(): void
     {
-        $response = $this->staticApplicationClient->makeRevokeAllRefreshTokensForUserRequest(
+        $response = $this->applicationClient->makeRevokeAllRefreshTokensForUserRequest(
             'primary_admin_token',
             md5((string) rand()),
         );
@@ -89,7 +89,7 @@ abstract class AbstractRevokeAllRefreshTokensTest extends AbstractApplicationTes
         \assert($frontendTokenProvider instanceof FrontendTokenProvider);
         $frontendToken = $frontendTokenProvider->get('user@example.com');
 
-        $refreshResponse = $this->staticApplicationClient->makeRefreshUserTokenRequest($frontendToken->refreshToken);
+        $refreshResponse = $this->applicationClient->makeRefreshUserTokenRequest($frontendToken->refreshToken);
 
         self::assertSame(200, $refreshResponse->getStatusCode());
         self::assertSame('application/json', $refreshResponse->getHeaderLine('content-type'));
@@ -98,13 +98,13 @@ abstract class AbstractRevokeAllRefreshTokensTest extends AbstractApplicationTes
         \assert($userProvider instanceof UserProvider);
         $user = $userProvider->get('user@example.com');
 
-        $revokeResponse = $this->staticApplicationClient->makeRevokeAllRefreshTokensForUserRequest(
+        $revokeResponse = $this->applicationClient->makeRevokeAllRefreshTokensForUserRequest(
             'primary_admin_token',
             $user->id
         );
         self::assertSame(200, $revokeResponse->getStatusCode());
 
-        $refreshResponse = $this->staticApplicationClient->makeRefreshUserTokenRequest($frontendToken->refreshToken);
+        $refreshResponse = $this->applicationClient->makeRefreshUserTokenRequest($frontendToken->refreshToken);
         self::assertSame(401, $refreshResponse->getStatusCode());
     }
 }

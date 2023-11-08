@@ -40,7 +40,7 @@ class CreationControllerTest extends AbstractApplicationTestCase
 
         self::getContainer()->set(UsersClient::class, $usersClient);
 
-        $response = $this->staticApplicationClient->makeCreateUserRequest($token, $userIdentifier, $password);
+        $response = $this->applicationClient->makeCreateUserRequest($token, $userIdentifier, $password);
 
         $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
     }

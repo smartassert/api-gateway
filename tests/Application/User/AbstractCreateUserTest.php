@@ -13,7 +13,7 @@ abstract class AbstractCreateUserTest extends AbstractApplicationTestCase
      */
     public function testCreateUserBadMethod(string $method): void
     {
-        $response = $this->staticApplicationClient->makeCreateUserRequest(
+        $response = $this->applicationClient->makeCreateUserRequest(
             'primary_admin_token',
             'user@example.com',
             'password',
@@ -46,7 +46,7 @@ abstract class AbstractCreateUserTest extends AbstractApplicationTestCase
      */
     public function testCreateUserUnauthorizedUser(?string $adminToken): void
     {
-        $response = $this->staticApplicationClient->makeCreateUserRequest(
+        $response = $this->applicationClient->makeCreateUserRequest(
             $adminToken,
             md5((string) rand()),
             md5((string) rand())
@@ -78,18 +78,11 @@ abstract class AbstractCreateUserTest extends AbstractApplicationTestCase
         $userIdentifier = 'user@example.com';
         $password = 'password';
 
-        $createTokenResponse = $this->staticApplicationClient->makeCreateUserTokenRequest(
-            $userIdentifier,
-            $password
-        );
+        $createTokenResponse = $this->applicationClient->makeCreateUserTokenRequest($userIdentifier, $password);
 
         self::assertSame(200, $createTokenResponse->getStatusCode());
 
-        $response = $this->staticApplicationClient->makeCreateUserRequest(
-            'primary_admin_token',
-            $userIdentifier,
-            $password
-        );
+        $response = $this->applicationClient->makeCreateUserRequest('primary_admin_token', $userIdentifier, $password);
 
         self::assertSame(409, $response->getStatusCode());
         self::assertSame('application/json', $response->getHeaderLine('content-type'));
@@ -104,18 +97,11 @@ abstract class AbstractCreateUserTest extends AbstractApplicationTestCase
         $userIdentifier = md5((string) rand());
         $password = md5((string) rand());
 
-        $createTokenResponse = $this->staticApplicationClient->makeCreateUserTokenRequest(
-            $userIdentifier,
-            $password
-        );
+        $createTokenResponse = $this->applicationClient->makeCreateUserTokenRequest($userIdentifier, $password);
 
         self::assertSame(401, $createTokenResponse->getStatusCode());
 
-        $response = $this->staticApplicationClient->makeCreateUserRequest(
-            'primary_admin_token',
-            $userIdentifier,
-            $password
-        );
+        $response = $this->applicationClient->makeCreateUserRequest('primary_admin_token', $userIdentifier, $password);
 
         self::assertSame(200, $response->getStatusCode());
         self::assertSame('application/json', $response->getHeaderLine('content-type'));
@@ -129,10 +115,7 @@ abstract class AbstractCreateUserTest extends AbstractApplicationTestCase
         self::assertArrayHasKey('id', $userData);
         self::assertArrayHasKey('user-identifier', $userData);
 
-        $createTokenResponse = $this->staticApplicationClient->makeCreateUserTokenRequest(
-            $userIdentifier,
-            $password
-        );
+        $createTokenResponse = $this->applicationClient->makeCreateUserTokenRequest($userIdentifier, $password);
 
         self::assertSame(200, $createTokenResponse->getStatusCode());
     }
