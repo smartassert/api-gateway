@@ -5,19 +5,15 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Controller\User;
 
 use App\Tests\Application\AbstractApplicationTestCase;
-use App\Tests\Exception\Http\ClientException;
+use App\Tests\DataProvider\ServiceHttpFailureDataProviderCreatorTrait;
 use App\Tests\Functional\GetClientAdapterTrait;
-use Psr\Http\Client\ClientExceptionInterface;
-use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use SmartAssert\ServiceClient\Exception\CurlException;
-use SmartAssert\ServiceClient\Exception\CurlExceptionInterface;
-use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
 use SmartAssert\UsersClient\ClientInterface as UsersClient;
 
 class RefreshTokenControllerTest extends AbstractApplicationTestCase
 {
     use GetClientAdapterTrait;
+    use ServiceHttpFailureDataProviderCreatorTrait;
 
     /**
      * @dataProvider revokeRefreshTokenUsersClientExceptionDataProvider
@@ -78,95 +74,7 @@ class RefreshTokenControllerTest extends AbstractApplicationTestCase
      */
     public function revokeRefreshTokenUsersClientExceptionDataProvider(): array
     {
-        $exceptionMessage = md5((string) rand());
-        $exceptionCode = rand();
-
-        return [
-            ClientExceptionInterface::class => [
-                'exception' => new ClientException(
-                    $exceptionMessage,
-                    $exceptionCode
-                ),
-                'expectedStatusCode' => 500,
-                'expectedData' => [
-                    'type' => 'service-communication-failure',
-                    'context' => [
-                        'service' => 'users',
-                        'error' => [
-                            'code' => $exceptionCode,
-                            'message' => $exceptionMessage,
-                        ],
-                    ],
-                ],
-            ],
-            CurlExceptionInterface::class => [
-                'exception' => new CurlException(
-                    \Mockery::mock(RequestInterface::class),
-                    $exceptionCode,
-                    $exceptionMessage,
-                ),
-                'expectedStatusCode' => 500,
-                'expectedData' => [
-                    'type' => 'service-communication-failure',
-                    'context' => [
-                        'service' => 'users',
-                        'error' => [
-                            'code' => $exceptionCode,
-                            'message' => $exceptionMessage,
-                        ],
-                    ],
-                ],
-            ],
-            NonSuccessResponseException::class . ' 404' => [
-                'exception' => new NonSuccessResponseException(
-                    (function () {
-                        $response = \Mockery::mock(ResponseInterface::class);
-                        $response
-                            ->shouldReceive('getStatusCode')
-                            ->andReturn(404)
-                        ;
-
-                        $response
-                            ->shouldReceive('getReasonPhrase')
-                            ->andReturn('Not found.')
-                        ;
-
-                        return $response;
-                    })(),
-                ),
-                'expectedStatusCode' => 404,
-                'expectedData' => [
-                    'type' => 'not-found',
-                ],
-            ],
-            NonSuccessResponseException::class . ' 405' => [
-                'exception' => new NonSuccessResponseException(
-                    (function () {
-                        $response = \Mockery::mock(ResponseInterface::class);
-                        $response
-                            ->shouldReceive('getStatusCode')
-                            ->andReturn(405)
-                        ;
-
-                        $response
-                            ->shouldReceive('getReasonPhrase')
-                            ->andReturn('Method not allowed.')
-                        ;
-
-                        return $response;
-                    })(),
-                ),
-                'expectedStatusCode' => 500,
-                'expectedData' => [
-                    'type' => 'non-successful-service-response',
-                    'context' => [
-                        'service' => 'users',
-                        'status' => 405,
-                        'message' => '405: Method not allowed.',
-                    ],
-                ],
-            ],
-        ];
+        return $this->serviceHttpFailureDataProviderCreator('users');
     }
 
     /**
