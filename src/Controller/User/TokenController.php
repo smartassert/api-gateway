@@ -32,6 +32,7 @@ readonly class TokenController
 
     /**
      * @throws UnauthorizedException
+     * @throws NonSuccessResponseException
      */
     #[Route('/create', name: 'create', methods: ['POST'])]
     public function create(UserCredentials $userCredentials): JsonResponse
@@ -93,10 +94,7 @@ readonly class TokenController
             );
         } catch (NonSuccessResponseException $e) {
             if (404 === $e->getStatusCode()) {
-                return new ErrorResponse(
-                    new ErrorResponseBody('not-found'),
-                    $e->getStatusCode()
-                );
+                throw $e;
             }
 
             return new ErrorResponse(

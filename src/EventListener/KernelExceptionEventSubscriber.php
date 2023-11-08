@@ -9,6 +9,7 @@ use App\Exception\EmptyUserCredentialsException;
 use App\Exception\EmptyUserIdException;
 use App\Response\ErrorResponse;
 use App\Response\ErrorResponseBody;
+use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
 use SmartAssert\ServiceClient\Exception\UnauthorizedException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -47,6 +48,13 @@ class KernelExceptionEventSubscriber implements EventSubscriberInterface
 
         if ($throwable instanceof UnauthorizedException) {
             $response = new ErrorResponse(new ErrorResponseBody('unauthorized'), 401);
+        }
+
+        if ($throwable instanceof NonSuccessResponseException) {
+            $response = new ErrorResponse(
+                new ErrorResponseBody('not-found'),
+                $throwable->getStatusCode()
+            );
         }
 
         if ($response instanceof Response) {
