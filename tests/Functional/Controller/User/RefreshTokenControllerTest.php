@@ -6,14 +6,15 @@ namespace App\Tests\Functional\Controller\User;
 
 use App\Tests\Application\AbstractApplicationTestCase;
 use App\Tests\DataProvider\ServiceHttpFailureDataProviderCreatorTrait;
+use App\Tests\Functional\Controller\AssertJsonResponseTrait;
 use App\Tests\Functional\GetClientAdapterTrait;
-use Psr\Http\Message\ResponseInterface;
 use SmartAssert\UsersClient\ClientInterface as UsersClient;
 
 class RefreshTokenControllerTest extends AbstractApplicationTestCase
 {
     use GetClientAdapterTrait;
     use ServiceHttpFailureDataProviderCreatorTrait;
+    use AssertJsonResponseTrait;
 
     /**
      * @dataProvider revokeRefreshTokenUsersClientExceptionDataProvider
@@ -39,7 +40,7 @@ class RefreshTokenControllerTest extends AbstractApplicationTestCase
 
         $response = $this->staticApplicationClient->makeRevokeAllRefreshTokensForUserRequest($token, $id);
 
-        $this->assertResponse($response, $expectedStatusCode, $expectedData);
+        $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
     }
 
     /**
@@ -66,7 +67,7 @@ class RefreshTokenControllerTest extends AbstractApplicationTestCase
 
         $response = $this->staticApplicationClient->makeRevokeRefreshTokenRequest($token, $refreshToken);
 
-        $this->assertResponse($response, $expectedStatusCode, $expectedData);
+        $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
     }
 
     /**
@@ -75,18 +76,5 @@ class RefreshTokenControllerTest extends AbstractApplicationTestCase
     public function revokeRefreshTokenUsersClientExceptionDataProvider(): array
     {
         return $this->serviceHttpFailureDataProviderCreator('users');
-    }
-
-    /**
-     * @param array<mixed> $expectedData
-     */
-    private function assertResponse(ResponseInterface $response, int $expectedCode, array $expectedData): void
-    {
-        self::assertSame($expectedCode, $response->getStatusCode());
-        self::assertSame('application/json', $response->getHeaderLine('content-type'));
-
-        $responseData = json_decode($response->getBody()->getContents(), true);
-
-        self::assertEquals($expectedData, $responseData);
     }
 }

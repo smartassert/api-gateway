@@ -7,8 +7,8 @@ namespace App\Tests\Functional\Controller\User;
 use App\Tests\Application\AbstractApplicationTestCase;
 use App\Tests\DataProvider\InvalidResponseModelDataProviderCreatorTrait;
 use App\Tests\DataProvider\ServiceHttpFailureDataProviderCreatorTrait;
+use App\Tests\Functional\Controller\AssertJsonResponseTrait;
 use App\Tests\Functional\GetClientAdapterTrait;
-use Psr\Http\Message\ResponseInterface;
 use SmartAssert\UsersClient\ClientInterface as UsersClient;
 
 class TokenControllerTest extends AbstractApplicationTestCase
@@ -16,6 +16,7 @@ class TokenControllerTest extends AbstractApplicationTestCase
     use GetClientAdapterTrait;
     use ServiceHttpFailureDataProviderCreatorTrait;
     use InvalidResponseModelDataProviderCreatorTrait;
+    use AssertJsonResponseTrait;
 
     /**
      * @dataProvider usersClientExceptionDataProvider
@@ -41,7 +42,7 @@ class TokenControllerTest extends AbstractApplicationTestCase
 
         $response = $this->staticApplicationClient->makeCreateUserTokenRequest($userIdentifier, $password);
 
-        $this->assertResponse($response, $expectedStatusCode, $expectedData);
+        $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
     }
 
     /**
@@ -67,7 +68,7 @@ class TokenControllerTest extends AbstractApplicationTestCase
 
         $response = $this->staticApplicationClient->makeVerifyUserTokenRequest($token);
 
-        $this->assertResponse($response, $expectedStatusCode, $expectedData);
+        $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
     }
 
     /**
@@ -93,7 +94,7 @@ class TokenControllerTest extends AbstractApplicationTestCase
 
         $response = $this->staticApplicationClient->makeRefreshUserTokenRequest($refreshToken);
 
-        $this->assertResponse($response, $expectedStatusCode, $expectedData);
+        $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
     }
 
     /**
@@ -105,18 +106,5 @@ class TokenControllerTest extends AbstractApplicationTestCase
             $this->serviceHttpFailureDataProviderCreator('users'),
             $this->invalidResponseModelDataProviderCreator('users'),
         );
-    }
-
-    /**
-     * @param array<mixed> $expectedData
-     */
-    private function assertResponse(ResponseInterface $response, int $expectedCode, array $expectedData): void
-    {
-        self::assertSame($expectedCode, $response->getStatusCode());
-        self::assertSame('application/json', $response->getHeaderLine('content-type'));
-
-        $responseData = json_decode($response->getBody()->getContents(), true);
-
-        self::assertEquals($expectedData, $responseData);
     }
 }

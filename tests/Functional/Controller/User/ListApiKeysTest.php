@@ -7,8 +7,8 @@ namespace App\Tests\Functional\Controller\User;
 use App\Tests\Application\AbstractApplicationTestCase;
 use App\Tests\DataProvider\InvalidResponseModelDataProviderCreatorTrait;
 use App\Tests\DataProvider\ServiceHttpFailureDataProviderCreatorTrait;
+use App\Tests\Functional\Controller\AssertJsonResponseTrait;
 use App\Tests\Functional\GetClientAdapterTrait;
-use Psr\Http\Message\ResponseInterface;
 use SmartAssert\UsersClient\ClientInterface as UsersClient;
 
 class ListApiKeysTest extends AbstractApplicationTestCase
@@ -16,6 +16,7 @@ class ListApiKeysTest extends AbstractApplicationTestCase
     use GetClientAdapterTrait;
     use ServiceHttpFailureDataProviderCreatorTrait;
     use InvalidResponseModelDataProviderCreatorTrait;
+    use AssertJsonResponseTrait;
 
     /**
      * @dataProvider usersClientExceptionDataProvider
@@ -34,7 +35,7 @@ class ListApiKeysTest extends AbstractApplicationTestCase
 
         $response = $this->staticApplicationClient->makeListUserApiKeysRequest('token');
 
-        $this->assertResponse($response, $expectedStatusCode, $expectedData);
+        $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
     }
 
     /**
@@ -57,7 +58,7 @@ class ListApiKeysTest extends AbstractApplicationTestCase
 
         $response = $this->staticApplicationClient->makeGetUserDefaultApiKeyRequest('token');
 
-        $this->assertResponse($response, $expectedStatusCode, $expectedData);
+        $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
     }
 
     /**
@@ -69,18 +70,5 @@ class ListApiKeysTest extends AbstractApplicationTestCase
             $this->serviceHttpFailureDataProviderCreator('users'),
             $this->invalidResponseModelDataProviderCreator('users'),
         );
-    }
-
-    /**
-     * @param array<mixed> $expectedData
-     */
-    private function assertResponse(ResponseInterface $response, int $expectedCode, array $expectedData): void
-    {
-        self::assertSame($expectedCode, $response->getStatusCode());
-        self::assertSame('application/json', $response->getHeaderLine('content-type'));
-
-        $responseData = json_decode($response->getBody()->getContents(), true);
-
-        self::assertEquals($expectedData, $responseData);
     }
 }
