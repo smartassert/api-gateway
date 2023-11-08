@@ -39,22 +39,8 @@ readonly class ApiKeyController
     {
         try {
             $apiKeyCollection = $this->client->listUserApiKeys($token->token);
-        } catch (ClientExceptionInterface $e) {
+        } catch (ClientExceptionInterface | InvalidResponseDataException $e) {
             throw new ServiceException('users', $e);
-        } catch (InvalidResponseDataException $e) {
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'invalid-response-data',
-                    [
-                        'service' => 'users',
-                        'data' => $e->getResponse()->getBody(),
-                        'data-type' => [
-                            'expected' => $e->expected,
-                            'actual' => $e->actual,
-                        ],
-                    ]
-                )
-            );
         } catch (InvalidResponseTypeException $e) {
             return new ErrorResponse(
                 new ErrorResponseBody(
@@ -105,22 +91,8 @@ readonly class ApiKeyController
     {
         try {
             $apiKey = $this->client->getUserDefaultApiKey($token->token);
-        } catch (ClientExceptionInterface $e) {
+        } catch (ClientExceptionInterface | InvalidResponseDataException $e) {
             throw new ServiceException('users', $e);
-        } catch (InvalidResponseDataException $e) {
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'invalid-response-data',
-                    [
-                        'service' => 'users',
-                        'data' => $e->getResponse()->getBody(),
-                        'data-type' => [
-                            'expected' => $e->expected,
-                            'actual' => $e->actual,
-                        ],
-                    ]
-                )
-            );
         } catch (InvalidResponseTypeException $e) {
             return new ErrorResponse(
                 new ErrorResponseBody(

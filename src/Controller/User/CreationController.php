@@ -44,7 +44,7 @@ readonly class CreationController
                 $userCredentials->userIdentifier,
                 $userCredentials->password
             );
-        } catch (ClientExceptionInterface $e) {
+        } catch (ClientExceptionInterface | InvalidResponseDataException $e) {
             throw new ServiceException('users', $e);
         } catch (InvalidModelDataException $e) {
             return new ErrorResponse(
@@ -53,20 +53,6 @@ readonly class CreationController
                     [
                         'service' => 'users',
                         'data' => $e->getResponse()->getBody(),
-                    ]
-                )
-            );
-        } catch (InvalidResponseDataException $e) {
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'invalid-response-data',
-                    [
-                        'service' => 'users',
-                        'data' => $e->getResponse()->getBody(),
-                        'data-type' => [
-                            'expected' => $e->expected,
-                            'actual' => $e->actual,
-                        ],
                     ]
                 )
             );

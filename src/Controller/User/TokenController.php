@@ -41,7 +41,7 @@ readonly class TokenController
     {
         try {
             $token = $this->client->createFrontendToken($userCredentials->userIdentifier, $userCredentials->password);
-        } catch (ClientExceptionInterface $e) {
+        } catch (ClientExceptionInterface | InvalidResponseDataException $e) {
             throw new ServiceException('users', $e);
         } catch (InvalidModelDataException $e) {
             return new ErrorResponse(
@@ -50,20 +50,6 @@ readonly class TokenController
                     [
                         'service' => 'users',
                         'data' => $e->getResponse()->getBody(),
-                    ]
-                )
-            );
-        } catch (InvalidResponseDataException $e) {
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'invalid-response-data',
-                    [
-                        'service' => 'users',
-                        'data' => $e->getResponse()->getBody(),
-                        'data-type' => [
-                            'expected' => $e->expected,
-                            'actual' => $e->actual,
-                        ],
                     ]
                 )
             );
@@ -117,7 +103,7 @@ readonly class TokenController
             if (null === $user) {
                 return new ErrorResponse(new ErrorResponseBody('unauthorized'), 401);
             }
-        } catch (ClientExceptionInterface $e) {
+        } catch (ClientExceptionInterface | InvalidResponseDataException $e) {
             throw new ServiceException('users', $e);
         } catch (InvalidModelDataException $e) {
             return new ErrorResponse(
@@ -126,20 +112,6 @@ readonly class TokenController
                     [
                         'service' => 'users',
                         'data' => $e->getResponse()->getBody(),
-                    ]
-                )
-            );
-        } catch (InvalidResponseDataException $e) {
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'invalid-response-data',
-                    [
-                        'service' => 'users',
-                        'data' => $e->getResponse()->getBody(),
-                        'data-type' => [
-                            'expected' => $e->expected,
-                            'actual' => $e->actual,
-                        ],
                     ]
                 )
             );

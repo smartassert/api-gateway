@@ -11,6 +11,7 @@ use App\Exception\ServiceException;
 use App\Response\ErrorResponse;
 use App\Response\ErrorResponseBody;
 use Psr\Http\Client\ClientExceptionInterface;
+use SmartAssert\ServiceClient\Exception\InvalidResponseDataException;
 use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
 use SmartAssert\ServiceClient\Exception\UnauthorizedException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -82,6 +83,22 @@ class KernelExceptionEventSubscriber implements EventSubscriberInterface
                         'error' => [
                             'code' => $previous->getCode(),
                             'message' => $previous->getMessage(),
+                        ],
+                    ]
+                )
+            );
+        }
+
+        if ($previous instanceof InvalidResponseDataException) {
+            return new ErrorResponse(
+                new ErrorResponseBody(
+                    'invalid-response-data',
+                    [
+                        'service' => $serviceException->serviceName,
+                        'data' => $previous->getResponse()->getBody(),
+                        'data-type' => [
+                            'expected' => $previous->expected,
+                            'actual' => $previous->actual,
                         ],
                     ]
                 )
