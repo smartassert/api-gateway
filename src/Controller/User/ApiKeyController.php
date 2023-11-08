@@ -39,21 +39,8 @@ readonly class ApiKeyController
     {
         try {
             $apiKeyCollection = $this->client->listUserApiKeys($token->token);
-        } catch (ClientExceptionInterface | InvalidResponseDataException $e) {
+        } catch (ClientExceptionInterface | InvalidResponseDataException | InvalidResponseTypeException $e) {
             throw new ServiceException('users', $e);
-        } catch (InvalidResponseTypeException $e) {
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'invalid-response-type',
-                    [
-                        'service' => 'users',
-                        'content-type' => [
-                            'expected' => $e->expected,
-                            'actual' => $e->actual,
-                        ],
-                    ]
-                )
-            );
         } catch (NonSuccessResponseException $e) {
             if (404 === $e->getStatusCode()) {
                 throw $e;
@@ -91,21 +78,8 @@ readonly class ApiKeyController
     {
         try {
             $apiKey = $this->client->getUserDefaultApiKey($token->token);
-        } catch (ClientExceptionInterface | InvalidResponseDataException $e) {
+        } catch (ClientExceptionInterface | InvalidResponseDataException | InvalidResponseTypeException $e) {
             throw new ServiceException('users', $e);
-        } catch (InvalidResponseTypeException $e) {
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'invalid-response-type',
-                    [
-                        'service' => 'users',
-                        'content-type' => [
-                            'expected' => $e->expected,
-                            'actual' => $e->actual,
-                        ],
-                    ]
-                )
-            );
         } catch (NonSuccessResponseException $e) {
             if (404 === $e->getStatusCode()) {
                 throw $e;
