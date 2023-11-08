@@ -32,7 +32,6 @@ readonly class CreationController
 
     /**
      * @throws UnauthorizedException
-     * @throws NonSuccessResponseException
      * @throws ServiceException
      */
     #[Route('/user/create', name: 'user_create', methods: ['POST'])]
@@ -44,7 +43,12 @@ readonly class CreationController
                 $userCredentials->userIdentifier,
                 $userCredentials->password
             );
-        } catch (ClientExceptionInterface | InvalidResponseDataException | InvalidResponseTypeException $e) {
+        } catch (
+            ClientExceptionInterface |
+            InvalidResponseDataException |
+            InvalidResponseTypeException |
+            NonSuccessResponseException $e
+        ) {
             throw new ServiceException('users', $e);
         } catch (InvalidModelDataException $e) {
             return new ErrorResponse(
@@ -60,21 +64,6 @@ readonly class CreationController
             return new ErrorResponse(
                 new ErrorResponseBody('user-already-exists'),
                 409
-            );
-        } catch (NonSuccessResponseException $e) {
-            if (404 === $e->getStatusCode()) {
-                throw $e;
-            }
-
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'non-successful-service-response',
-                    [
-                        'service' => 'users',
-                        'status' => $e->getStatusCode(),
-                        'message' => $e->getMessage(),
-                    ]
-                )
             );
         }
 

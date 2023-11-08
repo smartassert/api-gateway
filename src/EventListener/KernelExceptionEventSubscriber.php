@@ -54,13 +54,6 @@ class KernelExceptionEventSubscriber implements EventSubscriberInterface
             $response = new ErrorResponse(new ErrorResponseBody('unauthorized'), 401);
         }
 
-        if ($throwable instanceof NonSuccessResponseException) {
-            $response = new ErrorResponse(
-                new ErrorResponseBody('not-found'),
-                $throwable->getStatusCode()
-            );
-        }
-
         if ($throwable instanceof ServiceException) {
             $response = $this->createResponseFromServiceException($throwable);
         }
@@ -116,6 +109,26 @@ class KernelExceptionEventSubscriber implements EventSubscriberInterface
                             'expected' => $previous->expected,
                             'actual' => $previous->actual,
                         ],
+                    ]
+                )
+            );
+        }
+
+        if ($previous instanceof NonSuccessResponseException) {
+            if (404 === $previous->getCode()) {
+                return new ErrorResponse(
+                    new ErrorResponseBody('not-found'),
+                    $previous->getStatusCode()
+                );
+            }
+
+            return new ErrorResponse(
+                new ErrorResponseBody(
+                    'non-successful-service-response',
+                    [
+                        'service' => $serviceException->serviceName,
+                        'status' => $previous->getStatusCode(),
+                        'message' => $previous->getMessage(),
                     ]
                 )
             );

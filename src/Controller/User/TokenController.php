@@ -33,7 +33,6 @@ readonly class TokenController
 
     /**
      * @throws UnauthorizedException
-     * @throws NonSuccessResponseException
      * @throws ServiceException
      */
     #[Route('/create', name: 'create', methods: ['POST'])]
@@ -41,7 +40,12 @@ readonly class TokenController
     {
         try {
             $token = $this->client->createFrontendToken($userCredentials->userIdentifier, $userCredentials->password);
-        } catch (ClientExceptionInterface | InvalidResponseDataException | InvalidResponseTypeException $e) {
+        } catch (
+            ClientExceptionInterface |
+            InvalidResponseDataException |
+            InvalidResponseTypeException |
+            NonSuccessResponseException $e
+        ) {
             throw new ServiceException('users', $e);
         } catch (InvalidModelDataException $e) {
             return new ErrorResponse(
@@ -50,21 +54,6 @@ readonly class TokenController
                     [
                         'service' => 'users',
                         'data' => $e->getResponse()->getBody(),
-                    ]
-                )
-            );
-        } catch (NonSuccessResponseException $e) {
-            if (404 === $e->getStatusCode()) {
-                throw $e;
-            }
-
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'non-successful-service-response',
-                    [
-                        'service' => 'users',
-                        'status' => $e->getStatusCode(),
-                        'message' => $e->getMessage(),
                     ]
                 )
             );
@@ -80,7 +69,6 @@ readonly class TokenController
 
     /**
      * @throws ServiceException
-     * @throws NonSuccessResponseException
      */
     #[Route('/verify', name: 'verify', methods: ['GET'])]
     public function verify(AuthenticationToken $token): JsonResponse
@@ -90,7 +78,12 @@ readonly class TokenController
             if (null === $user) {
                 return new ErrorResponse(new ErrorResponseBody('unauthorized'), 401);
             }
-        } catch (ClientExceptionInterface | InvalidResponseDataException | InvalidResponseTypeException $e) {
+        } catch (
+            ClientExceptionInterface |
+            InvalidResponseDataException |
+            InvalidResponseTypeException |
+            NonSuccessResponseException $e
+        ) {
             throw new ServiceException('users', $e);
         } catch (InvalidModelDataException $e) {
             return new ErrorResponse(
@@ -99,21 +92,6 @@ readonly class TokenController
                     [
                         'service' => 'users',
                         'data' => $e->getResponse()->getBody(),
-                    ]
-                )
-            );
-        } catch (NonSuccessResponseException $e) {
-            if (404 === $e->getStatusCode()) {
-                throw $e;
-            }
-
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'non-successful-service-response',
-                    [
-                        'service' => 'users',
-                        'status' => $e->getStatusCode(),
-                        'message' => $e->getMessage(),
                     ]
                 )
             );
@@ -129,7 +107,6 @@ readonly class TokenController
 
     /**
      * @throws ServiceException
-     * @throws NonSuccessResponseException
      */
     #[Route('/refresh', name: 'refresh', methods: ['POST'])]
     public function refresh(AuthenticationToken $token): JsonResponse
@@ -140,7 +117,12 @@ readonly class TokenController
             if (null === $refreshableToken) {
                 return new ErrorResponse(new ErrorResponseBody('unauthorized'), 401);
             }
-        } catch (ClientExceptionInterface | InvalidResponseDataException | InvalidResponseTypeException $e) {
+        } catch (
+            ClientExceptionInterface |
+            InvalidResponseDataException |
+            InvalidResponseTypeException |
+            NonSuccessResponseException $e
+        ) {
             throw new ServiceException('users', $e);
         } catch (InvalidModelDataException $e) {
             return new ErrorResponse(
@@ -149,21 +131,6 @@ readonly class TokenController
                     [
                         'service' => 'users',
                         'data' => $e->getResponse()->getBody(),
-                    ]
-                )
-            );
-        } catch (NonSuccessResponseException $e) {
-            if (404 === $e->getStatusCode()) {
-                throw $e;
-            }
-
-            return new ErrorResponse(
-                new ErrorResponseBody(
-                    'non-successful-service-response',
-                    [
-                        'service' => 'users',
-                        'status' => $e->getStatusCode(),
-                        'message' => $e->getMessage(),
                     ]
                 )
             );
