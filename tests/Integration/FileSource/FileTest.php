@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Tests\Integration\FileSource;
 
-use App\Tests\Application\FileSource\AbstractRemoveFileTest;
+use App\Tests\Application\FileSource\AbstractFileTest;
 use App\Tests\Integration\GetClientAdapterTrait;
 
-class RemoveFileTest extends AbstractRemoveFileTest
+class FileTest extends AbstractFileTest
 {
     use GetClientAdapterTrait;
 }

@@ -247,12 +247,12 @@ readonly class Client
         );
     }
 
-    public function makeAddFileSourceFileRequest(
+    public function makeFileSourceFileRequest(
         ?string $jwt,
         ?string $fileSourceId,
         ?string $filename,
-        string $content,
-        string $method = 'POST'
+        string $method,
+        ?string $content = null,
     ): ResponseInterface {
         $headers = [];
         if (is_string($jwt)) {
@@ -262,7 +262,7 @@ readonly class Client
         return $this->client->makeRequest(
             $method,
             $this->router->generate(
-                'file_source_file_add',
+                'file_source_file_handle',
                 [
                     'sourceId' => $fileSourceId,
                     'filename' => $filename,
@@ -270,54 +270,6 @@ readonly class Client
             ),
             $headers,
             $content
-        );
-    }
-
-    public function makeReadFileSourceFileRequest(
-        ?string $jwt,
-        ?string $fileSourceId,
-        ?string $filename,
-        string $method = 'GET'
-    ): ResponseInterface {
-        $headers = [];
-        if (is_string($jwt)) {
-            $headers['Authorization'] = 'Bearer ' . $jwt;
-        }
-
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate(
-                'file_source_file_read',
-                [
-                    'sourceId' => $fileSourceId,
-                    'filename' => $filename,
-                ]
-            ),
-            $headers
-        );
-    }
-
-    public function makeRemoveFileSourceFileRequest(
-        ?string $jwt,
-        ?string $fileSourceId,
-        ?string $filename,
-        string $method = 'DELETE'
-    ): ResponseInterface {
-        $headers = [];
-        if (is_string($jwt)) {
-            $headers['Authorization'] = 'Bearer ' . $jwt;
-        }
-
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate(
-                'file_source_file_read',
-                [
-                    'sourceId' => $fileSourceId,
-                    'filename' => $filename,
-                ]
-            ),
-            $headers
         );
     }
 }

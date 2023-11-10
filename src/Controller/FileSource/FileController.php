@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\Controller\FileSource;
 
 use App\Exception\ServiceException;
-use App\Response\EmptyBody;
-use App\Response\Response;
 use App\Response\YamlResponse;
 use App\Security\AuthenticationToken;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -15,8 +13,8 @@ use SmartAssert\ServiceClient\Exception\InvalidModelDataException;
 use SmartAssert\ServiceClient\Exception\InvalidResponseDataException;
 use SmartAssert\ServiceClient\Exception\UnauthorizedException;
 use SmartAssert\SourcesClient\FileClientInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(path: '/file-source/{sourceId<[A-Z90-9]{26}>}/{filename<.*\.yaml>}', name: 'file_source_file_')]
@@ -31,15 +29,25 @@ readonly class FileController
      * @throws ServiceException
      * @throws UnauthorizedException
      */
-    #[Route(name: 'add', methods: ['POST'])]
-    public function add(
-        AuthenticationToken $token,
-        string $sourceId,
-        string $filename,
-        Request $request
-    ): JsonResponse {
+    #[Route(name: 'handle', methods: ['POST', 'GET', 'DELETE'])]
+    public function handle(AuthenticationToken $token, string $sourceId, string $filename, Request $request): Response
+    {
         try {
-            $this->client->add($token->token, $sourceId, $filename, (string) $request->getContent());
+            if ('POST' === $request->getMethod()) {
+                $this->client->add($token->token, $sourceId, $filename, (string) $request->getContent());
+
+                return new Response(null, 200);
+            }
+
+            if ('DELETE' === $request->getMethod()) {
+                $this->client->remove($token->token, $sourceId, $filename);
+
+                return new Response(null, 200);
+            }
+
+            if ('GET' === $request->getMethod()) {
+                return new YamlResponse($this->client->read($token->token, $sourceId, $filename));
+            }
         } catch (
             ClientExceptionInterface |
             HttpResponseExceptionInterface |
@@ -49,54 +57,6 @@ readonly class FileController
             throw new ServiceException('sources', $e);
         }
 
-        return new Response(new EmptyBody());
-    }
-
-    /**
-     * @throws ServiceException
-     * @throws UnauthorizedException
-     */
-    #[Route(name: 'read', methods: ['GET'])]
-    public function read(
-        AuthenticationToken $token,
-        string $sourceId,
-        string $filename
-    ): YamlResponse {
-        try {
-            $content = $this->client->read($token->token, $sourceId, $filename);
-        } catch (
-            ClientExceptionInterface |
-            HttpResponseExceptionInterface |
-            InvalidModelDataException |
-            InvalidResponseDataException $e
-        ) {
-            throw new ServiceException('sources', $e);
-        }
-
-        return new YamlResponse($content);
-    }
-
-    /**
-     * @throws ServiceException
-     * @throws UnauthorizedException
-     */
-    #[Route(name: 'remove', methods: ['DELETE'])]
-    public function remove(
-        AuthenticationToken $token,
-        string $sourceId,
-        string $filename
-    ): JsonResponse {
-        try {
-            $this->client->remove($token->token, $sourceId, $filename);
-        } catch (
-            ClientExceptionInterface |
-            HttpResponseExceptionInterface |
-            InvalidModelDataException |
-            InvalidResponseDataException $e
-        ) {
-            throw new ServiceException('sources', $e);
-        }
-
-        return new Response(new EmptyBody());
+        return new Response(null, 405);
     }
 }
