@@ -82,3 +82,6 @@ services:
 
     SmartAssert\SourcesClient\FileSourceClientInterface:
         class: SmartAssert\SourcesClient\FileSourceClient
+
+    SmartAssert\SourcesClient\GitSourceClientInterface:
+        class: SmartAssert\SourcesClient\GitSourceClient

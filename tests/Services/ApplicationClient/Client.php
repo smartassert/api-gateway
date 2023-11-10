@@ -204,4 +204,46 @@ readonly class Client
             http_build_query($payload)
         );
     }
+
+    public function makeCreateGitSourceRequest(
+        ?string $jwt,
+        ?string $label,
+        ?string $hostUrl,
+        ?string $path,
+        ?string $credentials,
+        string $method = 'POST'
+    ): ResponseInterface {
+        $headers = [
+            'Content-Type' => 'application/x-www-form-urlencoded',
+        ];
+
+        if (is_string($jwt)) {
+            $headers['Authorization'] = 'Bearer ' . $jwt;
+        }
+
+        $payload = [];
+
+        if (is_string($label)) {
+            $payload['label'] = $label;
+        }
+
+        if (is_string($hostUrl)) {
+            $payload['host-url'] = $hostUrl;
+        }
+
+        if (is_string($path)) {
+            $payload['path'] = $path;
+        }
+
+        if (is_string($credentials)) {
+            $payload['credentials'] = $credentials;
+        }
+
+        return $this->client->makeRequest(
+            $method,
+            $this->router->generate('git_source_create'),
+            $headers,
+            http_build_query($payload)
+        );
+    }
 }
