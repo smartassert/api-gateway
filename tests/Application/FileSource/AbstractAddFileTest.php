@@ -11,37 +11,6 @@ use Symfony\Component\Uid\Ulid;
 abstract class AbstractAddFileTest extends AbstractApplicationTestCase
 {
     /**
-     * @dataProvider badMethodDataProvider
-     */
-    public function testAddBadMethod(string $method): void
-    {
-        $response = $this->applicationClient->makeAddFileSourceFileRequest(
-            'token',
-            (string) new Ulid(),
-            'filename.yaml',
-            'content',
-            $method,
-        );
-
-        self::assertSame(405, $response->getStatusCode());
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    public function badMethodDataProvider(): array
-    {
-        return [
-            'PUT' => [
-                'method' => 'PUT',
-            ],
-            'DELETE' => [
-                'method' => 'DELETE',
-            ],
-        ];
-    }
-
-    /**
      * @dataProvider unauthorizedUserDataProvider
      */
     public function testAddUnauthorizedUser(?string $token): void

@@ -8,14 +8,14 @@ use App\Tests\Application\AbstractApplicationTestCase;
 use SmartAssert\TestAuthenticationProviderBundle\ApiTokenProvider;
 use Symfony\Component\Uid\Ulid;
 
-abstract class AbstractReadFileTest extends AbstractApplicationTestCase
+abstract class AbstractRemoveFileTest extends AbstractApplicationTestCase
 {
     /**
      * @dataProvider unauthorizedUserDataProvider
      */
-    public function testReadUnauthorizedUser(?string $token): void
+    public function testRemoveUnauthorizedUser(?string $token): void
     {
-        $response = $this->applicationClient->makeReadFileSourceFileRequest(
+        $response = $this->applicationClient->makeRemoveFileSourceFileRequest(
             $token,
             (string) new Ulid(),
             'filename.yaml',
@@ -42,14 +42,14 @@ abstract class AbstractReadFileTest extends AbstractApplicationTestCase
         ];
     }
 
-    public function testReadSourceNotFound(): void
+    public function testRemoveSourceNotFound(): void
     {
         $apiTokenProvider = self::getContainer()->get(ApiTokenProvider::class);
         \assert($apiTokenProvider instanceof ApiTokenProvider);
 
         $apiToken = $apiTokenProvider->get('user@example.com');
 
-        $response = $this->applicationClient->makeReadFileSourceFileRequest(
+        $response = $this->applicationClient->makeRemoveFileSourceFileRequest(
             $apiToken,
             (string) new Ulid(),
             md5((string) rand()) . '.yaml',
@@ -58,7 +58,7 @@ abstract class AbstractReadFileTest extends AbstractApplicationTestCase
         self::assertSame(404, $response->getStatusCode());
     }
 
-    public function testReadFileNotFound(): void
+    public function testRemoveFileNotFound(): void
     {
         $apiTokenProvider = self::getContainer()->get(ApiTokenProvider::class);
         \assert($apiTokenProvider instanceof ApiTokenProvider);
@@ -75,16 +75,16 @@ abstract class AbstractReadFileTest extends AbstractApplicationTestCase
         $sourceId = $sourceData['id'] ?? null;
         \assert(is_string($sourceId));
 
-        $response = $this->applicationClient->makeReadFileSourceFileRequest(
+        $response = $this->applicationClient->makeRemoveFileSourceFileRequest(
             $apiToken,
             $sourceId,
             md5((string) rand()) . '.yaml',
         );
 
-        self::assertSame(404, $response->getStatusCode());
+        self::assertSame(200, $response->getStatusCode());
     }
 
-    public function testReadSuccess(): void
+    public function testRemoveSuccess(): void
     {
         $apiTokenProvider = self::getContainer()->get(ApiTokenProvider::class);
         \assert($apiTokenProvider instanceof ApiTokenProvider);
@@ -106,10 +106,13 @@ abstract class AbstractReadFileTest extends AbstractApplicationTestCase
 
         $this->applicationClient->makeAddFileSourceFileRequest($apiToken, $sourceId, $filename, $content);
 
-        $response = $this->applicationClient->makeReadFileSourceFileRequest($apiToken, $sourceId, $filename);
+        $readResponse = $this->applicationClient->makeReadFileSourceFileRequest($apiToken, $sourceId, $filename);
+        self::assertSame(200, $readResponse->getStatusCode());
 
-        self::assertSame(200, $response->getStatusCode());
-        self::assertSame('application/yaml', $response->getHeaderLine('content-type'));
-        self::assertSame($content, $response->getBody()->getContents());
+        $removeResponse = $this->applicationClient->makeRemoveFileSourceFileRequest($apiToken, $sourceId, $filename);
+        self::assertSame(200, $removeResponse->getStatusCode());
+
+        $readResponse = $this->applicationClient->makeReadFileSourceFileRequest($apiToken, $sourceId, $filename);
+        self::assertSame(404, $readResponse->getStatusCode());
     }
 }

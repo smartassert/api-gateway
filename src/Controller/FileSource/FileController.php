@@ -75,4 +75,28 @@ readonly class FileController
 
         return new YamlResponse($content);
     }
+
+    /**
+     * @throws ServiceException
+     * @throws UnauthorizedException
+     */
+    #[Route(name: 'remove', methods: ['DELETE'])]
+    public function remove(
+        AuthenticationToken $token,
+        string $sourceId,
+        string $filename
+    ): JsonResponse {
+        try {
+            $this->client->remove($token->token, $sourceId, $filename);
+        } catch (
+            ClientExceptionInterface |
+            HttpResponseExceptionInterface |
+            InvalidModelDataException |
+            InvalidResponseDataException $e
+        ) {
+            throw new ServiceException('sources', $e);
+        }
+
+        return new Response(new EmptyBody());
+    }
 }
