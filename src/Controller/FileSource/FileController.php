@@ -7,6 +7,7 @@ namespace App\Controller\FileSource;
 use App\Exception\ServiceException;
 use App\Response\EmptyBody;
 use App\Response\Response;
+use App\Response\YamlResponse;
 use App\Security\AuthenticationToken;
 use Psr\Http\Client\ClientExceptionInterface;
 use SmartAssert\ServiceClient\Exception\HttpResponseExceptionInterface;
@@ -30,7 +31,7 @@ readonly class FileController
      * @throws ServiceException
      * @throws UnauthorizedException
      */
-    #[Route('/add', name: 'add', methods: ['POST'])]
+    #[Route(name: 'add', methods: ['POST'])]
     public function add(
         AuthenticationToken $token,
         string $sourceId,
@@ -49,5 +50,29 @@ readonly class FileController
         }
 
         return new Response(new EmptyBody());
+    }
+
+    /**
+     * @throws ServiceException
+     * @throws UnauthorizedException
+     */
+    #[Route(name: 'read', methods: ['GET'])]
+    public function read(
+        AuthenticationToken $token,
+        string $sourceId,
+        string $filename
+    ): YamlResponse {
+        try {
+            $content = $this->client->read($token->token, $sourceId, $filename);
+        } catch (
+            ClientExceptionInterface |
+            HttpResponseExceptionInterface |
+            InvalidModelDataException |
+            InvalidResponseDataException $e
+        ) {
+            throw new ServiceException('sources', $e);
+        }
+
+        return new YamlResponse($content);
     }
 }

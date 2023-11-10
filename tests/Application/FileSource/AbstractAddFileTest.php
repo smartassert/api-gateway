@@ -32,9 +32,6 @@ abstract class AbstractAddFileTest extends AbstractApplicationTestCase
     public function badMethodDataProvider(): array
     {
         return [
-            'GET' => [
-                'method' => 'GET',
-            ],
             'PUT' => [
                 'method' => 'PUT',
             ],

@@ -49,6 +49,34 @@ class FileControllerTest extends AbstractApplicationTestCase
     }
 
     /**
+     * @dataProvider usersClientExceptionDataProvider
+     *
+     * @param array<mixed> $expectedData
+     */
+    public function testReadHandlesException(
+        \Exception $exception,
+        int $expectedStatusCode,
+        array $expectedData
+    ): void {
+        $token = md5((string) rand());
+        $fileSourceId = (string) new Ulid();
+        $filename = md5((string) rand()) . '.yaml';
+
+        $fileClient = \Mockery::mock(FileClientInterface::class);
+        $fileClient
+            ->shouldReceive('read')
+            ->with($token, $fileSourceId, $filename)
+            ->andThrow($exception)
+        ;
+
+        self::getContainer()->set(FileClientInterface::class, $fileClient);
+
+        $response = $this->applicationClient->makeReadFileSourceFileRequest($token, $fileSourceId, $filename);
+
+        $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
+    }
+
+    /**
      * @return array<mixed>
      */
     public function usersClientExceptionDataProvider(): array
