@@ -49,7 +49,7 @@ readonly class CreationController
         return new Response(
             new LabelledBody(
                 'file_source',
-                new FileSource($source->getLabel(), $source->getDeletedAt())
+                new FileSource($source->getId(), $source->getLabel(), $source->getDeletedAt())
             )
         );
     }
