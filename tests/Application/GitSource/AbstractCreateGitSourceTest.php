@@ -81,14 +81,14 @@ abstract class AbstractCreateGitSourceTest extends AbstractApplicationTestCase
     /**
      * @dataProvider createSuccessDataProvider
      *
-     * @param callable(string, string, string, ?string): array<mixed> $expectedResponseDataCreator
+     * @param callable(string, string, string, string, ?string): array<mixed> $expectedResponseObjectCreator
      */
     public function testCreateSuccess(
         string $label,
         string $hostUrl,
         string $path,
         ?string $credentials,
-        callable $expectedResponseDataCreator,
+        callable $expectedResponseObjectCreator,
     ): void {
         $apiTokenProvider = self::getContainer()->get(ApiTokenProvider::class);
         \assert($apiTokenProvider instanceof ApiTokenProvider);
@@ -107,8 +107,16 @@ abstract class AbstractCreateGitSourceTest extends AbstractApplicationTestCase
         self::assertSame('application/json', $response->getHeaderLine('content-type'));
 
         $responseData = json_decode($response->getBody()->getContents(), true);
+        self::assertIsArray($responseData);
+        self::assertArrayHasKey('git_source', $responseData);
 
-        self::assertSame($expectedResponseDataCreator($label, $hostUrl, $path, $credentials), $responseData);
+        $objectData = $responseData['git_source'];
+        self::assertIsArray($objectData);
+
+        self::assertSame(
+            $expectedResponseObjectCreator($objectData['id'], $label, $hostUrl, $path, $credentials),
+            $objectData
+        );
     }
 
     /**
@@ -116,20 +124,20 @@ abstract class AbstractCreateGitSourceTest extends AbstractApplicationTestCase
      */
     public function createSuccessDataProvider(): array
     {
-        $expectedResponseDataCreator = function (
+        $expectedResponseObjectCreator = function (
+            string $id,
             string $label,
             string $hostUrl,
             string $path,
             ?string $credentials
         ) {
             return [
-                'git_source' => [
-                    'label' => $label,
-                    'type' => 'git',
-                    'host_url' => $hostUrl,
-                    'path' => $path,
-                    'has_credentials' => is_string($credentials),
-                ],
+                'id' => $id,
+                'label' => $label,
+                'type' => 'git',
+                'host_url' => $hostUrl,
+                'path' => $path,
+                'has_credentials' => is_string($credentials),
             ];
         };
 
@@ -139,14 +147,14 @@ abstract class AbstractCreateGitSourceTest extends AbstractApplicationTestCase
                 'hostUrl' => md5((string) rand()),
                 'path' => md5((string) rand()),
                 'credentials' => null,
-                'expectedResponseDataCreator' => $expectedResponseDataCreator,
+                'expectedResponseObjectCreator' => $expectedResponseObjectCreator,
             ],
             'with credentials' => [
                 'label' => md5((string) rand()),
                 'hostUrl' => md5((string) rand()),
                 'path' => md5((string) rand()),
                 'credentials' => md5((string) rand()),
-                'expectedResponseDataCreator' => $expectedResponseDataCreator,
+                'expectedResponseObjectCreator' => $expectedResponseObjectCreator,
             ],
         ];
     }

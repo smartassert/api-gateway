@@ -83,15 +83,19 @@ abstract class AbstractCreateFileSourceTest extends AbstractApplicationTestCase
         self::assertSame('application/json', $response->getHeaderLine('content-type'));
 
         $responseData = json_decode($response->getBody()->getContents(), true);
+        self::assertIsArray($responseData);
+        self::assertArrayHasKey('file_source', $responseData);
+
+        $objectData = $responseData['file_source'];
+        self::assertIsArray($objectData);
 
         self::assertSame(
             [
-                'file_source' => [
-                    'label' => $label,
-                    'type' => 'file',
-                ],
+                'id' => $objectData['id'],
+                'label' => $label,
+                'type' => 'file',
             ],
-            $responseData
+            $objectData
         );
     }
 }

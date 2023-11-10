@@ -61,6 +61,7 @@ readonly class CreationController
             new LabelledBody(
                 'git_source',
                 new GitSource(
+                    $source->getId(),
                     $source->getLabel(),
                     $source->getHostUrl(),
                     $source->getPath(),

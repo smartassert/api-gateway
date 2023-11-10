@@ -9,20 +9,23 @@ use App\Response\BodyInterface;
 readonly class FileSource implements BodyInterface
 {
     /**
+     * @param non-empty-string $id
      * @param non-empty-string $label
      */
     public function __construct(
+        private string $id,
         private string $label,
         private ?int $deletedAt,
     ) {
     }
 
     /**
-     * @return array{label: non-empty-string, type: 'file', deleted_at?: int}
+     * @return array{id: non-empty-string, label: non-empty-string, type: 'file', deleted_at?: int}
      */
     public function toArray(): array
     {
         $data = [
+            'id' => $this->id,
             'label' => $this->label,
             'type' => 'file',
         ];
