@@ -246,4 +246,30 @@ readonly class Client
             http_build_query($payload)
         );
     }
+
+    public function makeAddFileSourceFileRequest(
+        ?string $jwt,
+        ?string $fileSourceId,
+        ?string $filename,
+        string $content,
+        string $method = 'POST'
+    ): ResponseInterface {
+        $headers = [];
+        if (is_string($jwt)) {
+            $headers['Authorization'] = 'Bearer ' . $jwt;
+        }
+
+        return $this->client->makeRequest(
+            $method,
+            $this->router->generate(
+                'file_source_file_add',
+                [
+                    'sourceId' => $fileSourceId,
+                    'filename' => $filename,
+                ]
+            ),
+            $headers,
+            $content
+        );
+    }
 }
