@@ -17,7 +17,7 @@ abstract class AbstractDeleteTest extends AbstractApplicationTestCase
      */
     public function testDeleteUnauthorizedUser(?string $token): void
     {
-        $response = $this->applicationClient->makeDeleteFileSourceRequest($token, (string) new Ulid());
+        $response = $this->applicationClient->makeFileSourceRequest($token, (string) new Ulid(), 'DELETE');
 
         self::assertSame(401, $response->getStatusCode());
     }
@@ -46,7 +46,7 @@ abstract class AbstractDeleteTest extends AbstractApplicationTestCase
         \assert($apiTokenProvider instanceof ApiTokenProvider);
         $apiToken = $apiTokenProvider->get('user@example.com');
 
-        $response = $this->applicationClient->makeDeleteFileSourceRequest($apiToken, (string) new Ulid());
+        $response = $this->applicationClient->makeFileSourceRequest($apiToken, (string) new Ulid(), 'DELETE');
 
         self::assertSame(404, $response->getStatusCode());
     }
@@ -71,10 +71,10 @@ abstract class AbstractDeleteTest extends AbstractApplicationTestCase
         $id = $createdSourceData['id'] ?? null;
         \assert(is_string($id) && '' !== $id);
 
-        $getResponse = $this->applicationClient->makeGetFileSourceRequest($apiToken, $id);
+        $getResponse = $this->applicationClient->makeFileSourceRequest($apiToken, $id, 'GET');
         $this->assertRetrievedFileSource($getResponse, $label, $id);
 
-        $deleteResponse = $this->applicationClient->makeDeleteFileSourceRequest($apiToken, $id);
+        $deleteResponse = $this->applicationClient->makeFileSourceRequest($apiToken, $id, 'DELETE');
         $this->assertDeletedFileSource($deleteResponse, $label, $id);
     }
 }

@@ -17,9 +17,10 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
      */
     public function testUpdateUnauthorizedUser(?string $token): void
     {
-        $response = $this->applicationClient->makeUpdateFileSourceRequest(
+        $response = $this->applicationClient->makeFileSourceRequest(
             $token,
             (string) new Ulid(),
+            'PUT',
             md5((string) rand())
         );
 
@@ -50,9 +51,10 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         \assert($apiTokenProvider instanceof ApiTokenProvider);
         $apiToken = $apiTokenProvider->get('user@example.com');
 
-        $response = $this->applicationClient->makeUpdateFileSourceRequest(
+        $response = $this->applicationClient->makeFileSourceRequest(
             $apiToken,
             (string) new Ulid(),
+            'PUT',
             md5((string) rand())
         );
 
@@ -81,7 +83,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
 
         $newLabel = md5((string) rand());
 
-        $response = $this->applicationClient->makeUpdateFileSourceRequest($apiToken, $id, $newLabel);
+        $response = $this->applicationClient->makeFileSourceRequest($apiToken, $id, 'PUT', $newLabel);
 
         $this->assertRetrievedFileSource($response, $newLabel, $id);
     }

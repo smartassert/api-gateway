@@ -273,65 +273,31 @@ readonly class Client
         );
     }
 
-    public function makeGetFileSourceRequest(
+    public function makeFileSourceRequest(
         ?string $jwt,
         ?string $sourceId,
-        string $method = 'GET'
+        string $method,
+        ?string $label = null,
     ): ResponseInterface {
         $headers = [];
-        if (is_string($jwt)) {
-            $headers['Authorization'] = 'Bearer ' . $jwt;
-        }
-
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('file_source_get', ['sourceId' => $sourceId]),
-            $headers
-        );
-    }
-
-    public function makeUpdateFileSourceRequest(
-        ?string $jwt,
-        ?string $sourceId,
-        ?string $label,
-        string $method = 'PUT'
-    ): ResponseInterface {
-        $headers = [
-            'Content-Type' => 'application/x-www-form-urlencoded',
-        ];
-
         if (is_string($jwt)) {
             $headers['Authorization'] = 'Bearer ' . $jwt;
         }
 
         $payload = [];
-
         if (is_string($label)) {
             $payload['label'] = $label;
         }
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('file_source_update', ['sourceId' => $sourceId]),
-            $headers,
-            http_build_query($payload)
-        );
-    }
-
-    public function makeDeleteFileSourceRequest(
-        ?string $jwt,
-        ?string $sourceId,
-        string $method = 'DELETE'
-    ): ResponseInterface {
-        $headers = [];
-        if (is_string($jwt)) {
-            $headers['Authorization'] = 'Bearer ' . $jwt;
+        if ([] !== $payload) {
+            $headers['Content-Type'] = 'application/x-www-form-urlencoded';
         }
 
         return $this->client->makeRequest(
             $method,
-            $this->router->generate('file_source_delete', ['sourceId' => $sourceId]),
-            $headers
+            $this->router->generate('file_source_handle', ['sourceId' => $sourceId]),
+            $headers,
+            http_build_query($payload)
         );
     }
 }

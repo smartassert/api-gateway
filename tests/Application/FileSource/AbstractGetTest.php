@@ -17,7 +17,7 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
      */
     public function testGetUnauthorizedUser(?string $token): void
     {
-        $response = $this->applicationClient->makeGetFileSourceRequest($token, (string) new Ulid());
+        $response = $this->applicationClient->makeFileSourceRequest($token, (string) new Ulid(), 'GET');
 
         self::assertSame(401, $response->getStatusCode());
     }
@@ -46,7 +46,7 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
         \assert($apiTokenProvider instanceof ApiTokenProvider);
         $apiToken = $apiTokenProvider->get('user@example.com');
 
-        $response = $this->applicationClient->makeGetFileSourceRequest($apiToken, (string) new Ulid());
+        $response = $this->applicationClient->makeFileSourceRequest($apiToken, (string) new Ulid(), 'GET');
 
         self::assertSame(404, $response->getStatusCode());
     }
@@ -71,7 +71,7 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
         $id = $createdSourceData['id'] ?? null;
         \assert(is_string($id) && '' !== $id);
 
-        $response = $this->applicationClient->makeGetFileSourceRequest($apiToken, $id);
+        $response = $this->applicationClient->makeFileSourceRequest($apiToken, $id, 'GET');
 
         $this->assertRetrievedFileSource($response, $label, $id);
     }
