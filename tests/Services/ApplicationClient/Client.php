@@ -289,4 +289,32 @@ readonly class Client
             $headers
         );
     }
+
+    public function makeUpdateFileSourceRequest(
+        ?string $jwt,
+        ?string $sourceId,
+        ?string $label,
+        string $method = 'PUT'
+    ): ResponseInterface {
+        $headers = [
+            'Content-Type' => 'application/x-www-form-urlencoded',
+        ];
+
+        if (is_string($jwt)) {
+            $headers['Authorization'] = 'Bearer ' . $jwt;
+        }
+
+        $payload = [];
+
+        if (is_string($label)) {
+            $payload['label'] = $label;
+        }
+
+        return $this->client->makeRequest(
+            $method,
+            $this->router->generate('file_source_update', ['sourceId' => $sourceId]),
+            $headers,
+            http_build_query($payload)
+        );
+    }
 }
