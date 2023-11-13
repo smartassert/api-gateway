@@ -30,34 +30,48 @@ readonly class SourceController
     }
 
     /**
-     * @param ?non-empty-string $sourceId
+     * @throws ServiceException
+     * @throws UnauthorizedException
+     */
+    #[Route(name: 'create', methods: ['POST'])]
+    public function create(AuthenticationToken $token, Request $request): SymfonyResponse
+    {
+        try {
+            $source = $this->client->create($token->token, $request->request->getString('label'));
+        } catch (
+            ClientExceptionInterface |
+            HttpResponseExceptionInterface |
+            InvalidModelDataException |
+            InvalidResponseDataException |
+            InvalidResponseTypeException $e
+        ) {
+            throw new ServiceException('sources', $e);
+        }
+
+        return new Response(
+            new LabelledBody(
+                'file_source',
+                new FileSource($source->getId(), $source->getLabel(), $source->getDeletedAt())
+            )
+        );
+    }
+
+    /**
+     * @param non-empty-string $sourceId
      *
      * @throws ServiceException
      * @throws UnauthorizedException
      */
-    #[Route(path: '/{sourceId<[A-Z90-9]{26}>?}', name: 'handle', methods: ['POST', 'GET', 'PUT', 'DELETE'])]
-    public function handle(AuthenticationToken $token, ?string $sourceId, Request $request): SymfonyResponse
+    #[Route(path: '/{sourceId<[A-Z90-9]{26}>}', name: 'handle', methods: ['GET', 'PUT', 'DELETE'])]
+    public function handle(AuthenticationToken $token, string $sourceId, Request $request): SymfonyResponse
     {
-        $source = null;
-
         try {
-            if ('POST' === $request->getMethod()) {
-                $source = $this->client->create($token->token, $request->request->getString('label'));
-            }
-
-            if (null !== $sourceId && '' !== $sourceId) {
-                if ('GET' === $request->getMethod()) {
-                    $source = $this->client->get($token->token, $sourceId);
-                }
-
-                if ('PUT' === $request->getMethod()) {
-                    $source = $this->client->update($token->token, $sourceId, $request->request->getString('label'));
-                }
-
-                if ('DELETE' === $request->getMethod()) {
-                    $source = $this->client->delete($token->token, $sourceId);
-                }
-            }
+            $source = match ($request->getMethod()) {
+                'GET' => $this->client->get($token->token, $sourceId),
+                'PUT' => $this->client->update($token->token, $sourceId, $request->request->getString('label')),
+                'DELETE' => $this->client->delete($token->token, $sourceId),
+                default => null,
+            };
         } catch (
             ClientExceptionInterface |
             HttpResponseExceptionInterface |

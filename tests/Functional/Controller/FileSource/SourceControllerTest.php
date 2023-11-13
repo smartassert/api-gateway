@@ -41,7 +41,7 @@ class SourceControllerTest extends AbstractApplicationTestCase
 
         self::getContainer()->set(FileSourceClientInterface::class, $fileSourceClient);
 
-        $response = $this->applicationClient->makeFileSourceRequest($token, 'POST', null, $label);
+        $response = $this->applicationClient->makeCreateFileSourceRequest($token, $label);
 
         $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
     }

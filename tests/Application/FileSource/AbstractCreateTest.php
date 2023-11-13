@@ -16,12 +16,7 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
      */
     public function testCreateUnauthorizedUser(?string $token): void
     {
-        $response = $this->applicationClient->makeFileSourceRequest(
-            $token,
-            'POST',
-            null,
-            md5((string) rand())
-        );
+        $response = $this->applicationClient->makeCreateFileSourceRequest($token, md5((string) rand()));
 
         self::assertSame(401, $response->getStatusCode());
     }
@@ -52,7 +47,7 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
         $apiToken = $apiTokenProvider->get('user@example.com');
         $label = md5((string) rand());
 
-        $response = $this->applicationClient->makeFileSourceRequest($apiToken, 'POST', null, $label);
+        $response = $this->applicationClient->makeCreateFileSourceRequest($apiToken, $label);
 
         $this->assertRetrievedFileSource($response, $label);
     }

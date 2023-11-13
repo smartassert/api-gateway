@@ -69,7 +69,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         $apiToken = $apiTokenProvider->get('user@example.com');
         $label = md5((string) rand());
 
-        $createResponse = $this->applicationClient->makeFileSourceRequest($apiToken, 'POST', null, $label);
+        $createResponse = $this->applicationClient->makeCreateFileSourceRequest($apiToken, $label);
         self::assertSame(200, $createResponse->getStatusCode());
 
         $createResponseData = json_decode($createResponse->getBody()->getContents(), true);
@@ -112,7 +112,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         $apiToken = $apiTokenProvider->get('user@example.com');
         $label = md5((string) rand());
 
-        $createResponse = $this->applicationClient->makeFileSourceRequest($apiToken, 'POST', null, $label);
+        $createResponse = $this->applicationClient->makeCreateFileSourceRequest($apiToken, $label);
         self::assertSame(200, $createResponse->getStatusCode());
 
         $createResponseData = json_decode($createResponse->getBody()->getContents(), true);

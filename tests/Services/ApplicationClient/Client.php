@@ -178,6 +178,33 @@ readonly class Client
         );
     }
 
+    public function makeCreateFileSourceRequest(
+        ?string $jwt,
+        ?string $label,
+        string $method = 'POST'
+    ): ResponseInterface {
+        $headers = [
+            'Content-Type' => 'application/x-www-form-urlencoded',
+        ];
+
+        if (is_string($jwt)) {
+            $headers['Authorization'] = 'Bearer ' . $jwt;
+        }
+
+        $payload = [];
+
+        if (is_string($label)) {
+            $payload['label'] = $label;
+        }
+
+        return $this->client->makeRequest(
+            $method,
+            $this->router->generate('file_source_create'),
+            $headers,
+            http_build_query($payload)
+        );
+    }
+
     public function makeCreateGitSourceRequest(
         ?string $jwt,
         ?string $label,
@@ -246,6 +273,9 @@ readonly class Client
         );
     }
 
+    /**
+     * @param 'DELETE'|'GET'|'PUT' $method
+     */
     public function makeFileSourceRequest(
         ?string $jwt,
         string $method,
