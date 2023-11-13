@@ -87,4 +87,33 @@ readonly class SourceController
             )
         );
     }
+
+    /**
+     * @param non-empty-string $sourceId
+     *
+     * @throws ServiceException
+     * @throws UnauthorizedException
+     */
+    #[Route(name: 'delete', methods: ['DELETE'])]
+    public function delete(AuthenticationToken $token, string $sourceId): JsonResponse
+    {
+        try {
+            $source = $this->client->delete($token->token, $sourceId);
+        } catch (
+            ClientExceptionInterface |
+            HttpResponseExceptionInterface |
+            InvalidModelDataException |
+            InvalidResponseDataException |
+            InvalidResponseTypeException $e
+        ) {
+            throw new ServiceException('sources', $e);
+        }
+
+        return new Response(
+            new LabelledBody(
+                'file_source',
+                new FileSource($source->getId(), $source->getLabel(), $source->getDeletedAt())
+            )
+        );
+    }
 }

@@ -35,4 +35,33 @@ trait AssertFileSourceTrait
             $objectData
         );
     }
+
+    public function assertDeletedFileSource(
+        ResponseInterface $response,
+        string $expectedLabel,
+        string $expectedId,
+    ): void {
+        Assert::assertSame(200, $response->getStatusCode());
+        Assert::assertSame('application/json', $response->getHeaderLine('content-type'));
+
+        $responseData = json_decode($response->getBody()->getContents(), true);
+        Assert::assertIsArray($responseData);
+        Assert::assertArrayHasKey('file_source', $responseData);
+
+        $objectData = $responseData['file_source'];
+        Assert::assertIsArray($objectData);
+
+        $deletedAt = $objectData['deleted_at'] ?? null;
+        Assert::assertIsInt($deletedAt);
+
+        Assert::assertSame(
+            [
+                'id' => $expectedId,
+                'label' => $expectedLabel,
+                'type' => 'file',
+                'deleted_at' => $deletedAt,
+            ],
+            $objectData
+        );
+    }
 }

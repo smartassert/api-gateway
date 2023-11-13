@@ -317,4 +317,21 @@ readonly class Client
             http_build_query($payload)
         );
     }
+
+    public function makeDeleteFileSourceRequest(
+        ?string $jwt,
+        ?string $sourceId,
+        string $method = 'DELETE'
+    ): ResponseInterface {
+        $headers = [];
+        if (is_string($jwt)) {
+            $headers['Authorization'] = 'Bearer ' . $jwt;
+        }
+
+        return $this->client->makeRequest(
+            $method,
+            $this->router->generate('file_source_delete', ['sourceId' => $sourceId]),
+            $headers
+        );
+    }
 }
