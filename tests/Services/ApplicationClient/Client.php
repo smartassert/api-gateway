@@ -279,7 +279,7 @@ readonly class Client
     public function makeFileSourceRequest(
         ?string $jwt,
         string $method,
-        ?string $sourceId = null,
+        string $sourceId,
         ?string $label = null,
     ): ResponseInterface {
         $headers = [];
