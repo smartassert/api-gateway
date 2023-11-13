@@ -9,7 +9,7 @@
         "ext-iconv": "*",
         "guzzlehttp/guzzle": "^7.8",
         "smartassert/security-token-extractor": "^1.0",
-        "smartassert/sources-client": "^6.3",
+        "smartassert/sources-client": "^6.4",
         "smartassert/users-client": "^12.1",
         "symfony/console": "6.3.*",
         "symfony/dotenv": "6.3.*",
