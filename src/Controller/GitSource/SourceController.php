@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\Controller\GitSource;
 
 use App\Exception\ServiceException;
-use App\Response\LabelledBody;
-use App\Response\Response;
 use App\Response\Source\GitSource;
 use App\Security\AuthenticationToken;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -19,7 +17,7 @@ use SmartAssert\SourcesClient\Exception\ModifyReadOnlyEntityException;
 use SmartAssert\SourcesClient\GitSourceClientInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(path: '/git-source', name: 'git_source_')]
@@ -60,19 +58,7 @@ readonly class SourceController
             throw new ServiceException('sources', $e);
         }
 
-        return new Response(
-            new LabelledBody(
-                'git_source',
-                new GitSource(
-                    $source->getId(),
-                    $source->getLabel(),
-                    $source->getHostUrl(),
-                    $source->getPath(),
-                    $source->hasCredentials(),
-                    $source->getDeletedAt()
-                )
-            )
-        );
+        return new GitSource($source);
     }
 
     /**
@@ -86,7 +72,7 @@ readonly class SourceController
         AuthenticationToken $token,
         string $sourceId,
         Request $request
-    ): SymfonyResponse {
+    ): Response {
         try {
             $credentials = $request->request->getString('credentials');
             if ('' === $credentials) {
@@ -118,21 +104,9 @@ readonly class SourceController
         }
 
         if (null === $source) {
-            return new SymfonyResponse(null, 405);
+            return new Response(null, 405);
         }
 
-        return new Response(
-            new LabelledBody(
-                'git_source',
-                new GitSource(
-                    $source->getId(),
-                    $source->getLabel(),
-                    $source->getHostUrl(),
-                    $source->getPath(),
-                    $source->hasCredentials(),
-                    $source->getDeletedAt()
-                )
-            )
-        );
+        return new GitSource($source);
     }
 }
