@@ -366,4 +366,20 @@ readonly class Client
             $headers
         );
     }
+
+    public function makeListSourcesRequest(
+        ?string $jwt,
+        string $method = 'GET',
+    ): ResponseInterface {
+        $headers = [];
+        if (is_string($jwt)) {
+            $headers['Authorization'] = 'Bearer ' . $jwt;
+        }
+
+        return $this->client->makeRequest(
+            $method,
+            $this->router->generate('sources_list'),
+            $headers
+        );
+    }
 }

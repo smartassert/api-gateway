@@ -88,3 +88,6 @@ services:
 
     SmartAssert\SourcesClient\FileClientInterface:
         class: SmartAssert\SourcesClient\FileClient
+
+    SmartAssert\SourcesClient\SourceClientInterface:
+        class: SmartAssert\SourcesClient\SourceClient
