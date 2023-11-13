@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Controller\GitSource;
+namespace App\Controller\Source;
 
 use App\Exception\ServiceException;
 use App\Response\Source\GitSource;
@@ -21,7 +21,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(path: '/git-source', name: 'git_source_')]
-readonly class SourceController
+readonly class GitSourceController
 {
     public function __construct(
         private GitSourceClientInterface $client,

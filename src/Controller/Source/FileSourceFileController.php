@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Controller\FileSource;
+namespace App\Controller\Source;
 
 use App\Exception\ServiceException;
 use App\Response\YamlResponse;
@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(path: '/file-source/{sourceId<[A-Z90-9]{26}>}/{filename<.*\.yaml>}', name: 'file_source_file_')]
-readonly class FileController
+readonly class FileSourceFileController
 {
     public function __construct(
         private FileClientInterface $client,
