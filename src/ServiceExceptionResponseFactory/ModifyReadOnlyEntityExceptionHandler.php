@@ -28,7 +28,8 @@ class ModifyReadOnlyEntityExceptionHandler implements HandlerInterface
                     'type' => $previous->type,
                     'id' => $previous->id,
                 ]
-            )
+            ),
+            405
         );
     }
 }
