@@ -4,51 +4,14 @@ declare(strict_types=1);
 
 namespace App\Response\Source;
 
-use App\Response\BodyInterface;
+use App\Response\LabelledBody;
+use App\Response\Response;
+use SmartAssert\SourcesClient\Model\GitSource as SourcesClientGitSource;
 
-readonly class GitSource implements BodyInterface
+class GitSource extends Response
 {
-    /**
-     * @param non-empty-string $id
-     * @param non-empty-string $label
-     * @param non-empty-string $hostUrl
-     * @param non-empty-string $path
-     */
-    public function __construct(
-        private string $id,
-        private string $label,
-        private string $hostUrl,
-        private string $path,
-        private bool $hasCredentials,
-        private ?int $deletedAt,
-    ) {
-    }
-
-    /**
-     * @return array{
-     *     id: non-empty-string,
-     *     label: non-empty-string,
-     *     type: 'git',
-     *     host_url: non-empty-string,
-     *     path: non-empty-string,
-     *     deleted_at?: int
-     * }
-     */
-    public function toArray(): array
+    public function __construct(SourcesClientGitSource $source)
     {
-        $data = [
-            'id' => $this->id,
-            'label' => $this->label,
-            'type' => 'git',
-            'host_url' => $this->hostUrl,
-            'path' => $this->path,
-            'has_credentials' => $this->hasCredentials,
-        ];
-
-        if (null !== $this->deletedAt) {
-            $data['deleted_at'] = $this->deletedAt;
-        }
-
-        return $data;
+        parent::__construct(new LabelledBody('git_source', new GitSourceBody($source)));
     }
 }
