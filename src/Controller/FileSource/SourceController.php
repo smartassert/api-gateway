@@ -17,11 +17,12 @@ use SmartAssert\ServiceClient\Exception\InvalidResponseTypeException;
 use SmartAssert\ServiceClient\Exception\UnauthorizedException;
 use SmartAssert\SourcesClient\Exception\ModifyReadOnlyEntityException;
 use SmartAssert\SourcesClient\FileSourceClientInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route(path: '/file-source/{sourceId<[A-Z90-9]{26}>}', name: 'file_source_')]
+#[Route(path: '/file-source', name: 'file_source_')]
 readonly class SourceController
 {
     public function __construct(
@@ -30,12 +31,39 @@ readonly class SourceController
     }
 
     /**
+     * @throws ServiceException
+     * @throws UnauthorizedException
+     */
+    #[Route(name: 'create', methods: ['POST'])]
+    public function create(AuthenticationToken $token, Request $request): JsonResponse
+    {
+        try {
+            $source = $this->client->create($token->token, $request->request->getString('label'));
+        } catch (
+            ClientExceptionInterface |
+            HttpResponseExceptionInterface |
+            InvalidModelDataException |
+            InvalidResponseDataException |
+            InvalidResponseTypeException $e
+        ) {
+            throw new ServiceException('sources', $e);
+        }
+
+        return new Response(
+            new LabelledBody(
+                'file_source',
+                new FileSource($source->getId(), $source->getLabel(), $source->getDeletedAt())
+            )
+        );
+    }
+
+    /**
      * @param non-empty-string $sourceId
      *
      * @throws ServiceException
      * @throws UnauthorizedException
      */
-    #[Route(name: 'handle', methods: ['GET', 'PUT', 'DELETE'])]
+    #[Route(path: '/{sourceId<[A-Z90-9]{26}>}', name: 'handle', methods: ['GET', 'PUT', 'DELETE'])]
     public function handle(AuthenticationToken $token, string $sourceId, Request $request): SymfonyResponse
     {
         $source = null;
