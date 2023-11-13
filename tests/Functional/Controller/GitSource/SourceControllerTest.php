@@ -11,7 +11,7 @@ use App\Tests\Functional\Controller\AssertJsonResponseTrait;
 use App\Tests\Functional\GetClientAdapterTrait;
 use SmartAssert\SourcesClient\GitSourceClientInterface;
 
-class CreationControllerTest extends AbstractApplicationTestCase
+class SourceControllerTest extends AbstractApplicationTestCase
 {
     use GetClientAdapterTrait;
     use ServiceHttpFailureDataProviderCreatorTrait;
