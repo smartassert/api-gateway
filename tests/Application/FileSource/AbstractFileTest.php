@@ -96,7 +96,7 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
         $apiToken = $apiTokenProvider->get('user@example.com');
         $label = md5((string) rand());
 
-        $createFileSourceResponse = $this->applicationClient->makeCreateFileSourceRequest($apiToken, $label);
+        $createFileSourceResponse = $this->applicationClient->makeFileSourceRequest($apiToken, 'POST', null, $label);
         $createFileSourceResponseData = json_decode($createFileSourceResponse->getBody()->getContents(), true);
         \assert(is_array($createFileSourceResponseData));
 
@@ -140,7 +140,7 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
         $apiToken = $apiTokenProvider->get('user@example.com');
         $label = md5((string) rand());
 
-        $createFileSourceResponse = $this->applicationClient->makeCreateFileSourceRequest($apiToken, $label);
+        $createFileSourceResponse = $this->applicationClient->makeFileSourceRequest($apiToken, 'POST', null, $label);
         $createFileSourceResponseData = json_decode($createFileSourceResponse->getBody()->getContents(), true);
         \assert(is_array($createFileSourceResponseData));
 
@@ -167,7 +167,7 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
         $apiToken = $apiTokenProvider->get('user@example.com');
         $label = md5((string) rand());
 
-        $createFileSourceResponse = $this->applicationClient->makeCreateFileSourceRequest($apiToken, $label);
+        $createFileSourceResponse = $this->applicationClient->makeFileSourceRequest($apiToken, 'POST', null, $label);
         $createFileSourceResponseData = json_decode($createFileSourceResponse->getBody()->getContents(), true);
         \assert(is_array($createFileSourceResponseData));
 

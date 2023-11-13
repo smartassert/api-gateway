@@ -19,8 +19,8 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
     {
         $response = $this->applicationClient->makeFileSourceRequest(
             $token,
-            (string) new Ulid(),
             'PUT',
+            (string) new Ulid(),
             md5((string) rand())
         );
 
@@ -53,8 +53,8 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
 
         $response = $this->applicationClient->makeFileSourceRequest(
             $apiToken,
-            (string) new Ulid(),
             'PUT',
+            (string) new Ulid(),
             md5((string) rand())
         );
 
@@ -69,7 +69,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         $apiToken = $apiTokenProvider->get('user@example.com');
         $label = md5((string) rand());
 
-        $createResponse = $this->applicationClient->makeCreateFileSourceRequest($apiToken, $label);
+        $createResponse = $this->applicationClient->makeFileSourceRequest($apiToken, 'POST', null, $label);
         self::assertSame(200, $createResponse->getStatusCode());
 
         $createResponseData = json_decode($createResponse->getBody()->getContents(), true);
@@ -81,14 +81,14 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         $id = $createdSourceData['id'] ?? null;
         \assert(is_string($id) && '' !== $id);
 
-        $getResponse = $this->applicationClient->makeFileSourceRequest($apiToken, $id, 'GET');
+        $getResponse = $this->applicationClient->makeFileSourceRequest($apiToken, 'GET', $id);
         self::assertSame(200, $getResponse->getStatusCode());
 
-        $deleteResponse = $this->applicationClient->makeFileSourceRequest($apiToken, $id, 'DELETE');
+        $deleteResponse = $this->applicationClient->makeFileSourceRequest($apiToken, 'DELETE', $id);
         self::assertSame(200, $deleteResponse->getStatusCode());
 
         $newLabel = md5((string) rand());
-        $response = $this->applicationClient->makeFileSourceRequest($apiToken, $id, 'PUT', $newLabel);
+        $response = $this->applicationClient->makeFileSourceRequest($apiToken, 'PUT', $id, $newLabel);
         self::assertSame(405, $response->getStatusCode());
         self::assertSame('application/json', $response->getHeaderLine('content-type'));
         self::assertSame(
@@ -112,7 +112,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         $apiToken = $apiTokenProvider->get('user@example.com');
         $label = md5((string) rand());
 
-        $createResponse = $this->applicationClient->makeCreateFileSourceRequest($apiToken, $label);
+        $createResponse = $this->applicationClient->makeFileSourceRequest($apiToken, 'POST', null, $label);
         self::assertSame(200, $createResponse->getStatusCode());
 
         $createResponseData = json_decode($createResponse->getBody()->getContents(), true);
@@ -126,7 +126,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
 
         $newLabel = md5((string) rand());
 
-        $response = $this->applicationClient->makeFileSourceRequest($apiToken, $id, 'PUT', $newLabel);
+        $response = $this->applicationClient->makeFileSourceRequest($apiToken, 'PUT', $id, $newLabel);
 
         $this->assertRetrievedFileSource($response, $newLabel, $id);
     }

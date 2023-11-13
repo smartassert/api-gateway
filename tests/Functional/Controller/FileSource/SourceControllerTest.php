@@ -11,7 +11,7 @@ use App\Tests\Functional\Controller\AssertJsonResponseTrait;
 use App\Tests\Functional\GetClientAdapterTrait;
 use SmartAssert\SourcesClient\FileSourceClientInterface;
 
-class CreationControllerTest extends AbstractApplicationTestCase
+class SourceControllerTest extends AbstractApplicationTestCase
 {
     use GetClientAdapterTrait;
     use ServiceHttpFailureDataProviderCreatorTrait;
@@ -40,7 +40,7 @@ class CreationControllerTest extends AbstractApplicationTestCase
 
         self::getContainer()->set(FileSourceClientInterface::class, $fileSourceClient);
 
-        $response = $this->applicationClient->makeCreateFileSourceRequest($token, $label);
+        $response = $this->applicationClient->makeFileSourceRequest($token, 'POST', null, $label);
 
         $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
     }

@@ -7,48 +7,21 @@ namespace App\Tests\Application\FileSource;
 use App\Tests\Application\AbstractApplicationTestCase;
 use SmartAssert\TestAuthenticationProviderBundle\ApiTokenProvider;
 
-abstract class AbstractCreateFileSourceTest extends AbstractApplicationTestCase
+abstract class AbstractCreateTest extends AbstractApplicationTestCase
 {
     use AssertFileSourceTrait;
-
-    /**
-     * @dataProvider createBadMethodDataProvider
-     */
-    public function testCreateBadMethod(string $method): void
-    {
-        $response = $this->applicationClient->makeCreateFileSourceRequest(
-            'token',
-            'label',
-            $method,
-        );
-
-        self::assertSame(405, $response->getStatusCode());
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    public function createBadMethodDataProvider(): array
-    {
-        return [
-            'GET' => [
-                'method' => 'GET',
-            ],
-            'PUT' => [
-                'method' => 'PUT',
-            ],
-            'DELETE' => [
-                'method' => 'DELETE',
-            ],
-        ];
-    }
 
     /**
      * @dataProvider unauthorizedUserDataProvider
      */
     public function testCreateUnauthorizedUser(?string $token): void
     {
-        $response = $this->applicationClient->makeCreateFileSourceRequest($token, md5((string) rand()));
+        $response = $this->applicationClient->makeFileSourceRequest(
+            $token,
+            'POST',
+            null,
+            md5((string) rand())
+        );
 
         self::assertSame(401, $response->getStatusCode());
     }
@@ -79,7 +52,7 @@ abstract class AbstractCreateFileSourceTest extends AbstractApplicationTestCase
         $apiToken = $apiTokenProvider->get('user@example.com');
         $label = md5((string) rand());
 
-        $response = $this->applicationClient->makeCreateFileSourceRequest($apiToken, $label);
+        $response = $this->applicationClient->makeFileSourceRequest($apiToken, 'POST', null, $label);
 
         $this->assertRetrievedFileSource($response, $label);
     }

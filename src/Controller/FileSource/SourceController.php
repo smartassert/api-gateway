@@ -17,7 +17,6 @@ use SmartAssert\ServiceClient\Exception\InvalidResponseTypeException;
 use SmartAssert\ServiceClient\Exception\UnauthorizedException;
 use SmartAssert\SourcesClient\Exception\ModifyReadOnlyEntityException;
 use SmartAssert\SourcesClient\FileSourceClientInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -31,54 +30,33 @@ readonly class SourceController
     }
 
     /**
-     * @throws ServiceException
-     * @throws UnauthorizedException
-     */
-    #[Route(name: 'create', methods: ['POST'])]
-    public function create(AuthenticationToken $token, Request $request): JsonResponse
-    {
-        try {
-            $source = $this->client->create($token->token, $request->request->getString('label'));
-        } catch (
-            ClientExceptionInterface |
-            HttpResponseExceptionInterface |
-            InvalidModelDataException |
-            InvalidResponseDataException |
-            InvalidResponseTypeException $e
-        ) {
-            throw new ServiceException('sources', $e);
-        }
-
-        return new Response(
-            new LabelledBody(
-                'file_source',
-                new FileSource($source->getId(), $source->getLabel(), $source->getDeletedAt())
-            )
-        );
-    }
-
-    /**
-     * @param non-empty-string $sourceId
+     * @param ?non-empty-string $sourceId
      *
      * @throws ServiceException
      * @throws UnauthorizedException
      */
-    #[Route(path: '/{sourceId<[A-Z90-9]{26}>}', name: 'handle', methods: ['GET', 'PUT', 'DELETE'])]
-    public function handle(AuthenticationToken $token, string $sourceId, Request $request): SymfonyResponse
+    #[Route(path: '/{sourceId<[A-Z90-9]{26}>?}', name: 'handle', methods: ['POST', 'GET', 'PUT', 'DELETE'])]
+    public function handle(AuthenticationToken $token, ?string $sourceId, Request $request): SymfonyResponse
     {
         $source = null;
 
         try {
-            if ('GET' === $request->getMethod()) {
-                $source = $this->client->get($token->token, $sourceId);
+            if ('POST' === $request->getMethod()) {
+                $source = $this->client->create($token->token, $request->request->getString('label'));
             }
 
-            if ('PUT' === $request->getMethod()) {
-                $source = $this->client->update($token->token, $sourceId, $request->request->getString('label'));
-            }
+            if (null !== $sourceId && '' !== $sourceId) {
+                if ('GET' === $request->getMethod()) {
+                    $source = $this->client->get($token->token, $sourceId);
+                }
 
-            if ('DELETE' === $request->getMethod()) {
-                $source = $this->client->delete($token->token, $sourceId);
+                if ('PUT' === $request->getMethod()) {
+                    $source = $this->client->update($token->token, $sourceId, $request->request->getString('label'));
+                }
+
+                if ('DELETE' === $request->getMethod()) {
+                    $source = $this->client->delete($token->token, $sourceId);
+                }
             }
         } catch (
             ClientExceptionInterface |
