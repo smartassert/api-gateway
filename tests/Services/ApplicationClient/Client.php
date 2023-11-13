@@ -349,4 +349,21 @@ readonly class Client
             http_build_query($payload)
         );
     }
+
+    public function makeFileSourceFilesRequest(
+        ?string $jwt,
+        string $sourceId,
+        string $method = 'GET',
+    ): ResponseInterface {
+        $headers = [];
+        if (is_string($jwt)) {
+            $headers['Authorization'] = 'Bearer ' . $jwt;
+        }
+
+        return $this->client->makeRequest(
+            $method,
+            $this->router->generate('file_source_list', ['sourceId' => $sourceId]),
+            $headers
+        );
+    }
 }

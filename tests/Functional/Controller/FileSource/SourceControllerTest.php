@@ -129,6 +129,33 @@ class SourceControllerTest extends AbstractApplicationTestCase
     }
 
     /**
+     * @dataProvider sourcesClientExceptionDataProvider
+     *
+     * @param array<mixed> $expectedData
+     */
+    public function testListHandlesException(
+        \Exception $exception,
+        int $expectedStatusCode,
+        array $expectedData
+    ): void {
+        $token = md5((string) rand());
+        $sourceId = (string) new Ulid();
+
+        $fileSourceClient = \Mockery::mock(FileSourceClientInterface::class);
+        $fileSourceClient
+            ->shouldReceive('list')
+            ->with($token, $sourceId)
+            ->andThrow($exception)
+        ;
+
+        self::getContainer()->set(FileSourceClientInterface::class, $fileSourceClient);
+
+        $response = $this->applicationClient->makeFileSourceFilesRequest($token, $sourceId);
+
+        $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
+    }
+
+    /**
      * @return array<mixed>
      */
     public function sourcesClientExceptionDataProvider(): array
