@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Controller\FileSource;
+namespace App\Controller\Source;
 
 use App\Exception\ServiceException;
 use App\Response\ArrayBody;
@@ -23,7 +23,7 @@ use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(path: '/file-source', name: 'file_source_')]
-readonly class SourceController
+readonly class FileSourceController
 {
     public function __construct(
         private FileSourceClientInterface $client,

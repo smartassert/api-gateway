@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Functional\Controller\FileSource;
+namespace App\Tests\Functional\Controller\Source;
 
 use App\Tests\Application\AbstractApplicationTestCase;
 use App\Tests\DataProvider\InvalidResponseModelDataProviderCreatorTrait;
@@ -12,7 +12,7 @@ use App\Tests\Functional\GetClientAdapterTrait;
 use SmartAssert\SourcesClient\FileClientInterface;
 use Symfony\Component\Uid\Ulid;
 
-class FileControllerTest extends AbstractApplicationTestCase
+class FileSourceFileControllerTest extends AbstractApplicationTestCase
 {
     use GetClientAdapterTrait;
     use ServiceHttpFailureDataProviderCreatorTrait;
