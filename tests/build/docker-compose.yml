@@ -35,7 +35,7 @@ services:
 
   s3-mock:
     image: adobe/s3mock:2.4.14
-    profiles: ["integration"]
+    profiles: ["functional"]
     container_name: s3-mock
     ports:
       - "9090:9090"
@@ -45,7 +45,7 @@ services:
     restart: unless-stopped
 
   sources-service:
-    image: ghcr.io/smartassert/sources:4.0
+    image: ghcr.io/smartassert/sources:6.0
     profiles: ["functional"]
     container_name: sources-service
     environment:
