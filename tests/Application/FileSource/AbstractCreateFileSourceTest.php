@@ -9,6 +9,8 @@ use SmartAssert\TestAuthenticationProviderBundle\ApiTokenProvider;
 
 abstract class AbstractCreateFileSourceTest extends AbstractApplicationTestCase
 {
+    use AssertFileSourceTrait;
+
     /**
      * @dataProvider createBadMethodDataProvider
      */
@@ -79,23 +81,6 @@ abstract class AbstractCreateFileSourceTest extends AbstractApplicationTestCase
 
         $response = $this->applicationClient->makeCreateFileSourceRequest($apiToken, $label);
 
-        self::assertSame(200, $response->getStatusCode());
-        self::assertSame('application/json', $response->getHeaderLine('content-type'));
-
-        $responseData = json_decode($response->getBody()->getContents(), true);
-        self::assertIsArray($responseData);
-        self::assertArrayHasKey('file_source', $responseData);
-
-        $objectData = $responseData['file_source'];
-        self::assertIsArray($objectData);
-
-        self::assertSame(
-            [
-                'id' => $objectData['id'],
-                'label' => $label,
-                'type' => 'file',
-            ],
-            $objectData
-        );
+        $this->assertRetrievedFileSource($response, $label);
     }
 }
