@@ -272,4 +272,35 @@ readonly class Client
             $content
         );
     }
+
+    /**
+     * @param 'DELETE'|'GET'|'PUT' $method
+     */
+    public function makeFileSourceRequest(
+        ?string $jwt,
+        string $method,
+        ?string $sourceId = null,
+        ?string $label = null,
+    ): ResponseInterface {
+        $headers = [];
+        if (is_string($jwt)) {
+            $headers['Authorization'] = 'Bearer ' . $jwt;
+        }
+
+        $payload = [];
+        if (is_string($label)) {
+            $payload['label'] = $label;
+        }
+
+        if ([] !== $payload) {
+            $headers['Content-Type'] = 'application/x-www-form-urlencoded';
+        }
+
+        return $this->client->makeRequest(
+            $method,
+            $this->router->generate('file_source_handle', ['sourceId' => $sourceId]),
+            $headers,
+            http_build_query($payload)
+        );
+    }
 }

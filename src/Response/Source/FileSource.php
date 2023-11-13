@@ -4,36 +4,14 @@ declare(strict_types=1);
 
 namespace App\Response\Source;
 
-use App\Response\BodyInterface;
+use App\Response\LabelledBody;
+use App\Response\Response;
+use SmartAssert\SourcesClient\Model\FileSource as SourcesClientFileSource;
 
-readonly class FileSource implements BodyInterface
+class FileSource extends Response
 {
-    /**
-     * @param non-empty-string $id
-     * @param non-empty-string $label
-     */
-    public function __construct(
-        private string $id,
-        private string $label,
-        private ?int $deletedAt,
-    ) {
-    }
-
-    /**
-     * @return array{id: non-empty-string, label: non-empty-string, type: 'file', deleted_at?: int}
-     */
-    public function toArray(): array
+    public function __construct(SourcesClientFileSource $source)
     {
-        $data = [
-            'id' => $this->id,
-            'label' => $this->label,
-            'type' => 'file',
-        ];
-
-        if (null !== $this->deletedAt) {
-            $data['deleted_at'] = $this->deletedAt;
-        }
-
-        return $data;
+        parent::__construct(new LabelledBody('file_source', new FileSourceBody($source)));
     }
 }
