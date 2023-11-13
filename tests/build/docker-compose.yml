@@ -35,7 +35,7 @@ services:
 
   s3-mock:
     image: adobe/s3mock:2.4.14
-    profiles: ["integration"]
+    profiles: ["functional"]
     container_name: s3-mock
     ports:
       - "9090:9090"
