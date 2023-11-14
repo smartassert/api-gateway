@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Controller\User;
 
 use App\Exception\ServiceException;
-use App\Response\LabelledBody;
 use App\Response\LabelledCollectionBody;
 use App\Response\Response;
 use App\Response\User\ApiKey;
@@ -77,11 +76,8 @@ readonly class ApiKeyController
             return new JsonResponse(null, 404);
         }
 
-        return new Response(
-            new LabelledBody(
-                'api_key',
-                new ApiKey($apiKey->label, $apiKey->key)
-            )
-        );
+        return new JsonResponse([
+            'api_key' => $apiKey,
+        ]);
     }
 }
