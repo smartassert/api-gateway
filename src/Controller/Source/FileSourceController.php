@@ -5,9 +5,6 @@ declare(strict_types=1);
 namespace App\Controller\Source;
 
 use App\Exception\ServiceException;
-use App\Response\ArrayBody;
-use App\Response\LabelledBody;
-use App\Response\Response;
 use App\Response\Source\FileSource;
 use App\Security\AuthenticationToken;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -18,6 +15,7 @@ use SmartAssert\ServiceClient\Exception\InvalidResponseTypeException;
 use SmartAssert\ServiceClient\Exception\UnauthorizedException;
 use SmartAssert\SourcesClient\Exception\ModifyReadOnlyEntityException;
 use SmartAssert\SourcesClient\FileSourceClientInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -93,7 +91,7 @@ readonly class FileSourceController
      * @throws UnauthorizedException
      */
     #[Route(path: '/{sourceId<[A-Z90-9]{26}>}/list', name: 'list', methods: ['GET'])]
-    public function list(AuthenticationToken $token, string $sourceId): Response
+    public function list(AuthenticationToken $token, string $sourceId): JsonResponse
     {
         try {
             $filenames = $this->client->list($token->token, $sourceId);
@@ -107,8 +105,8 @@ readonly class FileSourceController
             throw new ServiceException('sources', $e);
         }
 
-        return new Response(
-            new LabelledBody('files', new ArrayBody($filenames))
-        );
+        return new JsonResponse([
+            'files' => $filenames,
+        ]);
     }
 }
