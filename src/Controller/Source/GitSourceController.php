@@ -6,7 +6,6 @@ namespace App\Controller\Source;
 
 use App\Exception\ServiceException;
 use App\Response\EmptyResponse;
-use App\Response\Source\GitSource;
 use App\Security\AuthenticationToken;
 use Psr\Http\Client\ClientExceptionInterface;
 use SmartAssert\ServiceClient\Exception\HttpResponseExceptionInterface;
@@ -59,7 +58,9 @@ readonly class GitSourceController
             throw new ServiceException('sources', $e);
         }
 
-        return new GitSource($source);
+        return new JsonResponse([
+            'git_source' => $source->toArray(),
+        ]);
     }
 
     /**
@@ -69,11 +70,8 @@ readonly class GitSourceController
      * @throws UnauthorizedException
      */
     #[Route(path: '/{sourceId<[A-Z90-9]{26}>}', name: 'handle', methods: ['GET', 'PUT', 'DELETE'])]
-    public function handle(
-        AuthenticationToken $token,
-        string $sourceId,
-        Request $request
-    ): Response {
+    public function handle(AuthenticationToken $token, string $sourceId, Request $request): Response
+    {
         try {
             $credentials = $request->request->getString('credentials');
             if ('' === $credentials) {
@@ -108,6 +106,8 @@ readonly class GitSourceController
             return new EmptyResponse(405);
         }
 
-        return new GitSource($source);
+        return new JsonResponse([
+            'git_source' => $source->toArray(),
+        ]);
     }
 }
