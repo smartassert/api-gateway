@@ -8,6 +8,7 @@ use App\Exception\EmptyAuthenticationTokenException;
 use App\Exception\EmptyUserCredentialsException;
 use App\Exception\EmptyUserIdException;
 use App\Exception\ServiceException;
+use App\Response\EmptyResponse;
 use App\Response\ErrorResponse;
 use App\Response\ErrorResponseBody;
 use App\ServiceExceptionResponseFactory\Factory;
@@ -41,15 +42,15 @@ readonly class KernelExceptionEventSubscriber implements EventSubscriberInterfac
         $response = null;
 
         if ($throwable instanceof EmptyAuthenticationTokenException) {
-            $response = new Response(null, 401);
+            $response = new EmptyResponse(401);
         }
 
         if ($throwable instanceof EmptyUserCredentialsException) {
-            $response = new Response(null, 401);
+            $response = new EmptyResponse(401);
         }
 
         if ($throwable instanceof EmptyUserIdException) {
-            $response = new Response(null, 400);
+            $response = new EmptyResponse(400);
         }
 
         if ($throwable instanceof UnauthorizedException) {

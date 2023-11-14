@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Source;
 
 use App\Exception\ServiceException;
+use App\Response\EmptyResponse;
 use App\Response\Source\FileSource;
 use App\Security\AuthenticationToken;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -17,7 +18,7 @@ use SmartAssert\SourcesClient\Exception\ModifyReadOnlyEntityException;
 use SmartAssert\SourcesClient\FileSourceClientInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(path: '/file-source', name: 'file_source_')]
@@ -33,7 +34,7 @@ readonly class FileSourceController
      * @throws UnauthorizedException
      */
     #[Route(name: 'create', methods: ['POST'])]
-    public function create(AuthenticationToken $token, Request $request): SymfonyResponse
+    public function create(AuthenticationToken $token, Request $request): Response
     {
         try {
             $source = $this->client->create($token->token, $request->request->getString('label'));
@@ -57,7 +58,7 @@ readonly class FileSourceController
      * @throws UnauthorizedException
      */
     #[Route(path: '/{sourceId<[A-Z90-9]{26}>}', name: 'handle', methods: ['GET', 'PUT', 'DELETE'])]
-    public function handle(AuthenticationToken $token, string $sourceId, Request $request): SymfonyResponse
+    public function handle(AuthenticationToken $token, string $sourceId, Request $request): Response
     {
         try {
             $source = match ($request->getMethod()) {
@@ -78,7 +79,7 @@ readonly class FileSourceController
         }
 
         if (null === $source) {
-            return new SymfonyResponse(null, 405);
+            return new EmptyResponse(405);
         }
 
         return new FileSource($source);

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Source;
 
 use App\Exception\ServiceException;
+use App\Response\EmptyResponse;
 use App\Response\YamlResponse;
 use App\Security\AuthenticationToken;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -36,13 +37,13 @@ readonly class FileSourceFileController
             if ('POST' === $request->getMethod()) {
                 $this->client->add($token->token, $sourceId, $filename, (string) $request->getContent());
 
-                return new Response(null, 200);
+                return new EmptyResponse();
             }
 
             if ('DELETE' === $request->getMethod()) {
                 $this->client->remove($token->token, $sourceId, $filename);
 
-                return new Response(null, 200);
+                return new EmptyResponse();
             }
 
             if ('GET' === $request->getMethod()) {
@@ -57,6 +58,6 @@ readonly class FileSourceFileController
             throw new ServiceException('sources', $e);
         }
 
-        return new Response(null, 405);
+        return new EmptyResponse(405);
     }
 }
