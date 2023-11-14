@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Response;
 
-readonly class ErrorResponseBody implements ErrorResponseBodyInterface
+readonly class ErrorResponseBody
 {
     /**
      * @param non-empty-string $type
@@ -16,16 +16,25 @@ readonly class ErrorResponseBody implements ErrorResponseBodyInterface
     ) {
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function getType(): string
     {
         return $this->type;
     }
 
+    /**
+     * @return ?array<mixed>
+     */
     public function getContext(): ?array
     {
         return $this->context;
     }
 
+    /**
+     * @return array{type: non-empty-string, context?: array<mixed>}
+     */
     public function toArray(): array
     {
         $data = [

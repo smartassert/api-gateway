@@ -11,7 +11,7 @@ class ErrorResponse extends JsonResponse
     private const DEFAULT_ERROR_CODE = 500;
 
     public function __construct(
-        ErrorResponseBodyInterface $body,
+        ErrorResponseBody $body,
         int $status = self::DEFAULT_ERROR_CODE,
     ) {
         parent::__construct($body, $status);
