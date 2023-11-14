@@ -68,10 +68,10 @@ trait AssertGitSourceTrait
                 'id' => $expectedId,
                 'label' => $expectedLabel,
                 'type' => 'git',
+                'deleted_at' => $deletedAt,
                 'host_url' => $expectedHostUrl,
                 'path' => $expectedPath,
                 'has_credentials' => $expectedHasCredentials,
-                'deleted_at' => $deletedAt,
             ],
             $objectData
         );
