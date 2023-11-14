@@ -6,7 +6,6 @@ namespace App\ServiceExceptionResponseFactory;
 
 use App\Exception\ServiceException;
 use App\Response\ErrorResponse;
-use App\Response\ErrorResponseBody;
 use SmartAssert\ServiceClient\Exception\InvalidModelDataException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -21,13 +20,12 @@ class InvalidModelDataExceptionHandler implements HandlerInterface
         }
 
         return new ErrorResponse(
-            new ErrorResponseBody(
-                'invalid-model-data',
-                [
-                    'service' => $serviceException->serviceName,
-                    'data' => $previous->getResponse()->getBody(),
-                ]
-            )
+            'invalid-model-data',
+            500,
+            [
+                'service' => $serviceException->serviceName,
+                'data' => $previous->getResponse()->getBody(),
+            ],
         );
     }
 }

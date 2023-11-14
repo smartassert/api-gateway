@@ -4,14 +4,35 @@ declare(strict_types=1);
 
 namespace App\Response;
 
-class ErrorResponse extends Response
-{
-    private const DEFAULT_ERROR_CODE = 500;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
+class ErrorResponse extends JsonResponse
+{
+    /**
+     * @param non-empty-string $type
+     * @param ?array<mixed>    $context
+     */
     public function __construct(
-        ErrorResponseBodyInterface $body,
-        int $status = self::DEFAULT_ERROR_CODE,
+        private readonly string $type,
+        int $status,
+        private readonly ?array $context = null,
     ) {
-        parent::__construct($body, $status);
+        parent::__construct($this->toArray(), $status);
+    }
+
+    /**
+     * @return array{type: non-empty-string, context?: array<mixed>}
+     */
+    private function toArray(): array
+    {
+        $data = [
+            'type' => $this->type,
+        ];
+
+        if (is_array($this->context)) {
+            $data['context'] = $this->context;
+        }
+
+        return $data;
     }
 }

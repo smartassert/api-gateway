@@ -6,7 +6,6 @@ namespace App\ServiceExceptionResponseFactory;
 
 use App\Exception\ServiceException;
 use App\Response\ErrorResponse;
-use App\Response\ErrorResponseBody;
 use Psr\Http\Client\ClientExceptionInterface;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -21,16 +20,15 @@ class ClientExceptionHandler implements HandlerInterface
         }
 
         return new ErrorResponse(
-            new ErrorResponseBody(
-                'service-communication-failure',
-                [
-                    'service' => $serviceException->serviceName,
-                    'error' => [
-                        'code' => $previous->getCode(),
-                        'message' => $previous->getMessage(),
-                    ],
-                ]
-            )
+            'service-communication-failure',
+            500,
+            [
+                'service' => $serviceException->serviceName,
+                'error' => [
+                    'code' => $previous->getCode(),
+                    'message' => $previous->getMessage(),
+                ],
+            ]
         );
     }
 }

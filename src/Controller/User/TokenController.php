@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\User;
 
 use App\Exception\ServiceException;
-use App\Response\ErrorResponse;
-use App\Response\ErrorResponseBody;
+use App\Response\UnauthorizedResponse;
 use App\Security\AuthenticationToken;
 use App\Security\UserCredentials;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -17,6 +16,7 @@ use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
 use SmartAssert\ServiceClient\Exception\UnauthorizedException;
 use SmartAssert\UsersClient\ClientInterface as UsersClient;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route('/user/token', name: 'user_token_')]
@@ -55,12 +55,12 @@ readonly class TokenController
      * @throws ServiceException
      */
     #[Route('/verify', name: 'verify', methods: ['GET'])]
-    public function verify(AuthenticationToken $token): JsonResponse
+    public function verify(AuthenticationToken $token): Response
     {
         try {
             $user = $this->client->verifyFrontendToken($token->token);
             if (null === $user) {
-                return new ErrorResponse(new ErrorResponseBody('unauthorized'), 401);
+                return new UnauthorizedResponse();
             }
         } catch (
             ClientExceptionInterface |
@@ -81,13 +81,13 @@ readonly class TokenController
      * @throws ServiceException
      */
     #[Route('/refresh', name: 'refresh', methods: ['POST'])]
-    public function refresh(AuthenticationToken $token): JsonResponse
+    public function refresh(AuthenticationToken $token): Response
     {
         try {
             $refreshableToken = $this->client->refreshFrontendToken($token->token);
 
             if (null === $refreshableToken) {
-                return new ErrorResponse(new ErrorResponseBody('unauthorized'), 401);
+                return new UnauthorizedResponse();
             }
         } catch (
             ClientExceptionInterface |

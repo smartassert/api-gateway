@@ -6,7 +6,6 @@ namespace App\ServiceExceptionResponseFactory;
 
 use App\Exception\ServiceException;
 use App\Response\ErrorResponse;
-use App\Response\ErrorResponseBody;
 use SmartAssert\ServiceClient\Exception\InvalidResponseTypeException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -21,16 +20,15 @@ class InvalidResponseTypeExceptionHandler implements HandlerInterface
         }
 
         return new ErrorResponse(
-            new ErrorResponseBody(
-                'invalid-response-type',
-                [
-                    'service' => $serviceException->serviceName,
-                    'content-type' => [
-                        'expected' => $previous->expected,
-                        'actual' => $previous->actual,
-                    ],
-                ]
-            )
+            'invalid-response-type',
+            500,
+            [
+                'service' => $serviceException->serviceName,
+                'content-type' => [
+                    'expected' => $previous->expected,
+                    'actual' => $previous->actual,
+                ],
+            ]
         );
     }
 }
