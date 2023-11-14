@@ -5,10 +5,6 @@ declare(strict_types=1);
 namespace App\Controller\User;
 
 use App\Exception\ServiceException;
-use App\Response\LabelledBody;
-use App\Response\LabelledCollectionBody;
-use App\Response\Response;
-use App\Response\User\ApiKey;
 use App\Security\AuthenticationToken;
 use Psr\Http\Client\ClientExceptionInterface;
 use SmartAssert\ServiceClient\Exception\InvalidResponseDataException;
@@ -35,7 +31,7 @@ readonly class ApiKeyController
     public function list(AuthenticationToken $token): JsonResponse
     {
         try {
-            $apiKeyCollection = $this->client->listUserApiKeys($token->token);
+            $apiKeys = $this->client->listUserApiKeys($token->token);
         } catch (
             ClientExceptionInterface |
             InvalidResponseDataException |
@@ -45,14 +41,9 @@ readonly class ApiKeyController
             throw new ServiceException('users', $e);
         }
 
-        $apiKeys = [];
-        foreach ($apiKeyCollection as $usersClientApiKey) {
-            $apiKeys[] = new ApiKey($usersClientApiKey->label, $usersClientApiKey->key);
-        }
-
-        return new Response(
-            new LabelledCollectionBody('api_keys', $apiKeys)
-        );
+        return new JsonResponse([
+            'api_keys' => $apiKeys->toArray(),
+        ]);
     }
 
     /**
@@ -77,11 +68,8 @@ readonly class ApiKeyController
             return new JsonResponse(null, 404);
         }
 
-        return new Response(
-            new LabelledBody(
-                'api_key',
-                new ApiKey($apiKey->label, $apiKey->key)
-            )
-        );
+        return new JsonResponse([
+            'api_key' => $apiKey,
+        ]);
     }
 }
