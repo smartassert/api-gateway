@@ -6,7 +6,6 @@ namespace App\Controller\Source;
 
 use App\Exception\ServiceException;
 use App\Response\EmptyResponse;
-use App\Response\Source\FileSource;
 use App\Security\AuthenticationToken;
 use Psr\Http\Client\ClientExceptionInterface;
 use SmartAssert\ServiceClient\Exception\HttpResponseExceptionInterface;
@@ -48,7 +47,9 @@ readonly class FileSourceController
             throw new ServiceException('sources', $e);
         }
 
-        return new FileSource($source);
+        return new JsonResponse([
+            'file_source' => $source->toArray(),
+        ]);
     }
 
     /**
@@ -82,7 +83,9 @@ readonly class FileSourceController
             return new EmptyResponse(405);
         }
 
-        return new FileSource($source);
+        return new JsonResponse([
+            'file_source' => $source->toArray(),
+        ]);
     }
 
     /**

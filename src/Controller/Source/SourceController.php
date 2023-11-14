@@ -5,10 +5,6 @@ declare(strict_types=1);
 namespace App\Controller\Source;
 
 use App\Exception\ServiceException;
-use App\Response\LabelledCollectionBody;
-use App\Response\Response;
-use App\Response\Source\FileSourceBody;
-use App\Response\Source\GitSourceBody;
 use App\Security\AuthenticationToken;
 use Psr\Http\Client\ClientExceptionInterface;
 use SmartAssert\ServiceClient\Exception\HttpResponseExceptionInterface;
@@ -16,9 +12,9 @@ use SmartAssert\ServiceClient\Exception\InvalidModelDataException;
 use SmartAssert\ServiceClient\Exception\InvalidResponseDataException;
 use SmartAssert\ServiceClient\Exception\InvalidResponseTypeException;
 use SmartAssert\ServiceClient\Exception\UnauthorizedException;
-use SmartAssert\SourcesClient\Model\FileSource;
-use SmartAssert\SourcesClient\Model\GitSource;
+use SmartAssert\ServiceClient\SerializableInterface;
 use SmartAssert\SourcesClient\SourceClientInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
 readonly class SourceController
@@ -33,7 +29,7 @@ readonly class SourceController
      * @throws UnauthorizedException
      */
     #[Route(path: '/sources/list', name: 'sources_list', methods: ['GET'])]
-    public function list(AuthenticationToken $token): Response
+    public function list(AuthenticationToken $token): JsonResponse
     {
         try {
             $sources = $this->client->list($token->token);
@@ -47,19 +43,15 @@ readonly class SourceController
             throw new ServiceException('sources', $e);
         }
 
-        $sourceBodies = [];
+        $serializedSources = [];
         foreach ($sources as $source) {
-            if ($source instanceof FileSource) {
-                $sourceBodies[] = new FileSourceBody($source);
-            }
-
-            if ($source instanceof GitSource) {
-                $sourceBodies[] = new GitSourceBody($source);
+            if ($source instanceof SerializableInterface) {
+                $serializedSources[] = $source->toArray();
             }
         }
 
-        return new Response(
-            new LabelledCollectionBody('sources', $sourceBodies),
-        );
+        return new JsonResponse([
+            'sources' => $serializedSources,
+        ]);
     }
 }
