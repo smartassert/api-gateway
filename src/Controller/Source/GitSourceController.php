@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Source;
 
 use App\Exception\ServiceException;
+use App\Response\EmptyResponse;
 use App\Response\Source\GitSource;
 use App\Security\AuthenticationToken;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -104,7 +105,7 @@ readonly class GitSourceController
         }
 
         if (null === $source) {
-            return new Response(null, 405);
+            return new EmptyResponse(405);
         }
 
         return new GitSource($source);
