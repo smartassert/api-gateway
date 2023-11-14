@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Response;
 
-class ErrorResponse extends Response
+use Symfony\Component\HttpFoundation\JsonResponse;
+
+class ErrorResponse extends JsonResponse
 {
     private const DEFAULT_ERROR_CODE = 500;
 
