@@ -7,9 +7,6 @@ namespace App\Controller\User;
 use App\Exception\ServiceException;
 use App\Response\ErrorResponse;
 use App\Response\ErrorResponseBody;
-use App\Response\LabelledBody;
-use App\Response\Response;
-use App\Response\User\RefreshableToken;
 use App\Security\AuthenticationToken;
 use App\Security\UserCredentials;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -49,12 +46,9 @@ readonly class TokenController
             throw new ServiceException('users', $e);
         }
 
-        return new Response(
-            new LabelledBody(
-                'refreshable_token',
-                new RefreshableToken($token->token, $token->refreshToken)
-            )
-        );
+        return new JsonResponse([
+            'refreshable_token' => $token->toArray(),
+        ]);
     }
 
     /**
@@ -105,11 +99,8 @@ readonly class TokenController
             throw new ServiceException('users', $e);
         }
 
-        return new Response(
-            new LabelledBody(
-                'refreshable_token',
-                new RefreshableToken($refreshableToken->token, $refreshableToken->refreshToken)
-            )
-        );
+        return new JsonResponse([
+            'refreshable_token' => $refreshableToken->toArray(),
+        ]);
     }
 }
