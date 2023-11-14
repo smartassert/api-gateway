@@ -6,7 +6,6 @@ namespace App\ServiceExceptionResponseFactory;
 
 use App\Exception\ServiceException;
 use App\Response\ErrorResponse;
-use App\Response\ErrorResponseBody;
 use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -21,21 +20,17 @@ class NonSuccessResponseExceptionHandler implements HandlerInterface
         }
 
         if (404 === $previous->getCode()) {
-            return new ErrorResponse(
-                new ErrorResponseBody('not-found'),
-                $previous->getStatusCode()
-            );
+            return new ErrorResponse('not-found', 404);
         }
 
         return new ErrorResponse(
-            new ErrorResponseBody(
-                'non-successful-service-response',
-                [
-                    'service' => $serviceException->serviceName,
-                    'status' => $previous->getStatusCode(),
-                    'message' => $previous->getMessage(),
-                ]
-            )
+            'non-successful-service-response',
+            500,
+            [
+                'service' => $serviceException->serviceName,
+                'status' => $previous->getStatusCode(),
+                'message' => $previous->getMessage(),
+            ]
         );
     }
 }

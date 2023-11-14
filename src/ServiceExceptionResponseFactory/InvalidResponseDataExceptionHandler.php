@@ -6,7 +6,6 @@ namespace App\ServiceExceptionResponseFactory;
 
 use App\Exception\ServiceException;
 use App\Response\ErrorResponse;
-use App\Response\ErrorResponseBody;
 use SmartAssert\ServiceClient\Exception\InvalidResponseDataException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -21,17 +20,16 @@ class InvalidResponseDataExceptionHandler implements HandlerInterface
         }
 
         return new ErrorResponse(
-            new ErrorResponseBody(
-                'invalid-response-data',
-                [
-                    'service' => $serviceException->serviceName,
-                    'data' => $previous->getResponse()->getBody(),
-                    'data-type' => [
-                        'expected' => $previous->expected,
-                        'actual' => $previous->actual,
-                    ],
-                ]
-            )
+            'invalid-response-data',
+            500,
+            [
+                'service' => $serviceException->serviceName,
+                'data' => $previous->getResponse()->getBody(),
+                'data-type' => [
+                    'expected' => $previous->expected,
+                    'actual' => $previous->actual,
+                ],
+            ]
         );
     }
 }

@@ -9,8 +9,7 @@ use App\Exception\EmptyUserCredentialsException;
 use App\Exception\EmptyUserIdException;
 use App\Exception\ServiceException;
 use App\Response\EmptyResponse;
-use App\Response\ErrorResponse;
-use App\Response\ErrorResponseBody;
+use App\Response\UnauthorizedResponse;
 use App\ServiceExceptionResponseFactory\Factory;
 use SmartAssert\ServiceClient\Exception\UnauthorizedException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -42,11 +41,11 @@ readonly class KernelExceptionEventSubscriber implements EventSubscriberInterfac
         $response = null;
 
         if ($throwable instanceof EmptyAuthenticationTokenException) {
-            $response = new EmptyResponse(401);
+            $response = new UnauthorizedResponse();
         }
 
         if ($throwable instanceof EmptyUserCredentialsException) {
-            $response = new EmptyResponse(401);
+            $response = new UnauthorizedResponse();
         }
 
         if ($throwable instanceof EmptyUserIdException) {
@@ -54,7 +53,7 @@ readonly class KernelExceptionEventSubscriber implements EventSubscriberInterfac
         }
 
         if ($throwable instanceof UnauthorizedException) {
-            $response = new ErrorResponse(new ErrorResponseBody('unauthorized'), 401);
+            $response = new UnauthorizedResponse();
         }
 
         if ($throwable instanceof ServiceException) {

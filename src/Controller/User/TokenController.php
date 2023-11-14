@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\User;
 
 use App\Exception\ServiceException;
-use App\Response\ErrorResponse;
-use App\Response\ErrorResponseBody;
+use App\Response\UnauthorizedResponse;
 use App\Security\AuthenticationToken;
 use App\Security\UserCredentials;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -60,7 +59,7 @@ readonly class TokenController
         try {
             $user = $this->client->verifyFrontendToken($token->token);
             if (null === $user) {
-                return new ErrorResponse(new ErrorResponseBody('unauthorized'), 401);
+                return new UnauthorizedResponse();
             }
         } catch (
             ClientExceptionInterface |
@@ -87,7 +86,7 @@ readonly class TokenController
             $refreshableToken = $this->client->refreshFrontendToken($token->token);
 
             if (null === $refreshableToken) {
-                return new ErrorResponse(new ErrorResponseBody('unauthorized'), 401);
+                return new UnauthorizedResponse();
             }
         } catch (
             ClientExceptionInterface |

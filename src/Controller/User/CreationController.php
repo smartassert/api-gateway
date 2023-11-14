@@ -6,7 +6,6 @@ namespace App\Controller\User;
 
 use App\Exception\ServiceException;
 use App\Response\ErrorResponse;
-use App\Response\ErrorResponseBody;
 use App\Security\AuthenticationToken;
 use App\Security\UserCredentials;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -49,10 +48,7 @@ readonly class CreationController
         ) {
             throw new ServiceException('users', $e);
         } catch (UserAlreadyExistsException) {
-            return new ErrorResponse(
-                new ErrorResponseBody('user-already-exists'),
-                409
-            );
+            return new ErrorResponse('user-already-exists', 409);
         }
 
         return new JsonResponse([
