@@ -6,7 +6,7 @@ namespace App\Controller\Source;
 
 use App\Exception\ServiceException;
 use App\Response\EmptyResponse;
-use App\Security\AuthenticationToken;
+use App\Security\ApiToken;
 use Psr\Http\Client\ClientExceptionInterface;
 use SmartAssert\ServiceClient\Exception\HttpResponseExceptionInterface;
 use SmartAssert\ServiceClient\Exception\InvalidModelDataException;
@@ -33,7 +33,7 @@ readonly class GitSourceController
      * @throws UnauthorizedException
      */
     #[Route(name: 'create', methods: ['POST'])]
-    public function create(AuthenticationToken $token, Request $request): JsonResponse
+    public function create(ApiToken $token, Request $request): JsonResponse
     {
         try {
             $credentials = $request->request->getString('credentials');
@@ -70,7 +70,7 @@ readonly class GitSourceController
      * @throws UnauthorizedException
      */
     #[Route(path: '/{sourceId<[A-Z90-9]{26}>}', name: 'handle', methods: ['GET', 'PUT', 'DELETE'])]
-    public function handle(AuthenticationToken $token, string $sourceId, Request $request): Response
+    public function handle(ApiToken $token, string $sourceId, Request $request): Response
     {
         try {
             $credentials = $request->request->getString('credentials');
