@@ -5,13 +5,16 @@ declare(strict_types=1);
 namespace App\Tests\Application\GitSource;
 
 use App\Tests\Application\AbstractApplicationTestCase;
+use App\Tests\Application\AssertBadRequestTrait;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 use Symfony\Component\Uid\Ulid;
 
 abstract class AbstractUpdateTest extends AbstractApplicationTestCase
 {
     use CreateGitSourceDataProviderTrait;
+    use CreateUpdateGitSourceBadRequestDataProviderTrait;
     use AssertGitSourceTrait;
+    use AssertBadRequestTrait;
 
     /**
      * @dataProvider unauthorizedUserDataProvider
@@ -50,6 +53,50 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         $response = $this->applicationClient->makeGitSourceRequest($apiKey->key, 'PUT', (string) new Ulid());
 
         self::assertSame(404, $response->getStatusCode());
+    }
+
+    /**
+     * @dataProvider createUpdateGitSourceBadRequestDataProvider
+     */
+    public function testUpdateBadRequest(
+        ?string $label,
+        ?string $hostUrl,
+        ?string $path,
+        string $expectedInvalidField
+    ): void {
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
+
+        $createResponse = $this->applicationClient->makeCreateGitSourceRequest(
+            $apiKey->key,
+            md5((string) rand()),
+            md5((string) rand()),
+            md5((string) rand()),
+            null
+        );
+        self::assertSame(200, $createResponse->getStatusCode());
+
+        $createResponseData = json_decode($createResponse->getBody()->getContents(), true);
+        \assert(is_array($createResponseData));
+
+        $createdSourceData = $createResponseData['git_source'];
+        \assert(is_array($createdSourceData));
+
+        $id = $createdSourceData['id'] ?? null;
+        \assert(is_string($id) && '' !== $id);
+
+        $updateResponse = $this->applicationClient->makeGitSourceRequest(
+            $apiKey->key,
+            'PUT',
+            $id,
+            $label,
+            $hostUrl,
+            $path,
+            null
+        );
+
+        $this->assertBadRequest($updateResponse, $expectedInvalidField);
     }
 
     /**

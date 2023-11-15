@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace App\Tests\Application\FileSource;
 
 use App\Tests\Application\AbstractApplicationTestCase;
+use App\Tests\Application\AssertBadRequestTrait;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 use Symfony\Component\Uid\Ulid;
 
 abstract class AbstractUpdateTest extends AbstractApplicationTestCase
 {
     use AssertFileSourceTrait;
+    use AssertBadRequestTrait;
 
     /**
      * @dataProvider unauthorizedUserDataProvider
@@ -102,6 +104,31 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
             ],
             json_decode($response->getBody()->getContents(), true)
         );
+    }
+
+    public function testUpdateBadRequest(): void
+    {
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
+
+        $label = md5((string) rand());
+
+        $createResponse = $this->applicationClient->makeCreateFileSourceRequest($apiKey->key, $label);
+        self::assertSame(200, $createResponse->getStatusCode());
+
+        $createResponseData = json_decode($createResponse->getBody()->getContents(), true);
+        \assert(is_array($createResponseData));
+
+        $createdSourceData = $createResponseData['file_source'];
+        \assert(is_array($createdSourceData));
+
+        $id = $createdSourceData['id'] ?? null;
+        \assert(is_string($id) && '' !== $id);
+
+        $response = $this->applicationClient->makeFileSourceRequest($apiKey->key, 'PUT', $id);
+
+        $this->assertBadRequest($response, 'label');
     }
 
     public function testUpdateSuccess(): void

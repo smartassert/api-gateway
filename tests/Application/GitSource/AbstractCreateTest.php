@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace App\Tests\Application\GitSource;
 
 use App\Tests\Application\AbstractApplicationTestCase;
+use App\Tests\Application\AssertBadRequestTrait;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 
 abstract class AbstractCreateTest extends AbstractApplicationTestCase
 {
     use CreateGitSourceDataProviderTrait;
+    use CreateUpdateGitSourceBadRequestDataProviderTrait;
     use AssertGitSourceTrait;
+    use AssertBadRequestTrait;
 
     /**
      * @dataProvider unauthorizedUserDataProvider
@@ -44,6 +47,32 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
                 'token' => md5((string) rand()),
             ],
         ];
+    }
+
+    /**
+     * @dataProvider createUpdateGitSourceBadRequestDataProvider
+     */
+    public function testCreateBadRequest(
+        ?string $label,
+        ?string $hostUrl,
+        ?string $path,
+        string $expectedInvalidField
+    ): void {
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
+
+        $credentials = null;
+
+        $response = $this->applicationClient->makeCreateGitSourceRequest(
+            $apiKey->key,
+            $label,
+            $hostUrl,
+            $path,
+            $credentials
+        );
+
+        $this->assertBadRequest($response, $expectedInvalidField);
     }
 
     /**
