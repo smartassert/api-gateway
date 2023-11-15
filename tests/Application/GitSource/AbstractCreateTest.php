@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Application\GitSource;
 
 use App\Tests\Application\AbstractApplicationTestCase;
-use SmartAssert\TestAuthenticationProviderBundle\ApiTokenProvider;
+use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 
 abstract class AbstractCreateTest extends AbstractApplicationTestCase
 {
@@ -55,13 +55,12 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
         string $path,
         ?string $credentials,
     ): void {
-        $apiTokenProvider = self::getContainer()->get(ApiTokenProvider::class);
-        \assert($apiTokenProvider instanceof ApiTokenProvider);
-
-        $apiToken = $apiTokenProvider->get('user@example.com');
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
 
         $response = $this->applicationClient->makeCreateGitSourceRequest(
-            $apiToken,
+            $apiKey->key,
             $label,
             $hostUrl,
             $path,

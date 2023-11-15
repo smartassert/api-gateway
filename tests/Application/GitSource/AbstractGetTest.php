@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Application\GitSource;
 
 use App\Tests\Application\AbstractApplicationTestCase;
-use SmartAssert\TestAuthenticationProviderBundle\ApiTokenProvider;
+use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 use Symfony\Component\Uid\Ulid;
 
 abstract class AbstractGetTest extends AbstractApplicationTestCase
@@ -43,11 +43,11 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
 
     public function testGetNotFound(): void
     {
-        $apiTokenProvider = self::getContainer()->get(ApiTokenProvider::class);
-        \assert($apiTokenProvider instanceof ApiTokenProvider);
-        $apiToken = $apiTokenProvider->get('user@example.com');
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $response = $this->applicationClient->makeGitSourceRequest($apiToken, 'GET', (string) new Ulid());
+        $response = $this->applicationClient->makeGitSourceRequest($apiKey->key, 'GET', (string) new Ulid());
 
         self::assertSame(404, $response->getStatusCode());
     }
@@ -57,13 +57,12 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
      */
     public function testGetSuccess(string $label, string $hostUrl, string $path, ?string $credentials): void
     {
-        $apiTokenProvider = self::getContainer()->get(ApiTokenProvider::class);
-        \assert($apiTokenProvider instanceof ApiTokenProvider);
-
-        $apiToken = $apiTokenProvider->get('user@example.com');
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
 
         $createResponse = $this->applicationClient->makeCreateGitSourceRequest(
-            $apiToken,
+            $apiKey->key,
             $label,
             $hostUrl,
             $path,
@@ -80,7 +79,7 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
         $id = $createdSourceData['id'] ?? null;
         \assert(is_string($id) && '' !== $id);
 
-        $getResponse = $this->applicationClient->makeGitSourceRequest($apiToken, 'GET', $id);
+        $getResponse = $this->applicationClient->makeGitSourceRequest($apiKey->key, 'GET', $id);
         self::assertSame(200, $getResponse->getStatusCode());
         $this->assertRetrievedGitSource(
             $getResponse,

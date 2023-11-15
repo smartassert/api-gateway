@@ -97,7 +97,7 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
         $gitSource1Path = md5((string) rand());
 
         $gitSource1Response = $this->applicationClient->makeCreateGitSourceRequest(
-            $apiToken,
+            $apiKey->key,
             $gitSource1Label,
             $gitSource1HostUrl,
             $gitSource1Path,
@@ -132,7 +132,7 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
         $gitSource2Path = md5((string) rand());
 
         $gitSource2Response = $this->applicationClient->makeCreateGitSourceRequest(
-            $apiToken,
+            $apiKey->key,
             $gitSource2Label,
             $gitSource2HostUrl,
             $gitSource2Path,
