@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Source;
 
 use App\Exception\ServiceException;
-use App\Security\AuthenticationToken;
+use App\Security\ApiToken;
 use Psr\Http\Client\ClientExceptionInterface;
 use SmartAssert\ServiceClient\Exception\HttpResponseExceptionInterface;
 use SmartAssert\ServiceClient\Exception\InvalidModelDataException;
@@ -29,7 +29,7 @@ readonly class SourceController
      * @throws UnauthorizedException
      */
     #[Route(path: '/sources/list', name: 'sources_list', methods: ['GET'])]
-    public function list(AuthenticationToken $token): JsonResponse
+    public function list(ApiToken $token): JsonResponse
     {
         try {
             $sources = $this->client->list($token->token);

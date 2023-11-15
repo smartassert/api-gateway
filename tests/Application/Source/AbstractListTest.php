@@ -9,7 +9,6 @@ use App\Tests\Application\FileSource\AssertFileSourceTrait;
 use App\Tests\Services\DataRepository;
 use Psr\Http\Message\ResponseInterface;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
-use SmartAssert\TestAuthenticationProviderBundle\ApiTokenProvider;
 
 abstract class AbstractListTest extends AbstractApplicationTestCase
 {
@@ -54,18 +53,14 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $apiTokenProvider = self::getContainer()->get(ApiTokenProvider::class);
-        \assert($apiTokenProvider instanceof ApiTokenProvider);
-        $apiToken = $apiTokenProvider->get('user@example.com');
-
-        $listResponse = $this->applicationClient->makeListSourcesRequest($apiToken);
+        $listResponse = $this->applicationClient->makeListSourcesRequest($apiKey->key);
         $this->assertListResponse($listResponse, []);
 
         $fileSource1Label = md5((string) rand());
         $fileSource1Response = $this->applicationClient->makeCreateFileSourceRequest($apiKey->key, $fileSource1Label);
         $fileSource1Id = $this->extractSourceIdFromResponse($fileSource1Response);
 
-        $listResponse = $this->applicationClient->makeListSourcesRequest($apiToken);
+        $listResponse = $this->applicationClient->makeListSourcesRequest($apiKey->key);
         $this->assertListResponse($listResponse, [
             [
                 'id' => $fileSource1Id,
@@ -78,7 +73,7 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
         $fileSource2Response = $this->applicationClient->makeCreateFileSourceRequest($apiKey->key, $fileSource2Label);
         $fileSource2Id = $this->extractSourceIdFromResponse($fileSource2Response);
 
-        $listResponse = $this->applicationClient->makeListSourcesRequest($apiToken);
+        $listResponse = $this->applicationClient->makeListSourcesRequest($apiKey->key);
         $this->assertListResponse($listResponse, [
             [
                 'id' => $fileSource1Id,
@@ -105,7 +100,7 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
         );
         $gitSource1Id = $this->extractSourceIdFromResponse($gitSource1Response);
 
-        $listResponse = $this->applicationClient->makeListSourcesRequest($apiToken);
+        $listResponse = $this->applicationClient->makeListSourcesRequest($apiKey->key);
         $this->assertListResponse($listResponse, [
             [
                 'id' => $fileSource1Id,
@@ -140,7 +135,7 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
         );
         $gitSource2Id = $this->extractSourceIdFromResponse($gitSource2Response);
 
-        $listResponse = $this->applicationClient->makeListSourcesRequest($apiToken);
+        $listResponse = $this->applicationClient->makeListSourcesRequest($apiKey->key);
         $this->assertListResponse($listResponse, [
             [
                 'id' => $fileSource1Id,

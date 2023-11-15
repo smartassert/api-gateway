@@ -368,12 +368,12 @@ readonly class Client
     }
 
     public function makeListSourcesRequest(
-        ?string $jwt,
+        ?string $apiKey,
         string $method = 'GET',
     ): ResponseInterface {
         $headers = [];
-        if (is_string($jwt)) {
-            $headers['Authorization'] = 'Bearer ' . $jwt;
+        if (is_string($apiKey)) {
+            $headers['Authorization'] = 'Bearer ' . $apiKey;
         }
 
         return $this->client->makeRequest(
