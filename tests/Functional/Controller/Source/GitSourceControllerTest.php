@@ -10,6 +10,8 @@ use App\Tests\DataProvider\ServiceHttpFailureDataProviderCreatorTrait;
 use App\Tests\Functional\Controller\AssertJsonResponseTrait;
 use App\Tests\Functional\GetClientAdapterTrait;
 use SmartAssert\SourcesClient\GitSourceClientInterface;
+use SmartAssert\UsersClient\ClientInterface as UsersClient;
+use SmartAssert\UsersClient\Model\Token;
 use Symfony\Component\Uid\Ulid;
 
 class GitSourceControllerTest extends AbstractApplicationTestCase
@@ -29,23 +31,37 @@ class GitSourceControllerTest extends AbstractApplicationTestCase
         int $expectedStatusCode,
         array $expectedData
     ): void {
-        $token = md5((string) rand());
+        $apiKey = md5((string) rand());
+        $apiToken = md5((string) rand());
         $label = md5((string) rand());
         $hostUrl = md5((string) rand());
         $path = md5((string) rand());
         $credentials = md5((string) rand());
 
+        $usersClient = \Mockery::mock(UsersClient::class);
+        $usersClient
+            ->shouldReceive('createApiToken')
+            ->with($apiKey)
+            ->andReturn(new Token($apiToken))
+        ;
+
         $gitSourceClient = \Mockery::mock(GitSourceClientInterface::class);
         $gitSourceClient
             ->shouldReceive('create')
-            ->with($token, $label, $hostUrl, $path, $credentials)
+            ->with($apiToken, $label, $hostUrl, $path, $credentials)
             ->andThrow($exception)
         ;
 
+        self::getContainer()->set(UsersClient::class, $usersClient);
         self::getContainer()->set(GitSourceClientInterface::class, $gitSourceClient);
 
-        $response = $this->applicationClient->makeCreateGitSourceRequest($token, $label, $hostUrl, $path, $credentials);
-
+        $response = $this->applicationClient->makeCreateGitSourceRequest(
+            $apiKey,
+            $label,
+            $hostUrl,
+            $path,
+            $credentials
+        );
         $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
     }
 
@@ -59,19 +75,28 @@ class GitSourceControllerTest extends AbstractApplicationTestCase
         int $expectedStatusCode,
         array $expectedData
     ): void {
-        $token = md5((string) rand());
+        $apiKey = md5((string) rand());
+        $apiToken = md5((string) rand());
         $sourceId = (string) new Ulid();
+
+        $usersClient = \Mockery::mock(UsersClient::class);
+        $usersClient
+            ->shouldReceive('createApiToken')
+            ->with($apiKey)
+            ->andReturn(new Token($apiToken))
+        ;
 
         $gitSourceClient = \Mockery::mock(GitSourceClientInterface::class);
         $gitSourceClient
             ->shouldReceive('get')
-            ->with($token, $sourceId)
+            ->with($apiToken, $sourceId)
             ->andThrow($exception)
         ;
 
+        self::getContainer()->set(UsersClient::class, $usersClient);
         self::getContainer()->set(GitSourceClientInterface::class, $gitSourceClient);
 
-        $response = $this->applicationClient->makeGitSourceRequest($token, 'GET', $sourceId);
+        $response = $this->applicationClient->makeGitSourceRequest($apiKey, 'GET', $sourceId);
 
         $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
     }
@@ -86,24 +111,33 @@ class GitSourceControllerTest extends AbstractApplicationTestCase
         int $expectedStatusCode,
         array $expectedData
     ): void {
-        $token = md5((string) rand());
+        $apiKey = md5((string) rand());
+        $apiToken = md5((string) rand());
         $sourceId = (string) new Ulid();
         $label = md5((string) rand());
         $hostUrl = md5((string) rand());
         $path = md5((string) rand());
         $credentials = md5((string) rand());
 
+        $usersClient = \Mockery::mock(UsersClient::class);
+        $usersClient
+            ->shouldReceive('createApiToken')
+            ->with($apiKey)
+            ->andReturn(new Token($apiToken))
+        ;
+
         $gitSourceClient = \Mockery::mock(GitSourceClientInterface::class);
         $gitSourceClient
             ->shouldReceive('update')
-            ->with($token, $sourceId, $label, $hostUrl, $path, $credentials)
+            ->with($apiToken, $sourceId, $label, $hostUrl, $path, $credentials)
             ->andThrow($exception)
         ;
 
+        self::getContainer()->set(UsersClient::class, $usersClient);
         self::getContainer()->set(GitSourceClientInterface::class, $gitSourceClient);
 
         $response = $this->applicationClient->makeGitSourceRequest(
-            $token,
+            $apiKey,
             'PUT',
             $sourceId,
             $label,
@@ -125,19 +159,28 @@ class GitSourceControllerTest extends AbstractApplicationTestCase
         int $expectedStatusCode,
         array $expectedData
     ): void {
-        $token = md5((string) rand());
+        $apiKey = md5((string) rand());
+        $apiToken = md5((string) rand());
         $sourceId = (string) new Ulid();
+
+        $usersClient = \Mockery::mock(UsersClient::class);
+        $usersClient
+            ->shouldReceive('createApiToken')
+            ->with($apiKey)
+            ->andReturn(new Token($apiToken))
+        ;
 
         $gitSourceClient = \Mockery::mock(GitSourceClientInterface::class);
         $gitSourceClient
             ->shouldReceive('delete')
-            ->with($token, $sourceId)
+            ->with($apiToken, $sourceId)
             ->andThrow($exception)
         ;
 
+        self::getContainer()->set(UsersClient::class, $usersClient);
         self::getContainer()->set(GitSourceClientInterface::class, $gitSourceClient);
 
-        $response = $this->applicationClient->makeGitSourceRequest($token, 'DELETE', $sourceId);
+        $response = $this->applicationClient->makeGitSourceRequest($apiKey, 'DELETE', $sourceId);
 
         $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
     }

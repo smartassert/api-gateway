@@ -179,7 +179,7 @@ readonly class Client
     }
 
     public function makeCreateFileSourceRequest(
-        ?string $jwt,
+        ?string $apiKey,
         ?string $label,
         string $method = 'POST'
     ): ResponseInterface {
@@ -187,8 +187,8 @@ readonly class Client
             'Content-Type' => 'application/x-www-form-urlencoded',
         ];
 
-        if (is_string($jwt)) {
-            $headers['Authorization'] = 'Bearer ' . $jwt;
+        if (is_string($apiKey)) {
+            $headers['Authorization'] = 'Bearer ' . $apiKey;
         }
 
         $payload = [];
@@ -206,7 +206,7 @@ readonly class Client
     }
 
     public function makeCreateGitSourceRequest(
-        ?string $jwt,
+        ?string $apiKey,
         ?string $label,
         ?string $hostUrl,
         ?string $path,
@@ -217,8 +217,8 @@ readonly class Client
             'Content-Type' => 'application/x-www-form-urlencoded',
         ];
 
-        if (is_string($jwt)) {
-            $headers['Authorization'] = 'Bearer ' . $jwt;
+        if (is_string($apiKey)) {
+            $headers['Authorization'] = 'Bearer ' . $apiKey;
         }
 
         $payload = [];
@@ -248,15 +248,15 @@ readonly class Client
     }
 
     public function makeFileSourceFileRequest(
-        ?string $jwt,
+        ?string $apiKey,
         ?string $fileSourceId,
         ?string $filename,
         string $method,
         ?string $content = null,
     ): ResponseInterface {
         $headers = [];
-        if (is_string($jwt)) {
-            $headers['Authorization'] = 'Bearer ' . $jwt;
+        if (is_string($apiKey)) {
+            $headers['Authorization'] = 'Bearer ' . $apiKey;
         }
 
         return $this->client->makeRequest(
@@ -277,14 +277,14 @@ readonly class Client
      * @param 'DELETE'|'GET'|'PUT' $method
      */
     public function makeFileSourceRequest(
-        ?string $jwt,
+        ?string $apiKey,
         string $method,
         string $sourceId,
         ?string $label = null,
     ): ResponseInterface {
         $headers = [];
-        if (is_string($jwt)) {
-            $headers['Authorization'] = 'Bearer ' . $jwt;
+        if (is_string($apiKey)) {
+            $headers['Authorization'] = 'Bearer ' . $apiKey;
         }
 
         $payload = [];
@@ -308,7 +308,7 @@ readonly class Client
      * @param 'DELETE'|'GET'|'PUT' $method
      */
     public function makeGitSourceRequest(
-        ?string $jwt,
+        ?string $apiKey,
         string $method,
         string $sourceId = null,
         ?string $label = null,
@@ -317,8 +317,8 @@ readonly class Client
         ?string $credentials = null,
     ): ResponseInterface {
         $headers = [];
-        if (is_string($jwt)) {
-            $headers['Authorization'] = 'Bearer ' . $jwt;
+        if (is_string($apiKey)) {
+            $headers['Authorization'] = 'Bearer ' . $apiKey;
         }
 
         $payload = [];
@@ -351,13 +351,13 @@ readonly class Client
     }
 
     public function makeFileSourceFilesRequest(
-        ?string $jwt,
+        ?string $apiKey,
         string $sourceId,
         string $method = 'GET',
     ): ResponseInterface {
         $headers = [];
-        if (is_string($jwt)) {
-            $headers['Authorization'] = 'Bearer ' . $jwt;
+        if (is_string($apiKey)) {
+            $headers['Authorization'] = 'Bearer ' . $apiKey;
         }
 
         return $this->client->makeRequest(
@@ -368,12 +368,12 @@ readonly class Client
     }
 
     public function makeListSourcesRequest(
-        ?string $jwt,
+        ?string $apiKey,
         string $method = 'GET',
     ): ResponseInterface {
         $headers = [];
-        if (is_string($jwt)) {
-            $headers['Authorization'] = 'Bearer ' . $jwt;
+        if (is_string($apiKey)) {
+            $headers['Authorization'] = 'Bearer ' . $apiKey;
         }
 
         return $this->client->makeRequest(

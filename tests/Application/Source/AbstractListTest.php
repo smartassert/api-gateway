@@ -8,7 +8,7 @@ use App\Tests\Application\AbstractApplicationTestCase;
 use App\Tests\Application\FileSource\AssertFileSourceTrait;
 use App\Tests\Services\DataRepository;
 use Psr\Http\Message\ResponseInterface;
-use SmartAssert\TestAuthenticationProviderBundle\ApiTokenProvider;
+use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 
 abstract class AbstractListTest extends AbstractApplicationTestCase
 {
@@ -49,19 +49,18 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
         );
         $sourcesDataRepository->removeAllFor(['file_source', 'git_source', 'source']);
 
-        $apiTokenProvider = self::getContainer()->get(ApiTokenProvider::class);
-        \assert($apiTokenProvider instanceof ApiTokenProvider);
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $apiToken = $apiTokenProvider->get('user@example.com');
-
-        $listResponse = $this->applicationClient->makeListSourcesRequest($apiToken);
+        $listResponse = $this->applicationClient->makeListSourcesRequest($apiKey->key);
         $this->assertListResponse($listResponse, []);
 
         $fileSource1Label = md5((string) rand());
-        $fileSource1Response = $this->applicationClient->makeCreateFileSourceRequest($apiToken, $fileSource1Label);
+        $fileSource1Response = $this->applicationClient->makeCreateFileSourceRequest($apiKey->key, $fileSource1Label);
         $fileSource1Id = $this->extractSourceIdFromResponse($fileSource1Response);
 
-        $listResponse = $this->applicationClient->makeListSourcesRequest($apiToken);
+        $listResponse = $this->applicationClient->makeListSourcesRequest($apiKey->key);
         $this->assertListResponse($listResponse, [
             [
                 'id' => $fileSource1Id,
@@ -71,10 +70,10 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
         ]);
 
         $fileSource2Label = md5((string) rand());
-        $fileSource2Response = $this->applicationClient->makeCreateFileSourceRequest($apiToken, $fileSource2Label);
+        $fileSource2Response = $this->applicationClient->makeCreateFileSourceRequest($apiKey->key, $fileSource2Label);
         $fileSource2Id = $this->extractSourceIdFromResponse($fileSource2Response);
 
-        $listResponse = $this->applicationClient->makeListSourcesRequest($apiToken);
+        $listResponse = $this->applicationClient->makeListSourcesRequest($apiKey->key);
         $this->assertListResponse($listResponse, [
             [
                 'id' => $fileSource1Id,
@@ -93,7 +92,7 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
         $gitSource1Path = md5((string) rand());
 
         $gitSource1Response = $this->applicationClient->makeCreateGitSourceRequest(
-            $apiToken,
+            $apiKey->key,
             $gitSource1Label,
             $gitSource1HostUrl,
             $gitSource1Path,
@@ -101,7 +100,7 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
         );
         $gitSource1Id = $this->extractSourceIdFromResponse($gitSource1Response);
 
-        $listResponse = $this->applicationClient->makeListSourcesRequest($apiToken);
+        $listResponse = $this->applicationClient->makeListSourcesRequest($apiKey->key);
         $this->assertListResponse($listResponse, [
             [
                 'id' => $fileSource1Id,
@@ -128,7 +127,7 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
         $gitSource2Path = md5((string) rand());
 
         $gitSource2Response = $this->applicationClient->makeCreateGitSourceRequest(
-            $apiToken,
+            $apiKey->key,
             $gitSource2Label,
             $gitSource2HostUrl,
             $gitSource2Path,
@@ -136,7 +135,7 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
         );
         $gitSource2Id = $this->extractSourceIdFromResponse($gitSource2Response);
 
-        $listResponse = $this->applicationClient->makeListSourcesRequest($apiToken);
+        $listResponse = $this->applicationClient->makeListSourcesRequest($apiKey->key);
         $this->assertListResponse($listResponse, [
             [
                 'id' => $fileSource1Id,

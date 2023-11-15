@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Application\GitSource;
 
 use App\Tests\Application\AbstractApplicationTestCase;
-use SmartAssert\TestAuthenticationProviderBundle\ApiTokenProvider;
+use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 use Symfony\Component\Uid\Ulid;
 
 abstract class AbstractUpdateTest extends AbstractApplicationTestCase
@@ -43,11 +43,11 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
 
     public function testUpdateNotFound(): void
     {
-        $apiTokenProvider = self::getContainer()->get(ApiTokenProvider::class);
-        \assert($apiTokenProvider instanceof ApiTokenProvider);
-        $apiToken = $apiTokenProvider->get('user@example.com');
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $response = $this->applicationClient->makeGitSourceRequest($apiToken, 'PUT', (string) new Ulid());
+        $response = $this->applicationClient->makeGitSourceRequest($apiKey->key, 'PUT', (string) new Ulid());
 
         self::assertSame(404, $response->getStatusCode());
     }
@@ -65,13 +65,12 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         string $newPath,
         ?string $newCredentials,
     ): void {
-        $apiTokenProvider = self::getContainer()->get(ApiTokenProvider::class);
-        \assert($apiTokenProvider instanceof ApiTokenProvider);
-
-        $apiToken = $apiTokenProvider->get('user@example.com');
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
 
         $createResponse = $this->applicationClient->makeCreateGitSourceRequest(
-            $apiToken,
+            $apiKey->key,
             $label,
             $hostUrl,
             $path,
@@ -89,7 +88,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         \assert(is_string($id) && '' !== $id);
 
         $updateResponse = $this->applicationClient->makeGitSourceRequest(
-            $apiToken,
+            $apiKey->key,
             'PUT',
             $id,
             $newLabel,

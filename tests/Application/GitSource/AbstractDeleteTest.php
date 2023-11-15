@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Application\GitSource;
 
 use App\Tests\Application\AbstractApplicationTestCase;
-use SmartAssert\TestAuthenticationProviderBundle\ApiTokenProvider;
+use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 use Symfony\Component\Uid\Ulid;
 
 abstract class AbstractDeleteTest extends AbstractApplicationTestCase
@@ -51,11 +51,11 @@ abstract class AbstractDeleteTest extends AbstractApplicationTestCase
 
     public function testDeleteNotFound(): void
     {
-        $apiTokenProvider = self::getContainer()->get(ApiTokenProvider::class);
-        \assert($apiTokenProvider instanceof ApiTokenProvider);
-        $apiToken = $apiTokenProvider->get('user@example.com');
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $response = $this->applicationClient->makeGitSourceRequest($apiToken, 'DELETE', (string) new Ulid());
+        $response = $this->applicationClient->makeGitSourceRequest($apiKey->key, 'DELETE', (string) new Ulid());
 
         self::assertSame(404, $response->getStatusCode());
     }
@@ -65,13 +65,12 @@ abstract class AbstractDeleteTest extends AbstractApplicationTestCase
      */
     public function testDeleteSuccess(string $label, string $hostUrl, string $path, ?string $credentials): void
     {
-        $apiTokenProvider = self::getContainer()->get(ApiTokenProvider::class);
-        \assert($apiTokenProvider instanceof ApiTokenProvider);
-
-        $apiToken = $apiTokenProvider->get('user@example.com');
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
 
         $createResponse = $this->applicationClient->makeCreateGitSourceRequest(
-            $apiToken,
+            $apiKey->key,
             $label,
             $hostUrl,
             $path,
@@ -88,10 +87,10 @@ abstract class AbstractDeleteTest extends AbstractApplicationTestCase
         $id = $createdSourceData['id'] ?? null;
         \assert(is_string($id) && '' !== $id);
 
-        $getResponse = $this->applicationClient->makeGitSourceRequest($apiToken, 'GET', $id);
+        $getResponse = $this->applicationClient->makeGitSourceRequest($apiKey->key, 'GET', $id);
         self::assertSame(200, $getResponse->getStatusCode());
 
-        $deleteResponse = $this->applicationClient->makeGitSourceRequest($apiToken, 'DELETE', $id);
+        $deleteResponse = $this->applicationClient->makeGitSourceRequest($apiKey->key, 'DELETE', $id);
         $this->assertDeletedGitSource(
             $deleteResponse,
             $label,
