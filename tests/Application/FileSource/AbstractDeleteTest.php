@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Application\FileSource;
 
 use App\Tests\Application\AbstractApplicationTestCase;
-use SmartAssert\TestAuthenticationProviderBundle\ApiTokenProvider;
+use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 use Symfony\Component\Uid\Ulid;
 
 abstract class AbstractDeleteTest extends AbstractApplicationTestCase
@@ -42,24 +42,24 @@ abstract class AbstractDeleteTest extends AbstractApplicationTestCase
 
     public function testDeleteNotFound(): void
     {
-        $apiTokenProvider = self::getContainer()->get(ApiTokenProvider::class);
-        \assert($apiTokenProvider instanceof ApiTokenProvider);
-        $apiToken = $apiTokenProvider->get('user@example.com');
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $response = $this->applicationClient->makeFileSourceRequest($apiToken, 'DELETE', (string) new Ulid());
+        $response = $this->applicationClient->makeFileSourceRequest($apiKey->key, 'DELETE', (string) new Ulid());
 
         self::assertSame(404, $response->getStatusCode());
     }
 
     public function testDeleteSuccess(): void
     {
-        $apiTokenProvider = self::getContainer()->get(ApiTokenProvider::class);
-        \assert($apiTokenProvider instanceof ApiTokenProvider);
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $apiToken = $apiTokenProvider->get('user@example.com');
         $label = md5((string) rand());
 
-        $createResponse = $this->applicationClient->makeCreateFileSourceRequest($apiToken, $label);
+        $createResponse = $this->applicationClient->makeCreateFileSourceRequest($apiKey->key, $label);
         self::assertSame(200, $createResponse->getStatusCode());
 
         $createResponseData = json_decode($createResponse->getBody()->getContents(), true);
@@ -71,10 +71,10 @@ abstract class AbstractDeleteTest extends AbstractApplicationTestCase
         $id = $createdSourceData['id'] ?? null;
         \assert(is_string($id) && '' !== $id);
 
-        $getResponse = $this->applicationClient->makeFileSourceRequest($apiToken, 'GET', $id);
+        $getResponse = $this->applicationClient->makeFileSourceRequest($apiKey->key, 'GET', $id);
         $this->assertRetrievedFileSource($getResponse, $label, $id);
 
-        $deleteResponse = $this->applicationClient->makeFileSourceRequest($apiToken, 'DELETE', $id);
+        $deleteResponse = $this->applicationClient->makeFileSourceRequest($apiKey->key, 'DELETE', $id);
         $this->assertDeletedFileSource($deleteResponse, $label, $id);
     }
 }

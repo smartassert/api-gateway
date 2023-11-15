@@ -8,6 +8,7 @@ use App\Tests\Application\AbstractApplicationTestCase;
 use App\Tests\Application\FileSource\AssertFileSourceTrait;
 use App\Tests\Services\DataRepository;
 use Psr\Http\Message\ResponseInterface;
+use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 use SmartAssert\TestAuthenticationProviderBundle\ApiTokenProvider;
 
 abstract class AbstractListTest extends AbstractApplicationTestCase
@@ -49,16 +50,19 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
         );
         $sourcesDataRepository->removeAllFor(['file_source', 'git_source', 'source']);
 
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
+
         $apiTokenProvider = self::getContainer()->get(ApiTokenProvider::class);
         \assert($apiTokenProvider instanceof ApiTokenProvider);
-
         $apiToken = $apiTokenProvider->get('user@example.com');
 
         $listResponse = $this->applicationClient->makeListSourcesRequest($apiToken);
         $this->assertListResponse($listResponse, []);
 
         $fileSource1Label = md5((string) rand());
-        $fileSource1Response = $this->applicationClient->makeCreateFileSourceRequest($apiToken, $fileSource1Label);
+        $fileSource1Response = $this->applicationClient->makeCreateFileSourceRequest($apiKey->key, $fileSource1Label);
         $fileSource1Id = $this->extractSourceIdFromResponse($fileSource1Response);
 
         $listResponse = $this->applicationClient->makeListSourcesRequest($apiToken);
@@ -71,7 +75,7 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
         ]);
 
         $fileSource2Label = md5((string) rand());
-        $fileSource2Response = $this->applicationClient->makeCreateFileSourceRequest($apiToken, $fileSource2Label);
+        $fileSource2Response = $this->applicationClient->makeCreateFileSourceRequest($apiKey->key, $fileSource2Label);
         $fileSource2Id = $this->extractSourceIdFromResponse($fileSource2Response);
 
         $listResponse = $this->applicationClient->makeListSourcesRequest($apiToken);

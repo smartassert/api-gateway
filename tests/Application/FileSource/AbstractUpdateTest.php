@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Application\FileSource;
 
 use App\Tests\Application\AbstractApplicationTestCase;
-use SmartAssert\TestAuthenticationProviderBundle\ApiTokenProvider;
+use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 use Symfony\Component\Uid\Ulid;
 
 abstract class AbstractUpdateTest extends AbstractApplicationTestCase
@@ -47,12 +47,12 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
 
     public function testUpdateNotFound(): void
     {
-        $apiTokenProvider = self::getContainer()->get(ApiTokenProvider::class);
-        \assert($apiTokenProvider instanceof ApiTokenProvider);
-        $apiToken = $apiTokenProvider->get('user@example.com');
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
 
         $response = $this->applicationClient->makeFileSourceRequest(
-            $apiToken,
+            $apiKey->key,
             'PUT',
             (string) new Ulid(),
             md5((string) rand())
@@ -63,13 +63,13 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
 
     public function testUpdateDeletedSource(): void
     {
-        $apiTokenProvider = self::getContainer()->get(ApiTokenProvider::class);
-        \assert($apiTokenProvider instanceof ApiTokenProvider);
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $apiToken = $apiTokenProvider->get('user@example.com');
         $label = md5((string) rand());
 
-        $createResponse = $this->applicationClient->makeCreateFileSourceRequest($apiToken, $label);
+        $createResponse = $this->applicationClient->makeCreateFileSourceRequest($apiKey->key, $label);
         self::assertSame(200, $createResponse->getStatusCode());
 
         $createResponseData = json_decode($createResponse->getBody()->getContents(), true);
@@ -81,14 +81,14 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         $id = $createdSourceData['id'] ?? null;
         \assert(is_string($id) && '' !== $id);
 
-        $getResponse = $this->applicationClient->makeFileSourceRequest($apiToken, 'GET', $id);
+        $getResponse = $this->applicationClient->makeFileSourceRequest($apiKey->key, 'GET', $id);
         self::assertSame(200, $getResponse->getStatusCode());
 
-        $deleteResponse = $this->applicationClient->makeFileSourceRequest($apiToken, 'DELETE', $id);
+        $deleteResponse = $this->applicationClient->makeFileSourceRequest($apiKey->key, 'DELETE', $id);
         self::assertSame(200, $deleteResponse->getStatusCode());
 
         $newLabel = md5((string) rand());
-        $response = $this->applicationClient->makeFileSourceRequest($apiToken, 'PUT', $id, $newLabel);
+        $response = $this->applicationClient->makeFileSourceRequest($apiKey->key, 'PUT', $id, $newLabel);
         self::assertSame(405, $response->getStatusCode());
         self::assertSame('application/json', $response->getHeaderLine('content-type'));
         self::assertSame(
@@ -106,13 +106,13 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
 
     public function testUpdateSuccess(): void
     {
-        $apiTokenProvider = self::getContainer()->get(ApiTokenProvider::class);
-        \assert($apiTokenProvider instanceof ApiTokenProvider);
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $apiToken = $apiTokenProvider->get('user@example.com');
         $label = md5((string) rand());
 
-        $createResponse = $this->applicationClient->makeCreateFileSourceRequest($apiToken, $label);
+        $createResponse = $this->applicationClient->makeCreateFileSourceRequest($apiKey->key, $label);
         self::assertSame(200, $createResponse->getStatusCode());
 
         $createResponseData = json_decode($createResponse->getBody()->getContents(), true);
@@ -126,7 +126,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
 
         $newLabel = md5((string) rand());
 
-        $response = $this->applicationClient->makeFileSourceRequest($apiToken, 'PUT', $id, $newLabel);
+        $response = $this->applicationClient->makeFileSourceRequest($apiKey->key, 'PUT', $id, $newLabel);
 
         $this->assertRetrievedFileSource($response, $newLabel, $id);
     }

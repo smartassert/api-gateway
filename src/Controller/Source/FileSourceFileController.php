@@ -7,7 +7,7 @@ namespace App\Controller\Source;
 use App\Exception\ServiceException;
 use App\Response\EmptyResponse;
 use App\Response\YamlResponse;
-use App\Security\AuthenticationToken;
+use App\Security\ApiToken;
 use Psr\Http\Client\ClientExceptionInterface;
 use SmartAssert\ServiceClient\Exception\HttpResponseExceptionInterface;
 use SmartAssert\ServiceClient\Exception\InvalidModelDataException;
@@ -31,7 +31,7 @@ readonly class FileSourceFileController
      * @throws UnauthorizedException
      */
     #[Route(name: 'handle', methods: ['POST', 'GET', 'DELETE'])]
-    public function handle(AuthenticationToken $token, string $sourceId, string $filename, Request $request): Response
+    public function handle(ApiToken $token, string $sourceId, string $filename, Request $request): Response
     {
         try {
             if ('POST' === $request->getMethod()) {

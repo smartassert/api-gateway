@@ -6,7 +6,7 @@ namespace App\Controller\Source;
 
 use App\Exception\ServiceException;
 use App\Response\EmptyResponse;
-use App\Security\AuthenticationToken;
+use App\Security\ApiToken;
 use Psr\Http\Client\ClientExceptionInterface;
 use SmartAssert\ServiceClient\Exception\HttpResponseExceptionInterface;
 use SmartAssert\ServiceClient\Exception\InvalidModelDataException;
@@ -33,7 +33,7 @@ readonly class FileSourceController
      * @throws UnauthorizedException
      */
     #[Route(name: 'create', methods: ['POST'])]
-    public function create(AuthenticationToken $token, Request $request): Response
+    public function create(ApiToken $token, Request $request): Response
     {
         try {
             $source = $this->client->create($token->token, $request->request->getString('label'));
@@ -59,7 +59,7 @@ readonly class FileSourceController
      * @throws UnauthorizedException
      */
     #[Route(path: '/{sourceId<[A-Z90-9]{26}>}', name: 'handle', methods: ['GET', 'PUT', 'DELETE'])]
-    public function handle(AuthenticationToken $token, string $sourceId, Request $request): Response
+    public function handle(ApiToken $token, string $sourceId, Request $request): Response
     {
         try {
             $source = match ($request->getMethod()) {
@@ -95,7 +95,7 @@ readonly class FileSourceController
      * @throws UnauthorizedException
      */
     #[Route(path: '/{sourceId<[A-Z90-9]{26}>}/list', name: 'list', methods: ['GET'])]
-    public function list(AuthenticationToken $token, string $sourceId): JsonResponse
+    public function list(ApiToken $token, string $sourceId): JsonResponse
     {
         try {
             $filenames = $this->client->list($token->token, $sourceId);

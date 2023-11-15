@@ -10,6 +10,8 @@ use App\Tests\DataProvider\ServiceHttpFailureDataProviderCreatorTrait;
 use App\Tests\Functional\Controller\AssertJsonResponseTrait;
 use App\Tests\Functional\GetClientAdapterTrait;
 use SmartAssert\SourcesClient\FileSourceClientInterface;
+use SmartAssert\UsersClient\ClientInterface as UsersClient;
+use SmartAssert\UsersClient\Model\Token;
 use Symfony\Component\Uid\Ulid;
 
 class FileSourceControllerTest extends AbstractApplicationTestCase
@@ -29,20 +31,28 @@ class FileSourceControllerTest extends AbstractApplicationTestCase
         int $expectedStatusCode,
         array $expectedData
     ): void {
-        $token = md5((string) rand());
+        $apiKey = md5((string) rand());
+        $apiToken = md5((string) rand());
         $label = md5((string) rand());
+
+        $usersClient = \Mockery::mock(UsersClient::class);
+        $usersClient
+            ->shouldReceive('createApiToken')
+            ->with($apiKey)
+            ->andReturn(new Token($apiToken))
+        ;
 
         $fileSourceClient = \Mockery::mock(FileSourceClientInterface::class);
         $fileSourceClient
             ->shouldReceive('create')
-            ->with($token, $label)
+            ->with($apiToken, $label)
             ->andThrow($exception)
         ;
 
+        self::getContainer()->set(UsersClient::class, $usersClient);
         self::getContainer()->set(FileSourceClientInterface::class, $fileSourceClient);
 
-        $response = $this->applicationClient->makeCreateFileSourceRequest($token, $label);
-
+        $response = $this->applicationClient->makeCreateFileSourceRequest($apiKey, $label);
         $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
     }
 
@@ -56,19 +66,28 @@ class FileSourceControllerTest extends AbstractApplicationTestCase
         int $expectedStatusCode,
         array $expectedData
     ): void {
-        $token = md5((string) rand());
+        $apiKey = md5((string) rand());
+        $apiToken = md5((string) rand());
         $sourceId = (string) new Ulid();
+
+        $usersClient = \Mockery::mock(UsersClient::class);
+        $usersClient
+            ->shouldReceive('createApiToken')
+            ->with($apiKey)
+            ->andReturn(new Token($apiToken))
+        ;
 
         $fileSourceClient = \Mockery::mock(FileSourceClientInterface::class);
         $fileSourceClient
             ->shouldReceive('get')
-            ->with($token, $sourceId)
+            ->with($apiToken, $sourceId)
             ->andThrow($exception)
         ;
 
+        self::getContainer()->set(UsersClient::class, $usersClient);
         self::getContainer()->set(FileSourceClientInterface::class, $fileSourceClient);
 
-        $response = $this->applicationClient->makeFileSourceRequest($token, 'GET', $sourceId);
+        $response = $this->applicationClient->makeFileSourceRequest($apiKey, 'GET', $sourceId);
 
         $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
     }
@@ -83,20 +102,29 @@ class FileSourceControllerTest extends AbstractApplicationTestCase
         int $expectedStatusCode,
         array $expectedData
     ): void {
-        $token = md5((string) rand());
+        $apiKey = md5((string) rand());
+        $apiToken = md5((string) rand());
         $sourceId = (string) new Ulid();
         $label = md5((string) rand());
+
+        $usersClient = \Mockery::mock(UsersClient::class);
+        $usersClient
+            ->shouldReceive('createApiToken')
+            ->with($apiKey)
+            ->andReturn(new Token($apiToken))
+        ;
 
         $fileSourceClient = \Mockery::mock(FileSourceClientInterface::class);
         $fileSourceClient
             ->shouldReceive('update')
-            ->with($token, $sourceId, $label)
+            ->with($apiToken, $sourceId, $label)
             ->andThrow($exception)
         ;
 
+        self::getContainer()->set(UsersClient::class, $usersClient);
         self::getContainer()->set(FileSourceClientInterface::class, $fileSourceClient);
 
-        $response = $this->applicationClient->makeFileSourceRequest($token, 'PUT', $sourceId, $label);
+        $response = $this->applicationClient->makeFileSourceRequest($apiKey, 'PUT', $sourceId, $label);
 
         $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
     }
@@ -111,19 +139,28 @@ class FileSourceControllerTest extends AbstractApplicationTestCase
         int $expectedStatusCode,
         array $expectedData
     ): void {
-        $token = md5((string) rand());
+        $apiKey = md5((string) rand());
+        $apiToken = md5((string) rand());
         $sourceId = (string) new Ulid();
+
+        $usersClient = \Mockery::mock(UsersClient::class);
+        $usersClient
+            ->shouldReceive('createApiToken')
+            ->with($apiKey)
+            ->andReturn(new Token($apiToken))
+        ;
 
         $fileSourceClient = \Mockery::mock(FileSourceClientInterface::class);
         $fileSourceClient
             ->shouldReceive('delete')
-            ->with($token, $sourceId)
+            ->with($apiToken, $sourceId)
             ->andThrow($exception)
         ;
 
+        self::getContainer()->set(UsersClient::class, $usersClient);
         self::getContainer()->set(FileSourceClientInterface::class, $fileSourceClient);
 
-        $response = $this->applicationClient->makeFileSourceRequest($token, 'DELETE', $sourceId);
+        $response = $this->applicationClient->makeFileSourceRequest($apiKey, 'DELETE', $sourceId);
 
         $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
     }
@@ -138,19 +175,28 @@ class FileSourceControllerTest extends AbstractApplicationTestCase
         int $expectedStatusCode,
         array $expectedData
     ): void {
-        $token = md5((string) rand());
+        $apiKey = md5((string) rand());
+        $apiToken = md5((string) rand());
         $sourceId = (string) new Ulid();
+
+        $usersClient = \Mockery::mock(UsersClient::class);
+        $usersClient
+            ->shouldReceive('createApiToken')
+            ->with($apiKey)
+            ->andReturn(new Token($apiToken))
+        ;
 
         $fileSourceClient = \Mockery::mock(FileSourceClientInterface::class);
         $fileSourceClient
             ->shouldReceive('list')
-            ->with($token, $sourceId)
+            ->with($apiToken, $sourceId)
             ->andThrow($exception)
         ;
 
+        self::getContainer()->set(UsersClient::class, $usersClient);
         self::getContainer()->set(FileSourceClientInterface::class, $fileSourceClient);
 
-        $response = $this->applicationClient->makeFileSourceFilesRequest($token, $sourceId);
+        $response = $this->applicationClient->makeFileSourceFilesRequest($apiKey, $sourceId);
 
         $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
     }

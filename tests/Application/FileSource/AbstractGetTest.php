@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Application\FileSource;
 
 use App\Tests\Application\AbstractApplicationTestCase;
-use SmartAssert\TestAuthenticationProviderBundle\ApiTokenProvider;
+use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 use Symfony\Component\Uid\Ulid;
 
 abstract class AbstractGetTest extends AbstractApplicationTestCase
@@ -42,24 +42,24 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
 
     public function testGetNotFound(): void
     {
-        $apiTokenProvider = self::getContainer()->get(ApiTokenProvider::class);
-        \assert($apiTokenProvider instanceof ApiTokenProvider);
-        $apiToken = $apiTokenProvider->get('user@example.com');
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $response = $this->applicationClient->makeFileSourceRequest($apiToken, 'GET', (string) new Ulid());
+        $response = $this->applicationClient->makeFileSourceRequest($apiKey->key, 'GET', (string) new Ulid());
 
         self::assertSame(404, $response->getStatusCode());
     }
 
     public function testGetSuccess(): void
     {
-        $apiTokenProvider = self::getContainer()->get(ApiTokenProvider::class);
-        \assert($apiTokenProvider instanceof ApiTokenProvider);
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $apiToken = $apiTokenProvider->get('user@example.com');
         $label = md5((string) rand());
 
-        $createResponse = $this->applicationClient->makeCreateFileSourceRequest($apiToken, $label);
+        $createResponse = $this->applicationClient->makeCreateFileSourceRequest($apiKey->key, $label);
         self::assertSame(200, $createResponse->getStatusCode());
 
         $createResponseData = json_decode($createResponse->getBody()->getContents(), true);
@@ -71,7 +71,7 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
         $id = $createdSourceData['id'] ?? null;
         \assert(is_string($id) && '' !== $id);
 
-        $response = $this->applicationClient->makeFileSourceRequest($apiToken, 'GET', $id);
+        $response = $this->applicationClient->makeFileSourceRequest($apiKey->key, 'GET', $id);
 
         $this->assertRetrievedFileSource($response, $label, $id);
     }

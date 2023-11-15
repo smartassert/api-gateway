@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Application\FileSource;
 
 use App\Tests\Application\AbstractApplicationTestCase;
-use SmartAssert\TestAuthenticationProviderBundle\ApiTokenProvider;
+use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 
 abstract class AbstractCreateTest extends AbstractApplicationTestCase
 {
@@ -41,13 +41,13 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
 
     public function testCreateSuccess(): void
     {
-        $apiTokenProvider = self::getContainer()->get(ApiTokenProvider::class);
-        \assert($apiTokenProvider instanceof ApiTokenProvider);
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $apiToken = $apiTokenProvider->get('user@example.com');
         $label = md5((string) rand());
 
-        $response = $this->applicationClient->makeCreateFileSourceRequest($apiToken, $label);
+        $response = $this->applicationClient->makeCreateFileSourceRequest($apiKey->key, $label);
 
         $this->assertRetrievedFileSource($response, $label);
     }
