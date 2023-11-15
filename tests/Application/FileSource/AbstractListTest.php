@@ -6,7 +6,7 @@ namespace App\Tests\Application\FileSource;
 
 use App\Tests\Application\AbstractApplicationTestCase;
 use Psr\Http\Message\ResponseInterface;
-use SmartAssert\TestAuthenticationProviderBundle\ApiTokenProvider;
+use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 use Symfony\Component\Uid\Ulid;
 
 abstract class AbstractListTest extends AbstractApplicationTestCase
@@ -43,24 +43,24 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
 
     public function testListNotFound(): void
     {
-        $apiTokenProvider = self::getContainer()->get(ApiTokenProvider::class);
-        \assert($apiTokenProvider instanceof ApiTokenProvider);
-        $apiToken = $apiTokenProvider->get('user@example.com');
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $response = $this->applicationClient->makeFileSourceFilesRequest($apiToken, (string) new Ulid());
+        $response = $this->applicationClient->makeFileSourceFilesRequest($apiKey->key, (string) new Ulid());
 
         self::assertSame(404, $response->getStatusCode());
     }
 
     public function testListSuccess(): void
     {
-        $apiTokenProvider = self::getContainer()->get(ApiTokenProvider::class);
-        \assert($apiTokenProvider instanceof ApiTokenProvider);
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $apiToken = $apiTokenProvider->get('user@example.com');
         $label = md5((string) rand());
 
-        $createResponse = $this->applicationClient->makeCreateFileSourceRequest($apiToken, $label);
+        $createResponse = $this->applicationClient->makeCreateFileSourceRequest($apiKey->key, $label);
         self::assertSame(200, $createResponse->getStatusCode());
 
         $createResponseData = json_decode($createResponse->getBody()->getContents(), true);
@@ -72,29 +72,29 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
         $id = $createdSourceData['id'] ?? null;
         \assert(is_string($id) && '' !== $id);
 
-        $listResponse = $this->applicationClient->makeFileSourceFilesRequest($apiToken, $id);
+        $listResponse = $this->applicationClient->makeFileSourceFilesRequest($apiKey->key, $id);
         $this->assertListResponse($listResponse, []);
 
         $this->applicationClient->makeFileSourceFileRequest(
-            $apiToken,
+            $apiKey->key,
             $id,
             'fileZ.yaml',
             'POST',
             md5((string) rand())
         );
 
-        $listResponse = $this->applicationClient->makeFileSourceFilesRequest($apiToken, $id);
+        $listResponse = $this->applicationClient->makeFileSourceFilesRequest($apiKey->key, $id);
         $this->assertListResponse($listResponse, ['fileZ.yaml']);
 
         $this->applicationClient->makeFileSourceFileRequest(
-            $apiToken,
+            $apiKey->key,
             $id,
             'fileA.yaml',
             'POST',
             md5((string) rand())
         );
 
-        $listResponse = $this->applicationClient->makeFileSourceFilesRequest($apiToken, $id);
+        $listResponse = $this->applicationClient->makeFileSourceFilesRequest($apiKey->key, $id);
         $this->assertListResponse($listResponse, ['fileA.yaml', 'fileZ.yaml']);
     }
 

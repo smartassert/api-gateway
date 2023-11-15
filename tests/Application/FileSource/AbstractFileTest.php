@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Application\FileSource;
 
 use App\Tests\Application\AbstractApplicationTestCase;
-use SmartAssert\TestAuthenticationProviderBundle\ApiTokenProvider;
+use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 use Symfony\Component\Uid\Ulid;
 
 abstract class AbstractFileTest extends AbstractApplicationTestCase
@@ -73,13 +73,12 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
 
     public function testReadSourceNotFound(): void
     {
-        $apiTokenProvider = self::getContainer()->get(ApiTokenProvider::class);
-        \assert($apiTokenProvider instanceof ApiTokenProvider);
-
-        $apiToken = $apiTokenProvider->get('user@example.com');
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
 
         $response = $this->applicationClient->makeFileSourceFileRequest(
-            $apiToken,
+            $apiKey->key,
             (string) new Ulid(),
             md5((string) rand()) . '.yaml',
             'GET'
@@ -90,13 +89,13 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
 
     public function testReadFileNotFound(): void
     {
-        $apiTokenProvider = self::getContainer()->get(ApiTokenProvider::class);
-        \assert($apiTokenProvider instanceof ApiTokenProvider);
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $apiToken = $apiTokenProvider->get('user@example.com');
         $label = md5((string) rand());
 
-        $createFileSourceResponse = $this->applicationClient->makeCreateFileSourceRequest($apiToken, $label);
+        $createFileSourceResponse = $this->applicationClient->makeCreateFileSourceRequest($apiKey->key, $label);
         $createFileSourceResponseData = json_decode($createFileSourceResponse->getBody()->getContents(), true);
         \assert(is_array($createFileSourceResponseData));
 
@@ -106,7 +105,7 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
         \assert(is_string($sourceId));
 
         $response = $this->applicationClient->makeFileSourceFileRequest(
-            $apiToken,
+            $apiKey->key,
             $sourceId,
             md5((string) rand()) . '.yaml',
             'GET'
@@ -117,13 +116,12 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
 
     public function testRemoveSourceNotFound(): void
     {
-        $apiTokenProvider = self::getContainer()->get(ApiTokenProvider::class);
-        \assert($apiTokenProvider instanceof ApiTokenProvider);
-
-        $apiToken = $apiTokenProvider->get('user@example.com');
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
 
         $response = $this->applicationClient->makeFileSourceFileRequest(
-            $apiToken,
+            $apiKey->key,
             (string) new Ulid(),
             md5((string) rand()) . '.yaml',
             'DELETE',
@@ -134,13 +132,13 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
 
     public function testRemoveFileNotFound(): void
     {
-        $apiTokenProvider = self::getContainer()->get(ApiTokenProvider::class);
-        \assert($apiTokenProvider instanceof ApiTokenProvider);
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $apiToken = $apiTokenProvider->get('user@example.com');
         $label = md5((string) rand());
 
-        $createFileSourceResponse = $this->applicationClient->makeCreateFileSourceRequest($apiToken, $label);
+        $createFileSourceResponse = $this->applicationClient->makeCreateFileSourceRequest($apiKey->key, $label);
         $createFileSourceResponseData = json_decode($createFileSourceResponse->getBody()->getContents(), true);
         \assert(is_array($createFileSourceResponseData));
 
@@ -150,7 +148,7 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
         \assert(is_string($sourceId));
 
         $response = $this->applicationClient->makeFileSourceFileRequest(
-            $apiToken,
+            $apiKey->key,
             $sourceId,
             md5((string) rand()) . '.yaml',
             'DELETE',
@@ -161,13 +159,13 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
 
     public function testAddReadRemoveSuccess(): void
     {
-        $apiTokenProvider = self::getContainer()->get(ApiTokenProvider::class);
-        \assert($apiTokenProvider instanceof ApiTokenProvider);
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $apiToken = $apiTokenProvider->get('user@example.com');
         $label = md5((string) rand());
 
-        $createFileSourceResponse = $this->applicationClient->makeCreateFileSourceRequest($apiToken, $label);
+        $createFileSourceResponse = $this->applicationClient->makeCreateFileSourceRequest($apiKey->key, $label);
         $createFileSourceResponseData = json_decode($createFileSourceResponse->getBody()->getContents(), true);
         \assert(is_array($createFileSourceResponseData));
 
@@ -180,7 +178,7 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
         $content = md5((string) rand());
 
         $createResponse = $this->applicationClient->makeFileSourceFileRequest(
-            $apiToken,
+            $apiKey->key,
             $sourceId,
             $filename,
             'POST',
@@ -189,21 +187,21 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
 
         self::assertSame(200, $createResponse->getStatusCode());
 
-        $readResponse = $this->applicationClient->makeFileSourceFileRequest($apiToken, $sourceId, $filename, 'GET');
+        $readResponse = $this->applicationClient->makeFileSourceFileRequest($apiKey->key, $sourceId, $filename, 'GET');
 
         self::assertSame(200, $readResponse->getStatusCode());
         self::assertSame('application/yaml', $readResponse->getHeaderLine('content-type'));
         self::assertSame($content, $readResponse->getBody()->getContents());
 
         $removeResponse = $this->applicationClient->makeFileSourceFileRequest(
-            $apiToken,
+            $apiKey->key,
             $sourceId,
             $filename,
             'DELETE'
         );
         self::assertSame(200, $removeResponse->getStatusCode());
 
-        $readResponse = $this->applicationClient->makeFileSourceFileRequest($apiToken, $sourceId, $filename, 'GET');
+        $readResponse = $this->applicationClient->makeFileSourceFileRequest($apiKey->key, $sourceId, $filename, 'GET');
         self::assertSame(404, $readResponse->getStatusCode());
     }
 }
