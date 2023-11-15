@@ -47,6 +47,84 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
     }
 
     /**
+     * @dataProvider createInvalidRequestDataProvider
+     */
+    public function testCreateBadRequest(
+        ?string $label,
+        ?string $hostUrl,
+        ?string $path,
+        string $expectedInvalidField
+    ): void {
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
+
+        $credentials = null;
+
+        $response = $this->applicationClient->makeCreateGitSourceRequest(
+            $apiKey->key,
+            $label,
+            $hostUrl,
+            $path,
+            $credentials
+        );
+
+        self::assertSame(400, $response->getStatusCode());
+        self::assertSame('application/json', $response->getHeaderLine('content-type'));
+
+        $responseData = json_decode($response->getBody()->getContents(), true);
+        self::assertIsArray($responseData);
+
+        self::assertArrayHasKey('type', $responseData);
+        self::assertSame('bad-request', $responseData['type']);
+
+        self::assertArrayHasKey('context', $responseData);
+        $contextData = $responseData['context'];
+        self::assertIsArray($contextData);
+
+        self::assertSame('sources', $contextData['service']);
+        self::assertArrayHasKey('invalid-field', $contextData);
+
+        $invalidFieldData = $contextData['invalid-field'];
+        self::assertIsArray($invalidFieldData);
+        self::assertArrayHasKey('name', $invalidFieldData);
+        self::assertSame($expectedInvalidField, $invalidFieldData['name']);
+
+        self::assertArrayHasKey('value', $invalidFieldData);
+        self::assertSame('', $invalidFieldData['value']);
+
+        self::assertArrayHasKey('message', $invalidFieldData);
+        self::assertNotSame('', $invalidFieldData['message']);
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function createInvalidRequestDataProvider(): array
+    {
+        return [
+            'label missing' => [
+                'label' => null,
+                'hostUrl' => md5((string) rand()),
+                'path' => md5((string) rand()),
+                'expectedInvalidField' => 'label',
+            ],
+            'host url missing' => [
+                'label' => md5((string) rand()),
+                'hostUrl' => null,
+                'path' => md5((string) rand()),
+                'expectedInvalidField' => 'host-url',
+            ],
+            'path missing' => [
+                'label' => md5((string) rand()),
+                'hostUrl' => md5((string) rand()),
+                'path' => null,
+                'expectedInvalidField' => 'path',
+            ],
+        ];
+    }
+
+    /**
      * @dataProvider createGitSourceDataProvider
      */
     public function testCreateSuccess(
