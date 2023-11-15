@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace App\Tests\Application\GitSource;
 
 use App\Tests\Application\AbstractApplicationTestCase;
+use App\Tests\Application\AssertBadRequestTrait;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 
 abstract class AbstractCreateTest extends AbstractApplicationTestCase
 {
     use CreateGitSourceDataProviderTrait;
+    use CreateUpdateGitSourceBadRequestDataProviderTrait;
     use AssertGitSourceTrait;
+    use AssertBadRequestTrait;
 
     /**
      * @dataProvider unauthorizedUserDataProvider
@@ -47,7 +50,7 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
     }
 
     /**
-     * @dataProvider createInvalidRequestDataProvider
+     * @dataProvider createUpdateGitSourceBadRequestDataProvider
      */
     public function testCreateBadRequest(
         ?string $label,
@@ -69,59 +72,7 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
             $credentials
         );
 
-        self::assertSame(400, $response->getStatusCode());
-        self::assertSame('application/json', $response->getHeaderLine('content-type'));
-
-        $responseData = json_decode($response->getBody()->getContents(), true);
-        self::assertIsArray($responseData);
-
-        self::assertArrayHasKey('type', $responseData);
-        self::assertSame('bad-request', $responseData['type']);
-
-        self::assertArrayHasKey('context', $responseData);
-        $contextData = $responseData['context'];
-        self::assertIsArray($contextData);
-
-        self::assertSame('sources', $contextData['service']);
-        self::assertArrayHasKey('invalid-field', $contextData);
-
-        $invalidFieldData = $contextData['invalid-field'];
-        self::assertIsArray($invalidFieldData);
-        self::assertArrayHasKey('name', $invalidFieldData);
-        self::assertSame($expectedInvalidField, $invalidFieldData['name']);
-
-        self::assertArrayHasKey('value', $invalidFieldData);
-        self::assertSame('', $invalidFieldData['value']);
-
-        self::assertArrayHasKey('message', $invalidFieldData);
-        self::assertNotSame('', $invalidFieldData['message']);
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    public function createInvalidRequestDataProvider(): array
-    {
-        return [
-            'label missing' => [
-                'label' => null,
-                'hostUrl' => md5((string) rand()),
-                'path' => md5((string) rand()),
-                'expectedInvalidField' => 'label',
-            ],
-            'host url missing' => [
-                'label' => md5((string) rand()),
-                'hostUrl' => null,
-                'path' => md5((string) rand()),
-                'expectedInvalidField' => 'host-url',
-            ],
-            'path missing' => [
-                'label' => md5((string) rand()),
-                'hostUrl' => md5((string) rand()),
-                'path' => null,
-                'expectedInvalidField' => 'path',
-            ],
-        ];
+        $this->assertBadRequest($response, $expectedInvalidField);
     }
 
     /**
