@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Tests\Application\FileSource;
 
 use App\Tests\Application\AbstractApplicationTestCase;
+use App\Tests\Application\AssertBadRequestTrait;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 
 abstract class AbstractCreateTest extends AbstractApplicationTestCase
 {
     use AssertFileSourceTrait;
+    use AssertBadRequestTrait;
 
     /**
      * @dataProvider unauthorizedUserDataProvider
@@ -37,6 +39,17 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
                 'token' => md5((string) rand()),
             ],
         ];
+    }
+
+    public function testCreateBadRequest(): void
+    {
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
+
+        $response = $this->applicationClient->makeCreateFileSourceRequest($apiKey->key, null);
+
+        $this->assertBadRequest($response, 'label');
     }
 
     public function testCreateSuccess(): void
