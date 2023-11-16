@@ -157,7 +157,58 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
         self::assertSame(200, $response->getStatusCode());
     }
 
-    public function testAddReadRemoveSuccess(): void
+    public function testAddDuplicateFilename(): void
+    {
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
+
+        $label = md5((string) rand());
+
+        $createFileSourceResponse = $this->applicationClient->makeCreateFileSourceRequest($apiKey->key, $label);
+        $createFileSourceResponseData = json_decode($createFileSourceResponse->getBody()->getContents(), true);
+        \assert(is_array($createFileSourceResponseData));
+
+        $sourceData = $createFileSourceResponseData['file_source'] ?? [];
+        \assert(is_array($sourceData));
+        $sourceId = $sourceData['id'] ?? null;
+        \assert(is_string($sourceId));
+
+        $filename = md5((string) rand()) . '.yaml';
+        $content = md5((string) rand());
+
+        $this->applicationClient->makeFileSourceFileRequest(
+            $apiKey->key,
+            $sourceId,
+            $filename,
+            'POST',
+            $content
+        );
+
+        $failedCreateResponse = $this->applicationClient->makeFileSourceFileRequest(
+            $apiKey->key,
+            $sourceId,
+            $filename,
+            'POST',
+            $content
+        );
+
+        self::assertSame(400, $failedCreateResponse->getStatusCode());
+        self::assertSame('application/json', $failedCreateResponse->getHeaderLine('content-type'));
+
+        self::assertSame(
+            [
+                'type' => 'duplicate-file-path',
+                'context' => [
+                    'service' => 'sources',
+                    'path' => $filename,
+                ],
+            ],
+            json_decode($failedCreateResponse->getBody()->getContents(), true)
+        );
+    }
+
+    public function testAddReadUpdateRemoveSuccess(): void
     {
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
         \assert($apiKeyProvider instanceof ApiKeyProvider);
@@ -187,11 +238,21 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
 
         self::assertSame(200, $createResponse->getStatusCode());
 
+        $updatedContent = md5((string) rand());
+        $updateResponse = $this->applicationClient->makeFileSourceFileRequest(
+            $apiKey->key,
+            $sourceId,
+            $filename,
+            'PUT',
+            $updatedContent
+        );
+        self::assertSame(200, $updateResponse->getStatusCode());
+
         $readResponse = $this->applicationClient->makeFileSourceFileRequest($apiKey->key, $sourceId, $filename, 'GET');
 
         self::assertSame(200, $readResponse->getStatusCode());
         self::assertSame('application/yaml', $readResponse->getHeaderLine('content-type'));
-        self::assertSame($content, $readResponse->getBody()->getContents());
+        self::assertSame($updatedContent, $readResponse->getBody()->getContents());
 
         $removeResponse = $this->applicationClient->makeFileSourceFileRequest(
             $apiKey->key,

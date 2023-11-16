@@ -30,7 +30,7 @@ readonly class FileSourceFileController
      * @throws ServiceException
      * @throws UnauthorizedException
      */
-    #[Route(name: 'handle', methods: ['POST', 'GET', 'DELETE'])]
+    #[Route(name: 'handle', methods: ['POST', 'GET', 'PUT', 'DELETE'])]
     public function handle(ApiToken $token, string $sourceId, string $filename, Request $request): Response
     {
         try {
@@ -48,6 +48,12 @@ readonly class FileSourceFileController
 
             if ('GET' === $request->getMethod()) {
                 return new YamlResponse($this->client->read($token->token, $sourceId, $filename));
+            }
+
+            if ('PUT' === $request->getMethod()) {
+                $this->client->update($token->token, $sourceId, $filename, (string) $request->getContent());
+
+                return new EmptyResponse();
             }
         } catch (
             ClientExceptionInterface |
