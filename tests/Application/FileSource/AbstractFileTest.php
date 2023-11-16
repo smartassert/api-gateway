@@ -208,7 +208,7 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
         );
     }
 
-    public function testAddReadRemoveSuccess(): void
+    public function testAddReadUpdateRemoveSuccess(): void
     {
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
         \assert($apiKeyProvider instanceof ApiKeyProvider);
@@ -238,11 +238,21 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
 
         self::assertSame(200, $createResponse->getStatusCode());
 
+        $updatedContent = md5((string) rand());
+        $updateResponse = $this->applicationClient->makeFileSourceFileRequest(
+            $apiKey->key,
+            $sourceId,
+            $filename,
+            'PUT',
+            $updatedContent
+        );
+        self::assertSame(200, $updateResponse->getStatusCode());
+
         $readResponse = $this->applicationClient->makeFileSourceFileRequest($apiKey->key, $sourceId, $filename, 'GET');
 
         self::assertSame(200, $readResponse->getStatusCode());
         self::assertSame('application/yaml', $readResponse->getHeaderLine('content-type'));
-        self::assertSame($content, $readResponse->getBody()->getContents());
+        self::assertSame($updatedContent, $readResponse->getBody()->getContents());
 
         $removeResponse = $this->applicationClient->makeFileSourceFileRequest(
             $apiKey->key,
