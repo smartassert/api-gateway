@@ -19,9 +19,8 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
      */
     public function testUpdateUnauthorizedUser(?string $token): void
     {
-        $response = $this->applicationClient->makeFileSourceRequest(
+        $response = $this->applicationClient->makeUpdateFileSourceRequest(
             $token,
-            'PUT',
             (string) new Ulid(),
             md5((string) rand())
         );
@@ -53,9 +52,8 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $response = $this->applicationClient->makeFileSourceRequest(
+        $response = $this->applicationClient->makeUpdateFileSourceRequest(
             $apiKey->key,
-            'PUT',
             (string) new Ulid(),
             md5((string) rand())
         );
@@ -83,14 +81,14 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         $id = $createdSourceData['id'] ?? null;
         \assert(is_string($id) && '' !== $id);
 
-        $getResponse = $this->applicationClient->makeFileSourceRequest($apiKey->key, 'GET', $id);
+        $getResponse = $this->applicationClient->makeReadFileSourceRequest($apiKey->key, $id);
         self::assertSame(200, $getResponse->getStatusCode());
 
-        $deleteResponse = $this->applicationClient->makeFileSourceRequest($apiKey->key, 'DELETE', $id);
+        $deleteResponse = $this->applicationClient->makeDeleteFileSourceRequest($apiKey->key, $id);
         self::assertSame(200, $deleteResponse->getStatusCode());
 
         $newLabel = md5((string) rand());
-        $response = $this->applicationClient->makeFileSourceRequest($apiKey->key, 'PUT', $id, $newLabel);
+        $response = $this->applicationClient->makeUpdateFileSourceRequest($apiKey->key, $id, $newLabel);
         self::assertSame(405, $response->getStatusCode());
         self::assertSame('application/json', $response->getHeaderLine('content-type'));
         self::assertSame(
@@ -126,7 +124,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         $id = $createdSourceData['id'] ?? null;
         \assert(is_string($id) && '' !== $id);
 
-        $response = $this->applicationClient->makeFileSourceRequest($apiKey->key, 'PUT', $id);
+        $response = $this->applicationClient->makeUpdateFileSourceRequest($apiKey->key, $id, null);
 
         $this->assertBadRequest($response, 'label');
     }
@@ -153,8 +151,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
 
         $newLabel = md5((string) rand());
 
-        $response = $this->applicationClient->makeFileSourceRequest($apiKey->key, 'PUT', $id, $newLabel);
-
+        $response = $this->applicationClient->makeUpdateFileSourceRequest($apiKey->key, $id, $newLabel);
         $this->assertRetrievedFileSource($response, $newLabel, $id);
     }
 }

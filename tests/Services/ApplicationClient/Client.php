@@ -178,31 +178,24 @@ readonly class Client
         );
     }
 
-    public function makeCreateFileSourceRequest(
-        ?string $apiKey,
-        ?string $label,
-        string $method = 'POST'
-    ): ResponseInterface {
-        $headers = [
-            'Content-Type' => 'application/x-www-form-urlencoded',
-        ];
+    public function makeCreateFileSourceRequest(?string $apiKey, ?string $label): ResponseInterface
+    {
+        return $this->makeFileSourceRequest($apiKey, 'POST', 'file_source_create', null, $label);
+    }
 
-        if (is_string($apiKey)) {
-            $headers['Authorization'] = 'Bearer ' . $apiKey;
-        }
+    public function makeReadFileSourceRequest(?string $apiKey, string $sourceId): ResponseInterface
+    {
+        return $this->makeFileSourceRequest($apiKey, 'GET', 'file_source_read', $sourceId);
+    }
 
-        $payload = [];
+    public function makeUpdateFileSourceRequest(?string $apiKey, string $sourceId, ?string $label): ResponseInterface
+    {
+        return $this->makeFileSourceRequest($apiKey, 'PUT', 'file_source_update', $sourceId, $label);
+    }
 
-        if (is_string($label)) {
-            $payload['label'] = $label;
-        }
-
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('file_source_create'),
-            $headers,
-            http_build_query($payload)
-        );
+    public function makeDeleteFileSourceRequest(?string $apiKey, string $sourceId): ResponseInterface
+    {
+        return $this->makeFileSourceRequest($apiKey, 'DELETE', 'file_source_delete', $sourceId);
     }
 
     public function makeCreateGitSourceRequest(
@@ -270,37 +263,6 @@ readonly class Client
             ),
             $headers,
             $content
-        );
-    }
-
-    /**
-     * @param 'DELETE'|'GET'|'PUT' $method
-     */
-    public function makeFileSourceRequest(
-        ?string $apiKey,
-        string $method,
-        string $sourceId,
-        ?string $label = null,
-    ): ResponseInterface {
-        $headers = [];
-        if (is_string($apiKey)) {
-            $headers['Authorization'] = 'Bearer ' . $apiKey;
-        }
-
-        $payload = [];
-        if (is_string($label)) {
-            $payload['label'] = $label;
-        }
-
-        if ([] !== $payload) {
-            $headers['Content-Type'] = 'application/x-www-form-urlencoded';
-        }
-
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('file_source_handle', ['sourceId' => $sourceId]),
-            $headers,
-            http_build_query($payload)
         );
     }
 
@@ -380,6 +342,38 @@ readonly class Client
             $method,
             $this->router->generate('sources_list'),
             $headers
+        );
+    }
+
+    /**
+     * @param 'DELETE'|'GET'|'POST'|'PUT' $method
+     */
+    private function makeFileSourceRequest(
+        ?string $apiKey,
+        string $method,
+        string $route,
+        ?string $sourceId,
+        ?string $label = null,
+    ): ResponseInterface {
+        $headers = [];
+        if (is_string($apiKey)) {
+            $headers['Authorization'] = 'Bearer ' . $apiKey;
+        }
+
+        $payload = [];
+        if (is_string($label)) {
+            $payload['label'] = $label;
+        }
+
+        if ([] !== $payload) {
+            $headers['Content-Type'] = 'application/x-www-form-urlencoded';
+        }
+
+        return $this->client->makeRequest(
+            $method,
+            $this->router->generate($route, ['sourceId' => $sourceId]),
+            $headers,
+            http_build_query($payload)
         );
     }
 }
