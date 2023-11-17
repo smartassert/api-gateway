@@ -18,15 +18,7 @@ abstract class AbstractDeleteTest extends AbstractApplicationTestCase
      */
     public function testDeleteUnauthorizedUser(?string $token): void
     {
-        $response = $this->applicationClient->makeGitSourceRequest(
-            $token,
-            'DELETE',
-            (string) new Ulid(),
-            'label',
-            'hostUrl',
-            'path',
-            'credentials'
-        );
+        $response = $this->applicationClient->makeDeleteGitSourceRequest($token, (string) new Ulid());
 
         self::assertSame(401, $response->getStatusCode());
     }
@@ -55,7 +47,7 @@ abstract class AbstractDeleteTest extends AbstractApplicationTestCase
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $response = $this->applicationClient->makeGitSourceRequest($apiKey->key, 'DELETE', (string) new Ulid());
+        $response = $this->applicationClient->makeDeleteGitSourceRequest($apiKey->key, (string) new Ulid());
 
         self::assertSame(404, $response->getStatusCode());
     }
@@ -87,10 +79,10 @@ abstract class AbstractDeleteTest extends AbstractApplicationTestCase
         $id = $createdSourceData['id'] ?? null;
         \assert(is_string($id) && '' !== $id);
 
-        $getResponse = $this->applicationClient->makeGitSourceRequest($apiKey->key, 'GET', $id);
+        $getResponse = $this->applicationClient->makeReadGitSourceRequest($apiKey->key, $id);
         self::assertSame(200, $getResponse->getStatusCode());
 
-        $deleteResponse = $this->applicationClient->makeGitSourceRequest($apiKey->key, 'DELETE', $id);
+        $deleteResponse = $this->applicationClient->makeDeleteGitSourceRequest($apiKey->key, $id);
         $this->assertDeletedGitSource(
             $deleteResponse,
             $label,

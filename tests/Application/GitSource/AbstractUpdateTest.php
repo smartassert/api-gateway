@@ -21,7 +21,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
      */
     public function testUpdateUnauthorizedUser(?string $token): void
     {
-        $response = $this->applicationClient->makeGitSourceRequest($token, 'PUT', (string) new Ulid());
+        $response = $this->applicationClient->makeUpdateGitSourceRequest($token, (string) new Ulid());
 
         self::assertSame(401, $response->getStatusCode());
     }
@@ -50,7 +50,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $response = $this->applicationClient->makeGitSourceRequest($apiKey->key, 'PUT', (string) new Ulid());
+        $response = $this->applicationClient->makeUpdateGitSourceRequest($apiKey->key, (string) new Ulid());
 
         self::assertSame(404, $response->getStatusCode());
     }
@@ -86,14 +86,12 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         $id = $createdSourceData['id'] ?? null;
         \assert(is_string($id) && '' !== $id);
 
-        $updateResponse = $this->applicationClient->makeGitSourceRequest(
+        $updateResponse = $this->applicationClient->makeUpdateGitSourceRequest(
             $apiKey->key,
-            'PUT',
             $id,
             $label,
             $hostUrl,
-            $path,
-            null
+            $path
         );
 
         $this->assertBadRequest($updateResponse, $expectedInvalidField);
@@ -134,9 +132,8 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         $id = $createdSourceData['id'] ?? null;
         \assert(is_string($id) && '' !== $id);
 
-        $updateResponse = $this->applicationClient->makeGitSourceRequest(
+        $updateResponse = $this->applicationClient->makeUpdateGitSourceRequest(
             $apiKey->key,
-            'PUT',
             $id,
             $newLabel,
             $newHostUrl,

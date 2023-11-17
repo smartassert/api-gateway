@@ -203,41 +203,48 @@ readonly class Client
         ?string $label,
         ?string $hostUrl,
         ?string $path,
-        ?string $credentials,
-        string $method = 'POST'
+        ?string $credentials
     ): ResponseInterface {
-        $headers = [
-            'Content-Type' => 'application/x-www-form-urlencoded',
-        ];
-
-        if (is_string($apiKey)) {
-            $headers['Authorization'] = 'Bearer ' . $apiKey;
-        }
-
-        $payload = [];
-
-        if (is_string($label)) {
-            $payload['label'] = $label;
-        }
-
-        if (is_string($hostUrl)) {
-            $payload['host-url'] = $hostUrl;
-        }
-
-        if (is_string($path)) {
-            $payload['path'] = $path;
-        }
-
-        if (is_string($credentials)) {
-            $payload['credentials'] = $credentials;
-        }
-
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('git_source_create'),
-            $headers,
-            http_build_query($payload)
+        return $this->makeGitSourceRequest(
+            $apiKey,
+            'POST',
+            'git_source_create',
+            null,
+            $label,
+            $hostUrl,
+            $path,
+            $credentials
         );
+    }
+
+    public function makeReadGitSourceRequest(?string $apiKey, ?string $sourceId): ResponseInterface
+    {
+        return $this->makeGitSourceRequest($apiKey, 'GET', 'git_source_read', $sourceId);
+    }
+
+    public function makeUpdateGitSourceRequest(
+        ?string $apiKey,
+        ?string $sourceId,
+        ?string $label = null,
+        ?string $hostUrl = null,
+        ?string $path = null,
+        ?string $credentials = null
+    ): ResponseInterface {
+        return $this->makeGitSourceRequest(
+            $apiKey,
+            'PUT',
+            'git_source_update',
+            $sourceId,
+            $label,
+            $hostUrl,
+            $path,
+            $credentials
+        );
+    }
+
+    public function makeDeleteGitSourceRequest(?string $apiKey, ?string $sourceId): ResponseInterface
+    {
+        return $this->makeGitSourceRequest($apiKey, 'DELETE', 'git_source_delete', $sourceId);
     }
 
     public function makeFileSourceFileRequest(
@@ -266,12 +273,46 @@ readonly class Client
         );
     }
 
+    public function makeFileSourceFilesRequest(
+        ?string $apiKey,
+        string $sourceId,
+        string $method = 'GET',
+    ): ResponseInterface {
+        $headers = [];
+        if (is_string($apiKey)) {
+            $headers['Authorization'] = 'Bearer ' . $apiKey;
+        }
+
+        return $this->client->makeRequest(
+            $method,
+            $this->router->generate('file_source_list', ['sourceId' => $sourceId]),
+            $headers
+        );
+    }
+
+    public function makeListSourcesRequest(
+        ?string $apiKey,
+        string $method = 'GET',
+    ): ResponseInterface {
+        $headers = [];
+        if (is_string($apiKey)) {
+            $headers['Authorization'] = 'Bearer ' . $apiKey;
+        }
+
+        return $this->client->makeRequest(
+            $method,
+            $this->router->generate('sources_list'),
+            $headers
+        );
+    }
+
     /**
-     * @param 'DELETE'|'GET'|'PUT' $method
+     * @param 'DELETE'|'GET'|'POST'|'PUT' $method
      */
-    public function makeGitSourceRequest(
+    private function makeGitSourceRequest(
         ?string $apiKey,
         string $method,
+        string $route,
         string $sourceId = null,
         ?string $label = null,
         ?string $hostUrl = null,
@@ -306,42 +347,9 @@ readonly class Client
 
         return $this->client->makeRequest(
             $method,
-            $this->router->generate('git_source_handle', ['sourceId' => $sourceId]),
+            $this->router->generate($route, ['sourceId' => $sourceId]),
             $headers,
             http_build_query($payload)
-        );
-    }
-
-    public function makeFileSourceFilesRequest(
-        ?string $apiKey,
-        string $sourceId,
-        string $method = 'GET',
-    ): ResponseInterface {
-        $headers = [];
-        if (is_string($apiKey)) {
-            $headers['Authorization'] = 'Bearer ' . $apiKey;
-        }
-
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('file_source_list', ['sourceId' => $sourceId]),
-            $headers
-        );
-    }
-
-    public function makeListSourcesRequest(
-        ?string $apiKey,
-        string $method = 'GET',
-    ): ResponseInterface {
-        $headers = [];
-        if (is_string($apiKey)) {
-            $headers['Authorization'] = 'Bearer ' . $apiKey;
-        }
-
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('sources_list'),
-            $headers
         );
     }
 

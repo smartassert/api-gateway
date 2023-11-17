@@ -18,7 +18,7 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
      */
     public function testGetUnauthorizedUser(?string $token): void
     {
-        $response = $this->applicationClient->makeGitSourceRequest($token, 'GET', (string) new Ulid());
+        $response = $this->applicationClient->makeReadGitSourceRequest($token, (string) new Ulid());
 
         self::assertSame(401, $response->getStatusCode());
     }
@@ -47,7 +47,7 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $response = $this->applicationClient->makeGitSourceRequest($apiKey->key, 'GET', (string) new Ulid());
+        $response = $this->applicationClient->makeReadGitSourceRequest($apiKey->key, (string) new Ulid());
 
         self::assertSame(404, $response->getStatusCode());
     }
@@ -79,7 +79,7 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
         $id = $createdSourceData['id'] ?? null;
         \assert(is_string($id) && '' !== $id);
 
-        $getResponse = $this->applicationClient->makeGitSourceRequest($apiKey->key, 'GET', $id);
+        $getResponse = $this->applicationClient->makeReadGitSourceRequest($apiKey->key, $id);
         self::assertSame(200, $getResponse->getStatusCode());
         $this->assertRetrievedGitSource(
             $getResponse,
