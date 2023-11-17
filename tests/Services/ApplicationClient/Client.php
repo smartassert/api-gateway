@@ -247,30 +247,52 @@ readonly class Client
         return $this->makeGitSourceRequest($apiKey, 'DELETE', 'git_source_delete', $sourceId);
     }
 
-    public function makeFileSourceFileRequest(
+    public function makeCreateFileSourceFileRequest(
         ?string $apiKey,
         ?string $fileSourceId,
         ?string $filename,
-        string $method,
         ?string $content = null,
     ): ResponseInterface {
-        $headers = [];
-        if (is_string($apiKey)) {
-            $headers['Authorization'] = 'Bearer ' . $apiKey;
-        }
-
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate(
-                'file_source_file_handle',
-                [
-                    'sourceId' => $fileSourceId,
-                    'filename' => $filename,
-                ]
-            ),
-            $headers,
+        return $this->makeFileSourceFileRequest(
+            $apiKey,
+            'POST',
+            'file_source_file_create',
+            $fileSourceId,
+            $filename,
             $content
         );
+    }
+
+    public function makeReadFileSourceFileRequest(
+        ?string $apiKey,
+        ?string $fileSourceId,
+        ?string $filename
+    ): ResponseInterface {
+        return $this->makeFileSourceFileRequest($apiKey, 'GET', 'file_source_file_read', $fileSourceId, $filename);
+    }
+
+    public function makeUpdateFileSourceFileRequest(
+        ?string $apiKey,
+        ?string $fileSourceId,
+        ?string $filename,
+        ?string $content = null,
+    ): ResponseInterface {
+        return $this->makeFileSourceFileRequest(
+            $apiKey,
+            'PUT',
+            'file_source_file_update',
+            $fileSourceId,
+            $filename,
+            $content
+        );
+    }
+
+    public function makeDeleteFileSourceFileRequest(
+        ?string $apiKey,
+        ?string $fileSourceId,
+        ?string $filename,
+    ): ResponseInterface {
+        return $this->makeFileSourceFileRequest($apiKey, 'DELETE', 'file_source_file_delete', $fileSourceId, $filename);
     }
 
     public function makeFileSourceFilesRequest(
@@ -303,6 +325,33 @@ readonly class Client
             $method,
             $this->router->generate('sources_list'),
             $headers
+        );
+    }
+
+    private function makeFileSourceFileRequest(
+        ?string $apiKey,
+        string $method,
+        string $route,
+        ?string $fileSourceId,
+        ?string $filename,
+        ?string $content = null,
+    ): ResponseInterface {
+        $headers = [];
+        if (is_string($apiKey)) {
+            $headers['Authorization'] = 'Bearer ' . $apiKey;
+        }
+
+        return $this->client->makeRequest(
+            $method,
+            $this->router->generate(
+                $route,
+                [
+                    'sourceId' => $fileSourceId,
+                    'filename' => $filename,
+                ]
+            ),
+            $headers,
+            $content
         );
     }
 

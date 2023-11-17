@@ -54,11 +54,10 @@ class FileSourceFileControllerTest extends AbstractApplicationTestCase
         self::getContainer()->set(UsersClient::class, $usersClient);
         self::getContainer()->set(FileClientInterface::class, $fileClient);
 
-        $response = $this->applicationClient->makeFileSourceFileRequest(
+        $response = $this->applicationClient->makeCreateFileSourceFileRequest(
             $apiKey,
             $fileSourceId,
             $filename,
-            'POST',
             $content
         );
 
@@ -97,7 +96,7 @@ class FileSourceFileControllerTest extends AbstractApplicationTestCase
         self::getContainer()->set(UsersClient::class, $usersClient);
         self::getContainer()->set(FileClientInterface::class, $fileClient);
 
-        $response = $this->applicationClient->makeFileSourceFileRequest($apiKey, $fileSourceId, $filename, 'GET');
+        $response = $this->applicationClient->makeReadFileSourceFileRequest($apiKey, $fileSourceId, $filename);
 
         $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
     }
@@ -134,7 +133,7 @@ class FileSourceFileControllerTest extends AbstractApplicationTestCase
         self::getContainer()->set(UsersClient::class, $usersClient);
         self::getContainer()->set(FileClientInterface::class, $fileClient);
 
-        $response = $this->applicationClient->makeFileSourceFileRequest($apiKey, $fileSourceId, $filename, 'DELETE');
+        $response = $this->applicationClient->makeDeleteFileSourceFileRequest($apiKey, $fileSourceId, $filename);
 
         $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
     }
