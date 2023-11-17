@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Controller\Source;
 
 use App\Exception\ServiceException;
-use App\Response\EmptyResponse;
 use App\Security\ApiToken;
 use Psr\Http\Client\ClientExceptionInterface;
 use SmartAssert\ServiceClient\Exception\HttpResponseExceptionInterface;
@@ -48,6 +47,10 @@ readonly class GitSourceController
                 $request->request->getString('path'),
                 $credentials,
             );
+
+            return new JsonResponse([
+                'git_source' => $source->toArray(),
+            ]);
         } catch (
             ClientExceptionInterface |
             HttpResponseExceptionInterface |
@@ -57,10 +60,6 @@ readonly class GitSourceController
         ) {
             throw new ServiceException('sources', $e);
         }
-
-        return new JsonResponse([
-            'git_source' => $source->toArray(),
-        ]);
     }
 
     /**
@@ -69,8 +68,34 @@ readonly class GitSourceController
      * @throws ServiceException
      * @throws UnauthorizedException
      */
-    #[Route(path: '/{sourceId<[A-Z90-9]{26}>}', name: 'handle', methods: ['GET', 'PUT', 'DELETE'])]
-    public function handle(ApiToken $token, string $sourceId, Request $request): Response
+    #[Route(path: '/{sourceId<[A-Z90-9]{26}>}', name: 'read', methods: ['GET'])]
+    public function read(ApiToken $token, string $sourceId): Response
+    {
+        try {
+            $source = $this->client->get($token->token, $sourceId);
+
+            return new JsonResponse([
+                'git_source' => $source->toArray(),
+            ]);
+        } catch (
+            ClientExceptionInterface |
+            HttpResponseExceptionInterface |
+            InvalidModelDataException |
+            InvalidResponseDataException |
+            InvalidResponseTypeException $e
+        ) {
+            throw new ServiceException('sources', $e);
+        }
+    }
+
+    /**
+     * @param non-empty-string $sourceId
+     *
+     * @throws ServiceException
+     * @throws UnauthorizedException
+     */
+    #[Route(path: '/{sourceId<[A-Z90-9]{26}>}', name: 'update', methods: ['PUT'])]
+    public function update(ApiToken $token, string $sourceId, Request $request): Response
     {
         try {
             $credentials = $request->request->getString('credentials');
@@ -78,19 +103,18 @@ readonly class GitSourceController
                 $credentials = null;
             }
 
-            $source = match ($request->getMethod()) {
-                'GET' => $this->client->get($token->token, $sourceId),
-                'PUT' => $this->client->update(
-                    $token->token,
-                    $sourceId,
-                    $request->request->getString('label'),
-                    $request->request->getString('host-url'),
-                    $request->request->getString('path'),
-                    $credentials
-                ),
-                'DELETE' => $this->client->delete($token->token, $sourceId),
-                default => null,
-            };
+            $source = $this->client->update(
+                $token->token,
+                $sourceId,
+                $request->request->getString('label'),
+                $request->request->getString('host-url'),
+                $request->request->getString('path'),
+                $credentials
+            );
+
+            return new JsonResponse([
+                'git_source' => $source->toArray(),
+            ]);
         } catch (
             ClientExceptionInterface |
             HttpResponseExceptionInterface |
@@ -101,13 +125,31 @@ readonly class GitSourceController
         ) {
             throw new ServiceException('sources', $e);
         }
+    }
 
-        if (null === $source) {
-            return new EmptyResponse(405);
+    /**
+     * @param non-empty-string $sourceId
+     *
+     * @throws ServiceException
+     * @throws UnauthorizedException
+     */
+    #[Route(path: '/{sourceId<[A-Z90-9]{26}>}', name: 'delete', methods: ['DELETE'])]
+    public function delete(ApiToken $token, string $sourceId): Response
+    {
+        try {
+            $source = $this->client->delete($token->token, $sourceId);
+
+            return new JsonResponse([
+                'git_source' => $source->toArray(),
+            ]);
+        } catch (
+            ClientExceptionInterface |
+            HttpResponseExceptionInterface |
+            InvalidModelDataException |
+            InvalidResponseDataException |
+            InvalidResponseTypeException $e
+        ) {
+            throw new ServiceException('sources', $e);
         }
-
-        return new JsonResponse([
-            'git_source' => $source->toArray(),
-        ]);
     }
 }

@@ -75,22 +75,20 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
         $listResponse = $this->applicationClient->makeFileSourceFilesRequest($apiKey->key, $id);
         $this->assertListResponse($listResponse, []);
 
-        $this->applicationClient->makeFileSourceFileRequest(
+        $this->applicationClient->makeCreateFileSourceFileRequest(
             $apiKey->key,
             $id,
             'fileZ.yaml',
-            'POST',
             md5((string) rand())
         );
 
         $listResponse = $this->applicationClient->makeFileSourceFilesRequest($apiKey->key, $id);
         $this->assertListResponse($listResponse, ['fileZ.yaml']);
 
-        $this->applicationClient->makeFileSourceFileRequest(
+        $this->applicationClient->makeCreateFileSourceFileRequest(
             $apiKey->key,
             $id,
             'fileA.yaml',
-            'POST',
             md5((string) rand())
         );
 

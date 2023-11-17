@@ -96,7 +96,7 @@ class GitSourceControllerTest extends AbstractApplicationTestCase
         self::getContainer()->set(UsersClient::class, $usersClient);
         self::getContainer()->set(GitSourceClientInterface::class, $gitSourceClient);
 
-        $response = $this->applicationClient->makeGitSourceRequest($apiKey, 'GET', $sourceId);
+        $response = $this->applicationClient->makeReadGitSourceRequest($apiKey, $sourceId);
 
         $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
     }
@@ -136,9 +136,8 @@ class GitSourceControllerTest extends AbstractApplicationTestCase
         self::getContainer()->set(UsersClient::class, $usersClient);
         self::getContainer()->set(GitSourceClientInterface::class, $gitSourceClient);
 
-        $response = $this->applicationClient->makeGitSourceRequest(
+        $response = $this->applicationClient->makeUpdateGitSourceRequest(
             $apiKey,
-            'PUT',
             $sourceId,
             $label,
             $hostUrl,
@@ -180,7 +179,7 @@ class GitSourceControllerTest extends AbstractApplicationTestCase
         self::getContainer()->set(UsersClient::class, $usersClient);
         self::getContainer()->set(GitSourceClientInterface::class, $gitSourceClient);
 
-        $response = $this->applicationClient->makeGitSourceRequest($apiKey, 'DELETE', $sourceId);
+        $response = $this->applicationClient->makeDeleteGitSourceRequest($apiKey, $sourceId);
 
         $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
     }

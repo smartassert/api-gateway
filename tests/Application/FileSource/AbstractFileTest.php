@@ -13,14 +13,56 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
     /**
      * @dataProvider unauthorizedUserDataProvider
      */
-    public function testUnauthorizedUser(?string $token, string $method): void
+    public function testCreateUnauthorizedUser(?string $token): void
     {
-        $response = $this->applicationClient->makeFileSourceFileRequest(
+        $response = $this->applicationClient->makeCreateFileSourceFileRequest(
             $token,
             (string) new Ulid(),
             'filename.yaml',
-            $method,
-            'content',
+            'content'
+        );
+
+        self::assertSame(401, $response->getStatusCode());
+    }
+
+    /**
+     * @dataProvider unauthorizedUserDataProvider
+     */
+    public function testReadUnauthorizedUser(?string $token): void
+    {
+        $response = $this->applicationClient->makeReadFileSourceFileRequest(
+            $token,
+            (string) new Ulid(),
+            'filename.yaml'
+        );
+
+        self::assertSame(401, $response->getStatusCode());
+    }
+
+    /**
+     * @dataProvider unauthorizedUserDataProvider
+     */
+    public function testUpdateUnauthorizedUser(?string $token): void
+    {
+        $response = $this->applicationClient->makeUpdateFileSourceFileRequest(
+            $token,
+            (string) new Ulid(),
+            'filename.yaml',
+            'content'
+        );
+
+        self::assertSame(401, $response->getStatusCode());
+    }
+
+    /**
+     * @dataProvider unauthorizedUserDataProvider
+     */
+    public function testDeleteUnauthorizedUser(?string $token): void
+    {
+        $response = $this->applicationClient->makeDeleteFileSourceFileRequest(
+            $token,
+            (string) new Ulid(),
+            'filename.yaml'
         );
 
         self::assertSame(401, $response->getStatusCode());
@@ -32,41 +74,14 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
     public function unauthorizedUserDataProvider(): array
     {
         return [
-            'POST, no token' => [
+            'no token' => [
                 'token' => null,
-                'method' => 'POST',
             ],
-            'POST, empty token' => [
+            'empty token' => [
                 'token' => '',
-                'method' => 'POST',
             ],
-            'POST, non-empty invalid token' => [
+            'non-empty invalid token' => [
                 'token' => md5((string) rand()),
-                'method' => 'POST',
-            ],
-            'GET, no token' => [
-                'token' => null,
-                'method' => 'GET',
-            ],
-            'GET, empty token' => [
-                'token' => '',
-                'method' => 'GET',
-            ],
-            'GET, non-empty invalid token' => [
-                'token' => md5((string) rand()),
-                'method' => 'GET',
-            ],
-            'DELETE, no token' => [
-                'token' => null,
-                'method' => 'DELETE',
-            ],
-            'DELETE, empty token' => [
-                'token' => '',
-                'method' => 'DELETE',
-            ],
-            'DELETE, non-empty invalid token' => [
-                'token' => md5((string) rand()),
-                'method' => 'DELETE',
             ],
         ];
     }
@@ -77,11 +92,10 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $response = $this->applicationClient->makeFileSourceFileRequest(
+        $response = $this->applicationClient->makeReadFileSourceFileRequest(
             $apiKey->key,
             (string) new Ulid(),
-            md5((string) rand()) . '.yaml',
-            'GET'
+            md5((string) rand()) . '.yaml'
         );
 
         self::assertSame(404, $response->getStatusCode());
@@ -104,11 +118,10 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
         $sourceId = $sourceData['id'] ?? null;
         \assert(is_string($sourceId));
 
-        $response = $this->applicationClient->makeFileSourceFileRequest(
+        $response = $this->applicationClient->makeReadFileSourceFileRequest(
             $apiKey->key,
             $sourceId,
-            md5((string) rand()) . '.yaml',
-            'GET'
+            md5((string) rand()) . '.yaml'
         );
 
         self::assertSame(404, $response->getStatusCode());
@@ -120,11 +133,10 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $response = $this->applicationClient->makeFileSourceFileRequest(
+        $response = $this->applicationClient->makeDeleteFileSourceFileRequest(
             $apiKey->key,
             (string) new Ulid(),
-            md5((string) rand()) . '.yaml',
-            'DELETE',
+            md5((string) rand()) . '.yaml'
         );
 
         self::assertSame(404, $response->getStatusCode());
@@ -147,11 +159,10 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
         $sourceId = $sourceData['id'] ?? null;
         \assert(is_string($sourceId));
 
-        $response = $this->applicationClient->makeFileSourceFileRequest(
+        $response = $this->applicationClient->makeDeleteFileSourceFileRequest(
             $apiKey->key,
             $sourceId,
-            md5((string) rand()) . '.yaml',
-            'DELETE',
+            md5((string) rand()) . '.yaml'
         );
 
         self::assertSame(200, $response->getStatusCode());
@@ -177,19 +188,12 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
         $filename = md5((string) rand()) . '.yaml';
         $content = md5((string) rand());
 
-        $this->applicationClient->makeFileSourceFileRequest(
-            $apiKey->key,
-            $sourceId,
-            $filename,
-            'POST',
-            $content
-        );
+        $this->applicationClient->makeCreateFileSourceFileRequest($apiKey->key, $sourceId, $filename, $content);
 
-        $failedCreateResponse = $this->applicationClient->makeFileSourceFileRequest(
+        $failedCreateResponse = $this->applicationClient->makeCreateFileSourceFileRequest(
             $apiKey->key,
             $sourceId,
             $filename,
-            'POST',
             $content
         );
 
@@ -228,41 +232,34 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
         $filename = md5((string) rand()) . '.yaml';
         $content = md5((string) rand());
 
-        $createResponse = $this->applicationClient->makeFileSourceFileRequest(
+        $createResponse = $this->applicationClient->makeCreateFileSourceFileRequest(
             $apiKey->key,
             $sourceId,
             $filename,
-            'POST',
             $content
         );
 
         self::assertSame(200, $createResponse->getStatusCode());
 
         $updatedContent = md5((string) rand());
-        $updateResponse = $this->applicationClient->makeFileSourceFileRequest(
+        $updateResponse = $this->applicationClient->makeUpdateFileSourceFileRequest(
             $apiKey->key,
             $sourceId,
             $filename,
-            'PUT',
             $updatedContent
         );
         self::assertSame(200, $updateResponse->getStatusCode());
 
-        $readResponse = $this->applicationClient->makeFileSourceFileRequest($apiKey->key, $sourceId, $filename, 'GET');
+        $readResponse = $this->applicationClient->makeReadFileSourceFileRequest($apiKey->key, $sourceId, $filename);
 
         self::assertSame(200, $readResponse->getStatusCode());
         self::assertSame('application/yaml', $readResponse->getHeaderLine('content-type'));
         self::assertSame($updatedContent, $readResponse->getBody()->getContents());
 
-        $removeResponse = $this->applicationClient->makeFileSourceFileRequest(
-            $apiKey->key,
-            $sourceId,
-            $filename,
-            'DELETE'
-        );
+        $removeResponse = $this->applicationClient->makeDeleteFileSourceFileRequest($apiKey->key, $sourceId, $filename);
         self::assertSame(200, $removeResponse->getStatusCode());
 
-        $readResponse = $this->applicationClient->makeFileSourceFileRequest($apiKey->key, $sourceId, $filename, 'GET');
+        $readResponse = $this->applicationClient->makeReadFileSourceFileRequest($apiKey->key, $sourceId, $filename);
         self::assertSame(404, $readResponse->getStatusCode());
     }
 }
