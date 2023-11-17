@@ -180,22 +180,22 @@ readonly class Client
 
     public function makeCreateFileSourceRequest(?string $apiKey, ?string $label): ResponseInterface
     {
-        return $this->makeFileSourceRequest($apiKey, 'POST', 'file_source_create', null, $label);
+        return $this->makeFileSourceRequest($apiKey, 'POST', null, $label);
     }
 
     public function makeReadFileSourceRequest(?string $apiKey, string $sourceId): ResponseInterface
     {
-        return $this->makeFileSourceRequest($apiKey, 'GET', 'file_source_read', $sourceId);
+        return $this->makeFileSourceRequest($apiKey, 'GET', $sourceId);
     }
 
     public function makeUpdateFileSourceRequest(?string $apiKey, string $sourceId, ?string $label): ResponseInterface
     {
-        return $this->makeFileSourceRequest($apiKey, 'PUT', 'file_source_update', $sourceId, $label);
+        return $this->makeFileSourceRequest($apiKey, 'PUT', $sourceId, $label);
     }
 
     public function makeDeleteFileSourceRequest(?string $apiKey, string $sourceId): ResponseInterface
     {
-        return $this->makeFileSourceRequest($apiKey, 'DELETE', 'file_source_delete', $sourceId);
+        return $this->makeFileSourceRequest($apiKey, 'DELETE', $sourceId);
     }
 
     public function makeCreateGitSourceRequest(
@@ -208,7 +208,6 @@ readonly class Client
         return $this->makeGitSourceRequest(
             $apiKey,
             'POST',
-            'git_source_create',
             null,
             $label,
             $hostUrl,
@@ -219,7 +218,7 @@ readonly class Client
 
     public function makeReadGitSourceRequest(?string $apiKey, ?string $sourceId): ResponseInterface
     {
-        return $this->makeGitSourceRequest($apiKey, 'GET', 'git_source_read', $sourceId);
+        return $this->makeGitSourceRequest($apiKey, 'GET', $sourceId);
     }
 
     public function makeUpdateGitSourceRequest(
@@ -233,7 +232,6 @@ readonly class Client
         return $this->makeGitSourceRequest(
             $apiKey,
             'PUT',
-            'git_source_update',
             $sourceId,
             $label,
             $hostUrl,
@@ -244,7 +242,7 @@ readonly class Client
 
     public function makeDeleteGitSourceRequest(?string $apiKey, ?string $sourceId): ResponseInterface
     {
-        return $this->makeGitSourceRequest($apiKey, 'DELETE', 'git_source_delete', $sourceId);
+        return $this->makeGitSourceRequest($apiKey, 'DELETE', $sourceId);
     }
 
     public function makeCreateFileSourceFileRequest(
@@ -253,14 +251,7 @@ readonly class Client
         ?string $filename,
         ?string $content = null,
     ): ResponseInterface {
-        return $this->makeFileSourceFileRequest(
-            $apiKey,
-            'POST',
-            'file_source_file_create',
-            $fileSourceId,
-            $filename,
-            $content
-        );
+        return $this->makeFileSourceFileRequest($apiKey, 'POST', $fileSourceId, $filename, $content);
     }
 
     public function makeReadFileSourceFileRequest(
@@ -268,7 +259,7 @@ readonly class Client
         ?string $fileSourceId,
         ?string $filename
     ): ResponseInterface {
-        return $this->makeFileSourceFileRequest($apiKey, 'GET', 'file_source_file_read', $fileSourceId, $filename);
+        return $this->makeFileSourceFileRequest($apiKey, 'GET', $fileSourceId, $filename);
     }
 
     public function makeUpdateFileSourceFileRequest(
@@ -277,14 +268,7 @@ readonly class Client
         ?string $filename,
         ?string $content = null,
     ): ResponseInterface {
-        return $this->makeFileSourceFileRequest(
-            $apiKey,
-            'PUT',
-            'file_source_file_update',
-            $fileSourceId,
-            $filename,
-            $content
-        );
+        return $this->makeFileSourceFileRequest($apiKey, 'PUT', $fileSourceId, $filename, $content);
     }
 
     public function makeDeleteFileSourceFileRequest(
@@ -292,7 +276,7 @@ readonly class Client
         ?string $fileSourceId,
         ?string $filename,
     ): ResponseInterface {
-        return $this->makeFileSourceFileRequest($apiKey, 'DELETE', 'file_source_file_delete', $fileSourceId, $filename);
+        return $this->makeFileSourceFileRequest($apiKey, 'DELETE', $fileSourceId, $filename);
     }
 
     public function makeFileSourceFilesRequest(
@@ -331,7 +315,6 @@ readonly class Client
     private function makeFileSourceFileRequest(
         ?string $apiKey,
         string $method,
-        string $route,
         ?string $fileSourceId,
         ?string $filename,
         ?string $content = null,
@@ -339,6 +322,17 @@ readonly class Client
         $headers = [];
         if (is_string($apiKey)) {
             $headers['Authorization'] = 'Bearer ' . $apiKey;
+        }
+
+        $route = 'file_source_file_read';
+        if ('POST' === $method) {
+            $route = 'file_source_file_create';
+        }
+        if ('PUT' === $method) {
+            $route = 'file_source_file_update';
+        }
+        if ('DELETE' === $method) {
+            $route = 'file_source_file_delete';
         }
 
         return $this->client->makeRequest(
@@ -361,7 +355,6 @@ readonly class Client
     private function makeGitSourceRequest(
         ?string $apiKey,
         string $method,
-        string $route,
         string $sourceId = null,
         ?string $label = null,
         ?string $hostUrl = null,
@@ -394,6 +387,17 @@ readonly class Client
             $headers['Content-Type'] = 'application/x-www-form-urlencoded';
         }
 
+        $route = 'git_source_read';
+        if ('POST' === $method) {
+            $route = 'git_source_create';
+        }
+        if ('PUT' === $method) {
+            $route = 'git_source_update';
+        }
+        if ('DELETE' === $method) {
+            $route = 'git_source_delete';
+        }
+
         return $this->client->makeRequest(
             $method,
             $this->router->generate($route, ['sourceId' => $sourceId]),
@@ -408,7 +412,6 @@ readonly class Client
     private function makeFileSourceRequest(
         ?string $apiKey,
         string $method,
-        string $route,
         ?string $sourceId,
         ?string $label = null,
     ): ResponseInterface {
@@ -424,6 +427,17 @@ readonly class Client
 
         if ([] !== $payload) {
             $headers['Content-Type'] = 'application/x-www-form-urlencoded';
+        }
+
+        $route = 'file_source_read';
+        if ('POST' === $method) {
+            $route = 'file_source_create';
+        }
+        if ('PUT' === $method) {
+            $route = 'file_source_update';
+        }
+        if ('DELETE' === $method) {
+            $route = 'file_source_delete';
         }
 
         return $this->client->makeRequest(
