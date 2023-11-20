@@ -110,7 +110,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
 
         $response = $this->applicationClient->makeUpdateFileSourceRequest($apiKey->key, $id, null);
 
-        $this->assertBadRequest($response, 'label');
+        $this->assertBadRequest($response, 'sources', 'label');
     }
 
     public function testUpdateSuccess(): void

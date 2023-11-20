@@ -78,7 +78,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
             $path
         );
 
-        $this->assertBadRequest($updateResponse, $expectedInvalidField);
+        $this->assertBadRequest($updateResponse, 'sources', $expectedInvalidField);
     }
 
     /**

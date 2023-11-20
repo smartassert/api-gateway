@@ -9,8 +9,11 @@ use Psr\Http\Message\ResponseInterface;
 
 trait AssertBadRequestTrait
 {
-    public function assertBadRequest(ResponseInterface $response, string $expectedInvalidField): void
-    {
+    public function assertBadRequest(
+        ResponseInterface $response,
+        string $expectedService,
+        string $expectedInvalidField
+    ): void {
         Assert::assertSame(400, $response->getStatusCode());
         Assert::assertSame('application/json', $response->getHeaderLine('content-type'));
 
@@ -24,7 +27,7 @@ trait AssertBadRequestTrait
         $contextData = $responseData['context'];
         Assert::assertIsArray($contextData);
 
-        Assert::assertSame('sources', $contextData['service']);
+        Assert::assertSame($expectedService, $contextData['service']);
         Assert::assertArrayHasKey('invalid-field', $contextData);
 
         $invalidFieldData = $contextData['invalid-field'];
