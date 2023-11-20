@@ -6,11 +6,13 @@ namespace App\Tests\Application\FileSource;
 
 use App\Tests\Application\AbstractApplicationTestCase;
 use App\Tests\Application\AssertBadRequestTrait;
+use App\Tests\Application\UnauthorizedUserDataProviderTrait;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 use Symfony\Component\Uid\Ulid;
 
 abstract class AbstractUpdateTest extends AbstractApplicationTestCase
 {
+    use UnauthorizedUserDataProviderTrait;
     use AssertFileSourceTrait;
     use AssertBadRequestTrait;
 
@@ -26,24 +28,6 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         );
 
         self::assertSame(401, $response->getStatusCode());
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    public function unauthorizedUserDataProvider(): array
-    {
-        return [
-            'no token' => [
-                'token' => null,
-            ],
-            'empty token' => [
-                'token' => '',
-            ],
-            'non-empty invalid token' => [
-                'token' => md5((string) rand()),
-            ],
-        ];
     }
 
     public function testUpdateNotFound(): void

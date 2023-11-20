@@ -6,12 +6,14 @@ namespace App\Tests\Application\Source;
 
 use App\Tests\Application\AbstractApplicationTestCase;
 use App\Tests\Application\FileSource\AssertFileSourceTrait;
+use App\Tests\Application\UnauthorizedUserDataProviderTrait;
 use App\Tests\Services\DataRepository;
 use Psr\Http\Message\ResponseInterface;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 
 abstract class AbstractListTest extends AbstractApplicationTestCase
 {
+    use UnauthorizedUserDataProviderTrait;
     use AssertFileSourceTrait;
 
     /**
@@ -22,24 +24,6 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
         $response = $this->applicationClient->makeListSourcesRequest($token);
 
         self::assertSame(401, $response->getStatusCode());
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    public function unauthorizedUserDataProvider(): array
-    {
-        return [
-            'no token' => [
-                'token' => null,
-            ],
-            'empty token' => [
-                'token' => '',
-            ],
-            'non-empty invalid token' => [
-                'token' => md5((string) rand()),
-            ],
-        ];
     }
 
     public function testListSuccess(): void
