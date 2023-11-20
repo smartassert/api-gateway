@@ -329,6 +329,19 @@ readonly class Client
         return $this->makeSuiteRequest($apiKey, 'GET', $suiteId);
     }
 
+    /**
+     * @param string[] $tests
+     */
+    public function makeUpdateSuiteRequest(
+        ?string $apiKey,
+        ?string $suiteId,
+        ?string $sourceId,
+        ?string $label,
+        ?array $tests,
+    ): ResponseInterface {
+        return $this->makeSuiteRequest($apiKey, 'PUT', $suiteId, $sourceId, $label, $tests);
+    }
+
     private function makeFileSourceFileRequest(
         ?string $apiKey,
         string $method,

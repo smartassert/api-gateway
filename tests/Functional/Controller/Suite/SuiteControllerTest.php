@@ -94,6 +94,44 @@ class SuiteControllerTest extends AbstractApplicationTestCase
     }
 
     /**
+     * @dataProvider sourcesClientExceptionDataProvider
+     *
+     * @param array<mixed> $expectedData
+     */
+    public function testUpdateHandlesException(
+        \Exception $exception,
+        int $expectedStatusCode,
+        array $expectedData
+    ): void {
+        $apiKey = md5((string) rand());
+        $apiToken = md5((string) rand());
+        $suiteId = (string) new Ulid();
+        $sourceId = md5((string) rand());
+        $label = md5((string) rand());
+        $tests = [];
+
+        $usersClient = \Mockery::mock(UsersClient::class);
+        $usersClient
+            ->shouldReceive('createApiToken')
+            ->with($apiKey)
+            ->andReturn(new Token($apiToken))
+        ;
+
+        $suiteClient = \Mockery::mock(SuiteClientInterface::class);
+        $suiteClient
+            ->shouldReceive('update')
+            ->with($apiToken, $suiteId, $sourceId, $label, $tests)
+            ->andThrow($exception)
+        ;
+
+        self::getContainer()->set(UsersClient::class, $usersClient);
+        self::getContainer()->set(SuiteClientInterface::class, $suiteClient);
+
+        $response = $this->applicationClient->makeUpdateSuiteRequest($apiKey, $suiteId, $sourceId, $label, $tests);
+        $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
+    }
+
+    /**
      * @return array<mixed>
      */
     public function sourcesClientExceptionDataProvider(): array
