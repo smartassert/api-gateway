@@ -312,6 +312,18 @@ readonly class Client
         );
     }
 
+    /**
+     * @param ?non-empty-string[] $tests
+     */
+    public function makeCreateSuiteRequest(
+        ?string $apiKey,
+        ?string $sourceId,
+        ?string $label,
+        ?array $tests,
+    ): ResponseInterface {
+        return $this->makeSuiteRequest($apiKey, 'POST', null, $sourceId, $label, $tests);
+    }
+
     private function makeFileSourceFileRequest(
         ?string $apiKey,
         string $method,
@@ -443,6 +455,59 @@ readonly class Client
         return $this->client->makeRequest(
             $method,
             $this->router->generate($route, ['sourceId' => $sourceId]),
+            $headers,
+            http_build_query($payload)
+        );
+    }
+
+    /**
+     * @param 'DELETE'|'GET'|'POST'|'PUT' $method
+     * @param non-empty-string[]          $tests
+     */
+    private function makeSuiteRequest(
+        ?string $apiKey,
+        string $method,
+        ?string $suiteId,
+        ?string $sourceId = null,
+        ?string $label = null,
+        ?array $tests = null,
+    ): ResponseInterface {
+        $headers = [];
+        if (is_string($apiKey)) {
+            $headers['Authorization'] = 'Bearer ' . $apiKey;
+        }
+
+        $payload = [];
+        if (is_string($sourceId)) {
+            $payload['sourceId'] = $sourceId;
+        }
+
+        if (is_string($label)) {
+            $payload['label'] = $label;
+        }
+
+        if (is_array($tests)) {
+            $payload['tests'] = $tests;
+        }
+
+        if (('POST' === $method || 'PUT' === $method) && [] !== $payload) {
+            $headers['Content-Type'] = 'application/x-www-form-urlencoded';
+        }
+
+        $route = 'suite_read';
+        if ('POST' === $method) {
+            $route = 'suite_create';
+        }
+        if ('PUT' === $method) {
+            $route = 'suite_update';
+        }
+        if ('DELETE' === $method) {
+            $route = 'suite_delete';
+        }
+
+        return $this->client->makeRequest(
+            $method,
+            $this->router->generate($route, ['suiteId' => $suiteId]),
             $headers,
             http_build_query($payload)
         );

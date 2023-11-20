@@ -91,3 +91,8 @@ services:
 
     SmartAssert\SourcesClient\SourceClientInterface:
         class: SmartAssert\SourcesClient\SourceClient
+
+    SmartAssert\SourcesClient\SuiteFactory: ~
+
+    SmartAssert\SourcesClient\SuiteClientInterface:
+        class: SmartAssert\SourcesClient\SuiteClient
