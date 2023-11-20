@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Application\GitSource;
 
 use App\Tests\Application\AbstractApplicationTestCase;
+use App\Tests\Application\CreateSourceTrait;
 use App\Tests\Application\UnauthorizedUserDataProviderTrait;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 use Symfony\Component\Uid\Ulid;
@@ -14,6 +15,7 @@ abstract class AbstractDeleteTest extends AbstractApplicationTestCase
     use UnauthorizedUserDataProviderTrait;
     use CreateGitSourceDataProviderTrait;
     use AssertGitSourceTrait;
+    use CreateSourceTrait;
 
     /**
      * @dataProvider unauthorizedUserDataProvider
@@ -45,23 +47,13 @@ abstract class AbstractDeleteTest extends AbstractApplicationTestCase
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $createResponse = $this->applicationClient->makeCreateGitSourceRequest(
+        $id = $this->createGitSource(
             $apiKey->key,
             $label,
             $hostUrl,
             $path,
             $credentials
         );
-        self::assertSame(200, $createResponse->getStatusCode());
-
-        $createResponseData = json_decode($createResponse->getBody()->getContents(), true);
-        \assert(is_array($createResponseData));
-
-        $createdSourceData = $createResponseData['git_source'];
-        \assert(is_array($createdSourceData));
-
-        $id = $createdSourceData['id'] ?? null;
-        \assert(is_string($id) && '' !== $id);
 
         $getResponse = $this->applicationClient->makeReadGitSourceRequest($apiKey->key, $id);
         self::assertSame(200, $getResponse->getStatusCode());

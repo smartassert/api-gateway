@@ -6,6 +6,7 @@ namespace App\Tests\Application\GitSource;
 
 use App\Tests\Application\AbstractApplicationTestCase;
 use App\Tests\Application\AssertBadRequestTrait;
+use App\Tests\Application\CreateSourceTrait;
 use App\Tests\Application\UnauthorizedUserDataProviderTrait;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 use Symfony\Component\Uid\Ulid;
@@ -17,6 +18,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
     use CreateUpdateGitSourceBadRequestDataProviderTrait;
     use AssertGitSourceTrait;
     use AssertBadRequestTrait;
+    use CreateSourceTrait;
 
     /**
      * @dataProvider unauthorizedUserDataProvider
@@ -52,23 +54,13 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $createResponse = $this->applicationClient->makeCreateGitSourceRequest(
+        $id = $this->createGitSource(
             $apiKey->key,
             md5((string) rand()),
             md5((string) rand()),
             md5((string) rand()),
             null
         );
-        self::assertSame(200, $createResponse->getStatusCode());
-
-        $createResponseData = json_decode($createResponse->getBody()->getContents(), true);
-        \assert(is_array($createResponseData));
-
-        $createdSourceData = $createResponseData['git_source'];
-        \assert(is_array($createdSourceData));
-
-        $id = $createdSourceData['id'] ?? null;
-        \assert(is_string($id) && '' !== $id);
 
         $updateResponse = $this->applicationClient->makeUpdateGitSourceRequest(
             $apiKey->key,
@@ -98,23 +90,13 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $createResponse = $this->applicationClient->makeCreateGitSourceRequest(
+        $id = $this->createGitSource(
             $apiKey->key,
             $label,
             $hostUrl,
             $path,
             $credentials
         );
-        self::assertSame(200, $createResponse->getStatusCode());
-
-        $createResponseData = json_decode($createResponse->getBody()->getContents(), true);
-        \assert(is_array($createResponseData));
-
-        $createdSourceData = $createResponseData['git_source'];
-        \assert(is_array($createdSourceData));
-
-        $id = $createdSourceData['id'] ?? null;
-        \assert(is_string($id) && '' !== $id);
 
         $updateResponse = $this->applicationClient->makeUpdateGitSourceRequest(
             $apiKey->key,

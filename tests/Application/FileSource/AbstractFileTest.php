@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Application\FileSource;
 
 use App\Tests\Application\AbstractApplicationTestCase;
+use App\Tests\Application\CreateSourceTrait;
 use App\Tests\Application\UnauthorizedUserDataProviderTrait;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 use Symfony\Component\Uid\Ulid;
@@ -12,6 +13,7 @@ use Symfony\Component\Uid\Ulid;
 abstract class AbstractFileTest extends AbstractApplicationTestCase
 {
     use UnauthorizedUserDataProviderTrait;
+    use CreateSourceTrait;
 
     /**
      * @dataProvider unauthorizedUserDataProvider
@@ -93,15 +95,7 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
         $apiKey = $apiKeyProvider->get('user@example.com');
 
         $label = md5((string) rand());
-
-        $createFileSourceResponse = $this->applicationClient->makeCreateFileSourceRequest($apiKey->key, $label);
-        $createFileSourceResponseData = json_decode($createFileSourceResponse->getBody()->getContents(), true);
-        \assert(is_array($createFileSourceResponseData));
-
-        $sourceData = $createFileSourceResponseData['file_source'] ?? [];
-        \assert(is_array($sourceData));
-        $sourceId = $sourceData['id'] ?? null;
-        \assert(is_string($sourceId));
+        $sourceId = $this->createFileSource($apiKey->key, $label);
 
         $response = $this->applicationClient->makeReadFileSourceFileRequest(
             $apiKey->key,
@@ -134,15 +128,7 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
         $apiKey = $apiKeyProvider->get('user@example.com');
 
         $label = md5((string) rand());
-
-        $createFileSourceResponse = $this->applicationClient->makeCreateFileSourceRequest($apiKey->key, $label);
-        $createFileSourceResponseData = json_decode($createFileSourceResponse->getBody()->getContents(), true);
-        \assert(is_array($createFileSourceResponseData));
-
-        $sourceData = $createFileSourceResponseData['file_source'] ?? [];
-        \assert(is_array($sourceData));
-        $sourceId = $sourceData['id'] ?? null;
-        \assert(is_string($sourceId));
+        $sourceId = $this->createFileSource($apiKey->key, $label);
 
         $response = $this->applicationClient->makeDeleteFileSourceFileRequest(
             $apiKey->key,
@@ -160,15 +146,7 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
         $apiKey = $apiKeyProvider->get('user@example.com');
 
         $label = md5((string) rand());
-
-        $createFileSourceResponse = $this->applicationClient->makeCreateFileSourceRequest($apiKey->key, $label);
-        $createFileSourceResponseData = json_decode($createFileSourceResponse->getBody()->getContents(), true);
-        \assert(is_array($createFileSourceResponseData));
-
-        $sourceData = $createFileSourceResponseData['file_source'] ?? [];
-        \assert(is_array($sourceData));
-        $sourceId = $sourceData['id'] ?? null;
-        \assert(is_string($sourceId));
+        $sourceId = $this->createFileSource($apiKey->key, $label);
 
         $filename = md5((string) rand()) . '.yaml';
         $content = md5((string) rand());
@@ -204,15 +182,7 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
         $apiKey = $apiKeyProvider->get('user@example.com');
 
         $label = md5((string) rand());
-
-        $createFileSourceResponse = $this->applicationClient->makeCreateFileSourceRequest($apiKey->key, $label);
-        $createFileSourceResponseData = json_decode($createFileSourceResponse->getBody()->getContents(), true);
-        \assert(is_array($createFileSourceResponseData));
-
-        $sourceData = $createFileSourceResponseData['file_source'] ?? [];
-        \assert(is_array($sourceData));
-        $sourceId = $sourceData['id'] ?? null;
-        \assert(is_string($sourceId));
+        $sourceId = $this->createFileSource($apiKey->key, $label);
 
         $filename = md5((string) rand()) . '.yaml';
         $content = md5((string) rand());

@@ -6,6 +6,7 @@ namespace App\Tests\Application\FileSource;
 
 use App\Tests\Application\AbstractApplicationTestCase;
 use App\Tests\Application\AssertBadRequestTrait;
+use App\Tests\Application\CreateSourceTrait;
 use App\Tests\Application\UnauthorizedUserDataProviderTrait;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 use Symfony\Component\Uid\Ulid;
@@ -15,6 +16,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
     use UnauthorizedUserDataProviderTrait;
     use AssertFileSourceTrait;
     use AssertBadRequestTrait;
+    use CreateSourceTrait;
 
     /**
      * @dataProvider unauthorizedUserDataProvider
@@ -52,18 +54,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         $apiKey = $apiKeyProvider->get('user@example.com');
 
         $label = md5((string) rand());
-
-        $createResponse = $this->applicationClient->makeCreateFileSourceRequest($apiKey->key, $label);
-        self::assertSame(200, $createResponse->getStatusCode());
-
-        $createResponseData = json_decode($createResponse->getBody()->getContents(), true);
-        \assert(is_array($createResponseData));
-
-        $createdSourceData = $createResponseData['file_source'];
-        \assert(is_array($createdSourceData));
-
-        $id = $createdSourceData['id'] ?? null;
-        \assert(is_string($id) && '' !== $id);
+        $id = $this->createFileSource($apiKey->key, $label);
 
         $getResponse = $this->applicationClient->makeReadFileSourceRequest($apiKey->key, $id);
         self::assertSame(200, $getResponse->getStatusCode());
@@ -95,18 +86,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         $apiKey = $apiKeyProvider->get('user@example.com');
 
         $label = md5((string) rand());
-
-        $createResponse = $this->applicationClient->makeCreateFileSourceRequest($apiKey->key, $label);
-        self::assertSame(200, $createResponse->getStatusCode());
-
-        $createResponseData = json_decode($createResponse->getBody()->getContents(), true);
-        \assert(is_array($createResponseData));
-
-        $createdSourceData = $createResponseData['file_source'];
-        \assert(is_array($createdSourceData));
-
-        $id = $createdSourceData['id'] ?? null;
-        \assert(is_string($id) && '' !== $id);
+        $id = $this->createFileSource($apiKey->key, $label);
 
         $response = $this->applicationClient->makeUpdateFileSourceRequest($apiKey->key, $id, null);
 
@@ -120,18 +100,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         $apiKey = $apiKeyProvider->get('user@example.com');
 
         $label = md5((string) rand());
-
-        $createResponse = $this->applicationClient->makeCreateFileSourceRequest($apiKey->key, $label);
-        self::assertSame(200, $createResponse->getStatusCode());
-
-        $createResponseData = json_decode($createResponse->getBody()->getContents(), true);
-        \assert(is_array($createResponseData));
-
-        $createdSourceData = $createResponseData['file_source'];
-        \assert(is_array($createdSourceData));
-
-        $id = $createdSourceData['id'] ?? null;
-        \assert(is_string($id) && '' !== $id);
+        $id = $this->createFileSource($apiKey->key, $label);
 
         $newLabel = md5((string) rand());
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Application\FileSource;
 
 use App\Tests\Application\AbstractApplicationTestCase;
+use App\Tests\Application\CreateSourceTrait;
 use App\Tests\Application\UnauthorizedUserDataProviderTrait;
 use Psr\Http\Message\ResponseInterface;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
@@ -14,6 +15,7 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
 {
     use UnauthorizedUserDataProviderTrait;
     use AssertFileSourceTrait;
+    use CreateSourceTrait;
 
     /**
      * @dataProvider unauthorizedUserDataProvider
@@ -43,18 +45,7 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
         $apiKey = $apiKeyProvider->get('user@example.com');
 
         $label = md5((string) rand());
-
-        $createResponse = $this->applicationClient->makeCreateFileSourceRequest($apiKey->key, $label);
-        self::assertSame(200, $createResponse->getStatusCode());
-
-        $createResponseData = json_decode($createResponse->getBody()->getContents(), true);
-        \assert(is_array($createResponseData));
-
-        $createdSourceData = $createResponseData['file_source'];
-        \assert(is_array($createdSourceData));
-
-        $id = $createdSourceData['id'] ?? null;
-        \assert(is_string($id) && '' !== $id);
+        $id = $this->createFileSource($apiKey->key, $label);
 
         $listResponse = $this->applicationClient->makeFileSourceFilesRequest($apiKey->key, $id);
         $this->assertListResponse($listResponse, []);
