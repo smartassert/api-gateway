@@ -12,6 +12,7 @@ use App\Tests\Functional\GetClientAdapterTrait;
 use SmartAssert\SourcesClient\SuiteClientInterface;
 use SmartAssert\UsersClient\ClientInterface as UsersClient;
 use SmartAssert\UsersClient\Model\Token;
+use Symfony\Component\Uid\Ulid;
 
 class SuiteControllerTest extends AbstractApplicationTestCase
 {
@@ -54,6 +55,41 @@ class SuiteControllerTest extends AbstractApplicationTestCase
         self::getContainer()->set(SuiteClientInterface::class, $suiteClient);
 
         $response = $this->applicationClient->makeCreateSuiteRequest($apiKey, $sourceId, $label, $tests);
+        $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
+    }
+
+    /**
+     * @dataProvider sourcesClientExceptionDataProvider
+     *
+     * @param array<mixed> $expectedData
+     */
+    public function testGetHandlesException(
+        \Exception $exception,
+        int $expectedStatusCode,
+        array $expectedData
+    ): void {
+        $apiKey = md5((string) rand());
+        $apiToken = md5((string) rand());
+        $suiteId = (string) new Ulid();
+
+        $usersClient = \Mockery::mock(UsersClient::class);
+        $usersClient
+            ->shouldReceive('createApiToken')
+            ->with($apiKey)
+            ->andReturn(new Token($apiToken))
+        ;
+
+        $suiteClient = \Mockery::mock(SuiteClientInterface::class);
+        $suiteClient
+            ->shouldReceive('get')
+            ->with($apiToken, $suiteId)
+            ->andThrow($exception)
+        ;
+
+        self::getContainer()->set(UsersClient::class, $usersClient);
+        self::getContainer()->set(SuiteClientInterface::class, $suiteClient);
+
+        $response = $this->applicationClient->makeGetSuiteRequest($apiKey, $suiteId);
         $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
     }
 

@@ -61,4 +61,30 @@ readonly class SuiteController
             throw new ServiceException('sources', $e);
         }
     }
+
+    /**
+     * @param non-empty-string $suiteId
+     *
+     * @throws ServiceException
+     * @throws UnauthorizedException
+     */
+    #[Route(path: '/{suiteId<[A-Z90-9]{26}>}', name: 'read', methods: ['GET'])]
+    public function get(ApiToken $token, string $suiteId): Response
+    {
+        try {
+            $suite = $this->client->get($token->token, $suiteId);
+
+            return new JsonResponse([
+                'suite' => $suite->toArray(),
+            ]);
+        } catch (
+            ClientExceptionInterface |
+            HttpResponseExceptionInterface |
+            InvalidModelDataException |
+            InvalidResponseDataException |
+            InvalidResponseTypeException $e
+        ) {
+            throw new ServiceException('sources', $e);
+        }
+    }
 }

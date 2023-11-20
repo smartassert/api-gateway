@@ -7,74 +7,46 @@ namespace App\Tests\Application\Suite;
 use App\Tests\Application\AbstractApplicationTestCase;
 use App\Tests\Application\AssertBadRequestTrait;
 use App\Tests\Application\CreateSourceTrait;
+use App\Tests\Application\CreateSuiteTrait;
 use App\Tests\Application\UnauthorizedUserDataProviderTrait;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 use Symfony\Component\Uid\Ulid;
 
-abstract class AbstractCreateTest extends AbstractApplicationTestCase
+abstract class AbstractGetTest extends AbstractApplicationTestCase
 {
     use UnauthorizedUserDataProviderTrait;
     use AssertBadRequestTrait;
     use AssertSuiteTrait;
     use CreateSourceTrait;
+    use CreateSuiteTrait;
     use CreateSuiteDataProviderTrait;
 
     /**
      * @dataProvider unauthorizedUserDataProvider
      */
-    public function testCreateUnauthorizedUser(?string $token): void
+    public function testGetUnauthorizedUser(?string $token): void
     {
-        $response = $this->applicationClient->makeCreateSuiteRequest(
-            $token,
-            md5((string) rand()),
-            md5((string) rand()),
-            []
-        );
+        $id = (string) new Ulid();
+        $response = $this->applicationClient->makeGetSuiteRequest($token, $id);
 
         self::assertSame(401, $response->getStatusCode());
     }
 
-    public function testCreateSourceNotFound(): void
+    public function testGetNotFound(): void
     {
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $sourceId = (string) new Ulid();
-        \assert('' !== $sourceId);
+        $suiteId = (string) new Ulid();
+        \assert('' !== $suiteId);
 
         $label = md5((string) rand());
         $tests = [];
 
-        $response = $this->applicationClient->makeCreateSuiteRequest(
-            $apiKey->key,
-            $sourceId,
-            $label,
-            $tests,
-        );
+        $response = $this->applicationClient->makeGetSuiteRequest($apiKey->key, $suiteId);
 
         self::assertSame(404, $response->getStatusCode());
-    }
-
-    public function testCreateBadRequest(): void
-    {
-        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
-        \assert($apiKeyProvider instanceof ApiKeyProvider);
-        $apiKey = $apiKeyProvider->get('user@example.com');
-
-        $sourceId = $this->createFileSource($apiKey->key, md5((string) rand()));
-
-        $label = '';
-        $tests = [];
-
-        $response = $this->applicationClient->makeCreateSuiteRequest(
-            $apiKey->key,
-            $sourceId,
-            $label,
-            $tests,
-        );
-
-        $this->assertBadRequest($response, 'sources', 'label');
     }
 
     /**
@@ -82,14 +54,16 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
      *
      * @param non-empty-string[] $tests
      */
-    public function testCreateSuccess(string $label, array $tests): void
+    public function testGetSuccess(string $label, array $tests): void
     {
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
         $sourceId = $this->createFileSource($apiKey->key, md5((string) rand()));
-        $response = $this->applicationClient->makeCreateSuiteRequest($apiKey->key, $sourceId, $label, $tests);
+        $suiteId = $this->createSuite($apiKey->key, $sourceId, $label, $tests);
+
+        $response = $this->applicationClient->makeGetSuiteRequest($apiKey->key, $suiteId);
 
         $this->assertRetrievedSuite($response, $sourceId, $label, $tests);
     }

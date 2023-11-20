@@ -313,7 +313,7 @@ readonly class Client
     }
 
     /**
-     * @param ?non-empty-string[] $tests
+     * @param string[] $tests
      */
     public function makeCreateSuiteRequest(
         ?string $apiKey,
@@ -322,6 +322,11 @@ readonly class Client
         ?array $tests,
     ): ResponseInterface {
         return $this->makeSuiteRequest($apiKey, 'POST', null, $sourceId, $label, $tests);
+    }
+
+    public function makeGetSuiteRequest(?string $apiKey, string $suiteId): ResponseInterface
+    {
+        return $this->makeSuiteRequest($apiKey, 'GET', $suiteId);
     }
 
     private function makeFileSourceFileRequest(
@@ -462,7 +467,7 @@ readonly class Client
 
     /**
      * @param 'DELETE'|'GET'|'POST'|'PUT' $method
-     * @param non-empty-string[]          $tests
+     * @param string[]                    $tests
      */
     private function makeSuiteRequest(
         ?string $apiKey,
