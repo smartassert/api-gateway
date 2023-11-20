@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Application\Source;
 
 use App\Tests\Application\AbstractApplicationTestCase;
+use App\Tests\Application\CreateSourceTrait;
 use App\Tests\Application\FileSource\AssertFileSourceTrait;
 use App\Tests\Application\UnauthorizedUserDataProviderTrait;
 use App\Tests\Services\DataRepository;
@@ -15,6 +16,7 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
 {
     use UnauthorizedUserDataProviderTrait;
     use AssertFileSourceTrait;
+    use CreateSourceTrait;
 
     /**
      * @dataProvider unauthorizedUserDataProvider
@@ -75,14 +77,13 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
         $gitSource1HostUrl = md5((string) rand());
         $gitSource1Path = md5((string) rand());
 
-        $gitSource1Response = $this->applicationClient->makeCreateGitSourceRequest(
+        $gitSource1Id = $this->createGitSource(
             $apiKey->key,
             $gitSource1Label,
             $gitSource1HostUrl,
             $gitSource1Path,
             null,
         );
-        $gitSource1Id = $this->extractSourceIdFromResponse($gitSource1Response);
 
         $listResponse = $this->applicationClient->makeListSourcesRequest($apiKey->key);
         $this->assertListResponse($listResponse, [
@@ -110,14 +111,13 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
         $gitSource2HostUrl = md5((string) rand());
         $gitSource2Path = md5((string) rand());
 
-        $gitSource2Response = $this->applicationClient->makeCreateGitSourceRequest(
+        $gitSource2Id = $this->createGitSource(
             $apiKey->key,
             $gitSource2Label,
             $gitSource2HostUrl,
             $gitSource2Path,
             md5((string) rand()),
         );
-        $gitSource2Id = $this->extractSourceIdFromResponse($gitSource2Response);
 
         $listResponse = $this->applicationClient->makeListSourcesRequest($apiKey->key);
         $this->assertListResponse($listResponse, [
