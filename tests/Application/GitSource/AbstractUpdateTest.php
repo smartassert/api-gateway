@@ -6,11 +6,13 @@ namespace App\Tests\Application\GitSource;
 
 use App\Tests\Application\AbstractApplicationTestCase;
 use App\Tests\Application\AssertBadRequestTrait;
+use App\Tests\Application\UnauthorizedUserDataProviderTrait;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 use Symfony\Component\Uid\Ulid;
 
 abstract class AbstractUpdateTest extends AbstractApplicationTestCase
 {
+    use UnauthorizedUserDataProviderTrait;
     use CreateGitSourceDataProviderTrait;
     use CreateUpdateGitSourceBadRequestDataProviderTrait;
     use AssertGitSourceTrait;
@@ -24,24 +26,6 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         $response = $this->applicationClient->makeUpdateGitSourceRequest($token, (string) new Ulid());
 
         self::assertSame(401, $response->getStatusCode());
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    public function unauthorizedUserDataProvider(): array
-    {
-        return [
-            'no token' => [
-                'token' => null,
-            ],
-            'empty token' => [
-                'token' => '',
-            ],
-            'non-empty invalid token' => [
-                'token' => md5((string) rand()),
-            ],
-        ];
     }
 
     public function testUpdateNotFound(): void

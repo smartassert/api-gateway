@@ -6,10 +6,12 @@ namespace App\Tests\Application\GitSource;
 
 use App\Tests\Application\AbstractApplicationTestCase;
 use App\Tests\Application\AssertBadRequestTrait;
+use App\Tests\Application\UnauthorizedUserDataProviderTrait;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 
 abstract class AbstractCreateTest extends AbstractApplicationTestCase
 {
+    use UnauthorizedUserDataProviderTrait;
     use CreateGitSourceDataProviderTrait;
     use CreateUpdateGitSourceBadRequestDataProviderTrait;
     use AssertGitSourceTrait;
@@ -29,24 +31,6 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
         );
 
         self::assertSame(401, $response->getStatusCode());
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    public function unauthorizedUserDataProvider(): array
-    {
-        return [
-            'no token' => [
-                'token' => null,
-            ],
-            'empty token' => [
-                'token' => '',
-            ],
-            'non-empty invalid token' => [
-                'token' => md5((string) rand()),
-            ],
-        ];
     }
 
     /**

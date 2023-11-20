@@ -6,10 +6,12 @@ namespace App\Tests\Application\FileSource;
 
 use App\Tests\Application\AbstractApplicationTestCase;
 use App\Tests\Application\AssertBadRequestTrait;
+use App\Tests\Application\UnauthorizedUserDataProviderTrait;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 
 abstract class AbstractCreateTest extends AbstractApplicationTestCase
 {
+    use UnauthorizedUserDataProviderTrait;
     use AssertFileSourceTrait;
     use AssertBadRequestTrait;
 
@@ -21,24 +23,6 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
         $response = $this->applicationClient->makeCreateFileSourceRequest($token, md5((string) rand()));
 
         self::assertSame(401, $response->getStatusCode());
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    public function unauthorizedUserDataProvider(): array
-    {
-        return [
-            'no token' => [
-                'token' => null,
-            ],
-            'empty token' => [
-                'token' => '',
-            ],
-            'non-empty invalid token' => [
-                'token' => md5((string) rand()),
-            ],
-        ];
     }
 
     public function testCreateBadRequest(): void

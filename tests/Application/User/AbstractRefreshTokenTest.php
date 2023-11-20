@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace App\Tests\Application\User;
 
 use App\Tests\Application\AbstractApplicationTestCase;
+use App\Tests\Application\UnauthorizedUserDataProviderTrait;
 use SmartAssert\TestAuthenticationProviderBundle\FrontendTokenProvider;
 
 abstract class AbstractRefreshTokenTest extends AbstractApplicationTestCase
 {
+    use UnauthorizedUserDataProviderTrait;
+
     /**
      * @dataProvider refreshBadMethodDataProvider
      */
@@ -45,24 +48,6 @@ abstract class AbstractRefreshTokenTest extends AbstractApplicationTestCase
         $response = $this->applicationClient->makeRefreshUserTokenRequest($refreshToken);
 
         self::assertSame(401, $response->getStatusCode());
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    public function unauthorizedUserDataProvider(): array
-    {
-        return [
-            'no refresh token' => [
-                'refreshToken' => null,
-            ],
-            ' empty refresh token' => [
-                'refreshToken' => '',
-            ],
-            'non-empty invalid refresh token' => [
-                'refreshToken' => md5((string) rand()),
-            ],
-        ];
     }
 
     public function testRefreshSuccess(): void

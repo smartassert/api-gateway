@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace App\Tests\Application\User;
 
 use App\Tests\Application\AbstractApplicationTestCase;
+use App\Tests\Application\UnauthorizedUserDataProviderTrait;
 use SmartAssert\TestAuthenticationProviderBundle\FrontendTokenProvider;
 use SmartAssert\TestAuthenticationProviderBundle\UserProvider;
 
 abstract class AbstractRevokeAllRefreshTokensTest extends AbstractApplicationTestCase
 {
+    use UnauthorizedUserDataProviderTrait;
+
     /**
      * @dataProvider badMethodDataProvider
      */
@@ -53,24 +56,6 @@ abstract class AbstractRevokeAllRefreshTokensTest extends AbstractApplicationTes
         );
 
         self::assertSame(401, $response->getStatusCode());
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    public function unauthorizedUserDataProvider(): array
-    {
-        return [
-            'no admin token' => [
-                'adminToken' => null,
-            ],
-            'empty admin token' => [
-                'adminToken' => '',
-            ],
-            'invalid admin token' => [
-                'adminToken' => md5((string) rand()),
-            ],
-        ];
     }
 
     public function testRevokeRefreshTokenInvalidUserId(): void
