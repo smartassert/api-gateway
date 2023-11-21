@@ -41,4 +41,41 @@ trait AssertSuiteTrait
             $objectData
         );
     }
+
+    /**
+     * @param non-empty-string[] $expectedTests
+     */
+    public function assertDeletedSuite(
+        ResponseInterface $response,
+        string $expectedSourceId,
+        string $expectedLabel,
+        array $expectedTests,
+        ?string $expectedId = null,
+    ): void {
+        Assert::assertSame(200, $response->getStatusCode());
+        Assert::assertSame('application/json', $response->getHeaderLine('content-type'));
+
+        $responseData = json_decode($response->getBody()->getContents(), true);
+        Assert::assertIsArray($responseData);
+        Assert::assertArrayHasKey('suite', $responseData);
+
+        $objectData = $responseData['suite'];
+        Assert::assertIsArray($objectData);
+
+        $expectedId = is_string($expectedId) ? $expectedId : $objectData['id'];
+
+        $deletedAt = $objectData['deleted_at'] ?? null;
+        Assert::assertIsInt($deletedAt);
+
+        Assert::assertSame(
+            [
+                'id' => $expectedId,
+                'source_id' => $expectedSourceId,
+                'label' => $expectedLabel,
+                'tests' => $expectedTests,
+                'deleted_at' => $deletedAt,
+            ],
+            $objectData
+        );
+    }
 }

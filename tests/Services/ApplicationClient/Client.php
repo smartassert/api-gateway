@@ -342,6 +342,11 @@ readonly class Client
         return $this->makeSuiteRequest($apiKey, 'PUT', $suiteId, $sourceId, $label, $tests);
     }
 
+    public function makeDeleteSuiteRequest(?string $apiKey, string $suiteId): ResponseInterface
+    {
+        return $this->makeSuiteRequest($apiKey, 'DELETE', $suiteId);
+    }
+
     private function makeFileSourceFileRequest(
         ?string $apiKey,
         string $method,

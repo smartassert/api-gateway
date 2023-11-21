@@ -132,6 +132,41 @@ class SuiteControllerTest extends AbstractApplicationTestCase
     }
 
     /**
+     * @dataProvider sourcesClientExceptionDataProvider
+     *
+     * @param array<mixed> $expectedData
+     */
+    public function testDeleteHandlesException(
+        \Exception $exception,
+        int $expectedStatusCode,
+        array $expectedData
+    ): void {
+        $apiKey = md5((string) rand());
+        $apiToken = md5((string) rand());
+        $suiteId = (string) new Ulid();
+
+        $usersClient = \Mockery::mock(UsersClient::class);
+        $usersClient
+            ->shouldReceive('createApiToken')
+            ->with($apiKey)
+            ->andReturn(new Token($apiToken))
+        ;
+
+        $suiteClient = \Mockery::mock(SuiteClientInterface::class);
+        $suiteClient
+            ->shouldReceive('delete')
+            ->with($apiToken, $suiteId)
+            ->andThrow($exception)
+        ;
+
+        self::getContainer()->set(UsersClient::class, $usersClient);
+        self::getContainer()->set(SuiteClientInterface::class, $suiteClient);
+
+        $response = $this->applicationClient->makeDeleteSuiteRequest($apiKey, $suiteId);
+        $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
+    }
+
+    /**
      * @return array<mixed>
      */
     public function sourcesClientExceptionDataProvider(): array
