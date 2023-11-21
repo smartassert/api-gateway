@@ -342,6 +342,20 @@ readonly class Client
         return $this->makeSuiteRequest($apiKey, 'PUT', $suiteId, $sourceId, $label, $tests);
     }
 
+    public function makeListSuitesRequest(?string $apiKey): ResponseInterface
+    {
+        $headers = [];
+        if (is_string($apiKey)) {
+            $headers['Authorization'] = 'Bearer ' . $apiKey;
+        }
+
+        return $this->client->makeRequest(
+            'GET',
+            $this->router->generate('suite_list'),
+            $headers
+        );
+    }
+
     public function makeDeleteSuiteRequest(?string $apiKey, string $suiteId): ResponseInterface
     {
         return $this->makeSuiteRequest($apiKey, 'DELETE', $suiteId);
