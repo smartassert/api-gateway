@@ -116,6 +116,32 @@ readonly class SuiteController
     }
 
     /**
+     * @param non-empty-string $suiteId
+     *
+     * @throws ServiceException
+     * @throws UnauthorizedException
+     */
+    #[Route(path: '/{suiteId<[A-Z90-9]{26}>}', name: 'delete', methods: ['DELETE'])]
+    public function delete(ApiToken $token, string $suiteId): Response
+    {
+        try {
+            $suite = $this->client->delete($token->token, $suiteId);
+
+            return new JsonResponse([
+                'suite' => $suite->toArray(),
+            ]);
+        } catch (
+            ClientExceptionInterface |
+            HttpResponseExceptionInterface |
+            InvalidModelDataException |
+            InvalidResponseDataException |
+            InvalidResponseTypeException $e
+        ) {
+            throw new ServiceException('sources', $e);
+        }
+    }
+
+    /**
      * @return non-empty-string[]
      */
     private function getTests(Request $request): array
