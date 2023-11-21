@@ -167,6 +167,40 @@ class SuiteControllerTest extends AbstractApplicationTestCase
     }
 
     /**
+     * @dataProvider sourcesClientExceptionDataProvider
+     *
+     * @param array<mixed> $expectedData
+     */
+    public function testListHandlesException(
+        \Exception $exception,
+        int $expectedStatusCode,
+        array $expectedData
+    ): void {
+        $apiKey = md5((string) rand());
+        $apiToken = md5((string) rand());
+
+        $usersClient = \Mockery::mock(UsersClient::class);
+        $usersClient
+            ->shouldReceive('createApiToken')
+            ->with($apiKey)
+            ->andReturn(new Token($apiToken))
+        ;
+
+        $suiteClient = \Mockery::mock(SuiteClientInterface::class);
+        $suiteClient
+            ->shouldReceive('list')
+            ->with($apiToken)
+            ->andThrow($exception)
+        ;
+
+        self::getContainer()->set(UsersClient::class, $usersClient);
+        self::getContainer()->set(SuiteClientInterface::class, $suiteClient);
+
+        $response = $this->applicationClient->makeListSuitesRequest($apiKey);
+        $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
+    }
+
+    /**
      * @return array<mixed>
      */
     public function sourcesClientExceptionDataProvider(): array

@@ -12,6 +12,7 @@ use SmartAssert\ServiceClient\Exception\InvalidModelDataException;
 use SmartAssert\ServiceClient\Exception\InvalidResponseDataException;
 use SmartAssert\ServiceClient\Exception\InvalidResponseTypeException;
 use SmartAssert\ServiceClient\Exception\UnauthorizedException;
+use SmartAssert\ServiceClient\SerializableInterface;
 use SmartAssert\SourcesClient\Exception\ModifyReadOnlyEntityException;
 use SmartAssert\SourcesClient\SuiteClientInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -139,6 +140,37 @@ readonly class SuiteController
         ) {
             throw new ServiceException('sources', $e);
         }
+    }
+
+    /**
+     * @throws ServiceException
+     * @throws UnauthorizedException
+     */
+    #[Route(path: 's', name: 'list', methods: ['GET'])]
+    public function list(ApiToken $token): Response
+    {
+        try {
+            $suites = $this->client->list($token->token);
+        } catch (
+            ClientExceptionInterface |
+            HttpResponseExceptionInterface |
+            InvalidModelDataException |
+            InvalidResponseDataException |
+            InvalidResponseTypeException $e
+        ) {
+            throw new ServiceException('sources', $e);
+        }
+
+        $serializedSuites = [];
+        foreach ($suites as $suite) {
+            if ($suite instanceof SerializableInterface) {
+                $serializedSuites[] = $suite->toArray();
+            }
+        }
+
+        return new JsonResponse([
+            'suites' => $serializedSuites,
+        ]);
     }
 
     /**
