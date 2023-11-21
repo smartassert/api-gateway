@@ -85,6 +85,27 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         $this->assertBadRequest($updateResponse, 'sources', 'label');
     }
 
+    public function testUpdateDeletedSuite(): void
+    {
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
+
+        $sourceId = $this->createFileSource($apiKey->key, md5((string) rand()));
+        $suiteId = $this->createSuite($apiKey->key, $sourceId, md5((string) rand()), []);
+        $this->applicationClient->makeDeleteSuiteRequest($apiKey->key, $suiteId);
+
+        $updateResponse = $this->applicationClient->makeUpdateSuiteRequest(
+            $apiKey->key,
+            $suiteId,
+            $sourceId,
+            md5((string) rand()),
+            [],
+        );
+
+        self::assertSame(405, $updateResponse->getStatusCode());
+    }
+
     /**
      * @dataProvider updateSuiteDataProvider
      *
