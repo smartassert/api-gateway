@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\DataProvider;
 
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamInterface;
 use SmartAssert\ServiceClient\Exception\InvalidResponseDataException;
 use SmartAssert\ServiceClient\Exception\InvalidResponseTypeException;
 use SmartAssert\ServiceClient\Response\JsonResponse as ServiceClientJsonResponse;
@@ -17,7 +18,6 @@ trait InvalidResponseModelDataProviderCreatorTrait
      */
     public function invalidResponseModelDataProviderCreator(string $serviceName): array
     {
-        $exceptionMessage = md5((string) rand());
         $exceptionCode = rand();
 
         return [
@@ -32,9 +32,15 @@ trait InvalidResponseModelDataProviderCreatorTrait
                             ->andReturn($exceptionCode)
                         ;
 
+                        $body = \Mockery::mock(StreamInterface::class);
+                        $body
+                            ->shouldReceive('getContents')
+                            ->andReturn(json_encode(true))
+                        ;
+
                         $response
                             ->shouldReceive('getBody')
-                            ->andReturn(json_encode(true))
+                            ->andReturn($body)
                         ;
 
                         return $response;

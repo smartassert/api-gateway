@@ -7,10 +7,11 @@ namespace App\Tests\DataProvider;
 use App\Tests\Exception\Http\ClientException;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ResponseInterface as HttpResponseInterface;
 use SmartAssert\ServiceClient\Exception\CurlException;
 use SmartAssert\ServiceClient\Exception\CurlExceptionInterface;
 use SmartAssert\ServiceClient\Exception\NonSuccessResponseException;
+use SmartAssert\ServiceClient\Response\ResponseInterface;
 
 trait ServiceHttpFailureDataProviderCreatorTrait
 {
@@ -61,6 +62,17 @@ trait ServiceHttpFailureDataProviderCreatorTrait
             NonSuccessResponseException::class . ' 404' => [
                 'exception' => new NonSuccessResponseException(
                     (function () {
+                        $httpResponse = \Mockery::mock(HttpResponseInterface::class);
+                        $httpResponse
+                            ->shouldReceive('getStatusCode')
+                            ->andReturn(404)
+                        ;
+
+                        $httpResponse
+                            ->shouldReceive('getReasonPhrase')
+                            ->andReturn('Not found.')
+                        ;
+
                         $response = \Mockery::mock(ResponseInterface::class);
                         $response
                             ->shouldReceive('getStatusCode')
@@ -68,8 +80,8 @@ trait ServiceHttpFailureDataProviderCreatorTrait
                         ;
 
                         $response
-                            ->shouldReceive('getReasonPhrase')
-                            ->andReturn('Not found.')
+                            ->shouldReceive('getHttpResponse')
+                            ->andReturn($httpResponse)
                         ;
 
                         return $response;
@@ -83,6 +95,17 @@ trait ServiceHttpFailureDataProviderCreatorTrait
             NonSuccessResponseException::class . ' 405' => [
                 'exception' => new NonSuccessResponseException(
                     (function () {
+                        $httpResponse = \Mockery::mock(HttpResponseInterface::class);
+                        $httpResponse
+                            ->shouldReceive('getStatusCode')
+                            ->andReturn(405)
+                        ;
+
+                        $httpResponse
+                            ->shouldReceive('getReasonPhrase')
+                            ->andReturn('Method not allowed.')
+                        ;
+
                         $response = \Mockery::mock(ResponseInterface::class);
                         $response
                             ->shouldReceive('getStatusCode')
@@ -90,8 +113,8 @@ trait ServiceHttpFailureDataProviderCreatorTrait
                         ;
 
                         $response
-                            ->shouldReceive('getReasonPhrase')
-                            ->andReturn('Method not allowed.')
+                            ->shouldReceive('getHttpResponse')
+                            ->andReturn($httpResponse)
                         ;
 
                         return $response;
