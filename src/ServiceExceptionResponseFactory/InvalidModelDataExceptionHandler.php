@@ -24,7 +24,7 @@ class InvalidModelDataExceptionHandler implements HandlerInterface
             500,
             [
                 'service' => $serviceException->serviceName,
-                'data' => $previous->getResponse()->getBody(),
+                'data' => $previous->getPayload(),
             ],
         );
     }

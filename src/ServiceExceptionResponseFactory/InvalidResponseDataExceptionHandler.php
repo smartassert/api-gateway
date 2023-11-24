@@ -24,7 +24,7 @@ class InvalidResponseDataExceptionHandler implements HandlerInterface
             500,
             [
                 'service' => $serviceException->serviceName,
-                'data' => $previous->getResponse()->getBody(),
+                'data' => $previous->getHttpResponse()->getBody()->getContents(),
                 'data-type' => [
                     'expected' => $previous->expected,
                     'actual' => $previous->actual,
