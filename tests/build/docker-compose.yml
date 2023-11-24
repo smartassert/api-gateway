@@ -2,14 +2,12 @@ services:
   postgres:
     env_file: .env
     image: postgres:12.5-alpine
-    profiles: ["functional"]
     container_name: postgres
     ports:
       - "5432:5432"
 
   users-service:
     image: ghcr.io/smartassert/users:3.1
-    profiles: ["functional"]
     container_name: users-service
     environment:
       DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/users?serverVersion=12&charset=utf8
@@ -22,7 +20,6 @@ services:
 
   users-http:
     image: caddy:2.4.5-alpine
-    profiles: ["functional"]
     container_name: users-http
     restart: unless-stopped
     ports:
@@ -35,7 +32,6 @@ services:
 
   s3-mock:
     image: adobe/s3mock:2.4.14
-    profiles: ["functional"]
     container_name: s3-mock
     ports:
       - "9090:9090"
@@ -46,7 +42,6 @@ services:
 
   sources-service:
     image: ghcr.io/smartassert/sources:8.0
-    profiles: ["functional"]
     container_name: sources-service
     environment:
       DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/sources?serverVersion=12&charset=utf8
@@ -59,7 +54,6 @@ services:
 
   sources-http:
     image: caddy:2.4.5-alpine
-    profiles: ["functional"]
     container_name: sources-http
     restart: unless-stopped
     ports:
@@ -71,7 +65,6 @@ services:
       - ./http-config/caddy/Caddyfile:/etc/caddy/Caddyfile
 
   app:
-    profiles: ["integration"]
     build:
       context: ../..
       args:
@@ -85,7 +78,6 @@ services:
 
   app-http:
     image: caddy:2.4.5-alpine
-    profiles: ["integration"]
     container_name: app-http
     restart: unless-stopped
     environment:
