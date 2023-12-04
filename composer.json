@@ -31,7 +31,7 @@
         "phpstan/phpstan-symfony": "^1.3",
         "phpunit/phpunit": "^9.6",
         "smartassert/symfony-test-client": "^1.0",
-        "smartassert/test-authenticaton-provider-bundle": "^2.0",
+        "smartassert/test-authenticaton-provider-bundle": "^3.0",
         "squizlabs/php_codesniffer": "dev-master#7c452b0ff35ab2cf1d0c60965fea3e79f621b2d2",
         "symfony/maker-bundle": "^1.50",
         "symfony/phpunit-bridge": "^6.3",
@@ -100,7 +100,7 @@
         ],
         "users-db-setup": [
             "docker compose -f tests/build/docker-compose.yml exec -T users-service php bin/console doctrine:database:create --if-not-exists",
-            "docker compose -f tests/build/docker-compose.yml exec -T users-service php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration"
+            "docker compose -f tests/build/docker-compose.yml exec -T users-service php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration --all-or-nothing"
         ],
         "users-generate-jwt-keys": "docker compose -f tests/build/docker-compose.yml exec -T users-service php bin/console lexik:jwt:generate-keypair --overwrite --no-interaction",
         "users-create-user": [
