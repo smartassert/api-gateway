@@ -64,6 +64,30 @@ services:
       - ./http-config/caddy/index.php:/app/public/index.php
       - ./http-config/caddy/Caddyfile:/etc/caddy/Caddyfile
 
+  sources-service-9.0:
+    image: ghcr.io/smartassert/sources:9.0
+    container_name: sources-service-9.0
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/sources?serverVersion=12&charset=utf8
+      AUTHENTICATION_BASE_URL: http://users-http
+      REMOTE_STORAGE_ENDPOINT: http://s3-mock:9090
+      REMOTE_STORAGE_KEY_ID: remote_storage_key_id
+      IS_READY: 1
+    depends_on:
+      - postgres
+
+  sources-http-9.0:
+    image: caddy:2.4.5-alpine
+    container_name: sources-http-9.0
+    restart: unless-stopped
+    ports:
+      - "9082:80"
+    links:
+      - sources-service-9.0:app
+    volumes:
+      - ./http-config/caddy/index.php:/app/public/index.php
+      - ./http-config/caddy/Caddyfile:/etc/caddy/Caddyfile
+
   app:
     build:
       context: ../..
