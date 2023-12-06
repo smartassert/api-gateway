@@ -65,7 +65,7 @@ services:
       - ./http-config/caddy/Caddyfile:/etc/caddy/Caddyfile
 
   sources-service-9.0:
-    image: ghcr.io/smartassert/sources:8.0
+    image: ghcr.io/smartassert/sources:9.0
     container_name: sources-service-9.0
     environment:
       DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/sources?serverVersion=12&charset=utf8
