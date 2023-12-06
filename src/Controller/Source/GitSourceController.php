@@ -48,9 +48,7 @@ readonly class GitSourceController
                 $credentials,
             );
 
-            return new JsonResponse([
-                'git_source' => $source->toArray(),
-            ]);
+            return new JsonResponse($source->toArray());
         } catch (
             ClientExceptionInterface |
             HttpResponseExceptionInterface |
@@ -74,9 +72,7 @@ readonly class GitSourceController
         try {
             $source = $this->client->get($token->token, $sourceId);
 
-            return new JsonResponse([
-                'git_source' => $source->toArray(),
-            ]);
+            return new JsonResponse($source->toArray());
         } catch (
             ClientExceptionInterface |
             HttpResponseExceptionInterface |
@@ -112,9 +108,7 @@ readonly class GitSourceController
                 $credentials
             );
 
-            return new JsonResponse([
-                'git_source' => $source->toArray(),
-            ]);
+            return new JsonResponse($source->toArray());
         } catch (
             ClientExceptionInterface |
             HttpResponseExceptionInterface |
@@ -139,9 +133,7 @@ readonly class GitSourceController
         try {
             $source = $this->client->delete($token->token, $sourceId);
 
-            return new JsonResponse([
-                'git_source' => $source->toArray(),
-            ]);
+            return new JsonResponse($source->toArray());
         } catch (
             ClientExceptionInterface |
             HttpResponseExceptionInterface |

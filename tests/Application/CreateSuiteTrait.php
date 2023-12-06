@@ -20,10 +20,7 @@ trait CreateSuiteTrait
         $responseData = json_decode($response->getBody()->getContents(), true);
         \assert(is_array($responseData));
 
-        $sourceData = $responseData['suite'];
-        \assert(is_array($sourceData));
-
-        $id = $sourceData['id'] ?? null;
+        $id = $responseData['id'] ?? null;
         \assert(is_string($id) && '' !== $id);
 
         return $id;

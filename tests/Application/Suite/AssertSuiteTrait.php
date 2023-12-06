@@ -24,12 +24,8 @@ trait AssertSuiteTrait
 
         $responseData = json_decode($response->getBody()->getContents(), true);
         Assert::assertIsArray($responseData);
-        Assert::assertArrayHasKey('suite', $responseData);
 
-        $objectData = $responseData['suite'];
-        Assert::assertIsArray($objectData);
-
-        $expectedId = is_string($expectedId) ? $expectedId : $objectData['id'];
+        $expectedId = is_string($expectedId) ? $expectedId : $responseData['id'];
 
         Assert::assertSame(
             [
@@ -38,7 +34,7 @@ trait AssertSuiteTrait
                 'label' => $expectedLabel,
                 'tests' => $expectedTests,
             ],
-            $objectData
+            $responseData
         );
     }
 
@@ -57,14 +53,9 @@ trait AssertSuiteTrait
 
         $responseData = json_decode($response->getBody()->getContents(), true);
         Assert::assertIsArray($responseData);
-        Assert::assertArrayHasKey('suite', $responseData);
 
-        $objectData = $responseData['suite'];
-        Assert::assertIsArray($objectData);
-
-        $expectedId = is_string($expectedId) ? $expectedId : $objectData['id'];
-
-        $deletedAt = $objectData['deleted_at'] ?? null;
+        $expectedId = is_string($expectedId) ? $expectedId : $responseData['id'];
+        $deletedAt = $responseData['deleted_at'] ?? null;
         Assert::assertIsInt($deletedAt);
 
         Assert::assertSame(
@@ -75,7 +66,7 @@ trait AssertSuiteTrait
                 'tests' => $expectedTests,
                 'deleted_at' => $deletedAt,
             ],
-            $objectData
+            $responseData
         );
     }
 }

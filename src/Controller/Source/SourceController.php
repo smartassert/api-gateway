@@ -50,8 +50,6 @@ readonly class SourceController
             }
         }
 
-        return new JsonResponse([
-            'sources' => $serializedSources,
-        ]);
+        return new JsonResponse($serializedSources);
     }
 }

@@ -19,12 +19,8 @@ trait AssertFileSourceTrait
 
         $responseData = json_decode($response->getBody()->getContents(), true);
         Assert::assertIsArray($responseData);
-        Assert::assertArrayHasKey('file_source', $responseData);
 
-        $objectData = $responseData['file_source'];
-        Assert::assertIsArray($objectData);
-
-        $expectedId = is_string($expectedId) ? $expectedId : $objectData['id'];
+        $expectedId = is_string($expectedId) ? $expectedId : $responseData['id'];
 
         Assert::assertSame(
             [
@@ -32,7 +28,7 @@ trait AssertFileSourceTrait
                 'label' => $expectedLabel,
                 'type' => 'file',
             ],
-            $objectData
+            $responseData
         );
     }
 
@@ -46,12 +42,8 @@ trait AssertFileSourceTrait
 
         $responseData = json_decode($response->getBody()->getContents(), true);
         Assert::assertIsArray($responseData);
-        Assert::assertArrayHasKey('file_source', $responseData);
 
-        $objectData = $responseData['file_source'];
-        Assert::assertIsArray($objectData);
-
-        $deletedAt = $objectData['deleted_at'] ?? null;
+        $deletedAt = $responseData['deleted_at'] ?? null;
         Assert::assertIsInt($deletedAt);
 
         Assert::assertSame(
@@ -61,7 +53,7 @@ trait AssertFileSourceTrait
                 'type' => 'file',
                 'deleted_at' => $deletedAt,
             ],
-            $objectData
+            $responseData
         );
     }
 }

@@ -43,9 +43,7 @@ readonly class SuiteController
                 $this->getTests($request)
             );
 
-            return new JsonResponse([
-                'suite' => $suite->toArray(),
-            ]);
+            return new JsonResponse($suite->toArray());
         } catch (
             ClientExceptionInterface |
             HttpResponseExceptionInterface |
@@ -69,9 +67,7 @@ readonly class SuiteController
         try {
             $suite = $this->client->get($token->token, $suiteId);
 
-            return new JsonResponse([
-                'suite' => $suite->toArray(),
-            ]);
+            return new JsonResponse($suite->toArray());
         } catch (
             ClientExceptionInterface |
             HttpResponseExceptionInterface |
@@ -101,9 +97,7 @@ readonly class SuiteController
                 $this->getTests($request)
             );
 
-            return new JsonResponse([
-                'suite' => $suite->toArray(),
-            ]);
+            return new JsonResponse($suite->toArray());
         } catch (
             ClientExceptionInterface |
             HttpResponseExceptionInterface |
@@ -128,9 +122,7 @@ readonly class SuiteController
         try {
             $suite = $this->client->delete($token->token, $suiteId);
 
-            return new JsonResponse([
-                'suite' => $suite->toArray(),
-            ]);
+            return new JsonResponse($suite->toArray());
         } catch (
             ClientExceptionInterface |
             HttpResponseExceptionInterface |
@@ -168,9 +160,7 @@ readonly class SuiteController
             }
         }
 
-        return new JsonResponse([
-            'suites' => $serializedSuites,
-        ]);
+        return new JsonResponse($serializedSuites);
     }
 
     /**
