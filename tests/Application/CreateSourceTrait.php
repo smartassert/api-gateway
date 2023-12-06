@@ -17,7 +17,7 @@ trait CreateSourceTrait
 
         $response = $this->applicationClient->makeCreateFileSourceRequest($apiKey, $label);
 
-        return $this->extractSourceId($response, 'file_source');
+        return $this->extractSourceId($response);
     }
 
     /**
@@ -38,23 +38,20 @@ trait CreateSourceTrait
             $credentials
         );
 
-        return $this->extractSourceId($response, 'git_source');
+        return $this->extractSourceId($response);
     }
 
     /**
      * @return non-empty-string
      */
-    private function extractSourceId(ResponseInterface $response, string $objectName): string
+    private function extractSourceId(ResponseInterface $response): string
     {
         \assert(200 === $response->getStatusCode());
 
         $responseData = json_decode($response->getBody()->getContents(), true);
         \assert(is_array($responseData));
 
-        $sourceData = $responseData[$objectName];
-        \assert(is_array($sourceData));
-
-        $id = $sourceData['id'] ?? null;
+        $id = $responseData['id'] ?? null;
         \assert(is_string($id) && '' !== $id);
 
         return $id;

@@ -37,9 +37,7 @@ readonly class FileSourceController
         try {
             $source = $this->client->create($token->token, $request->request->getString('label'));
 
-            return new JsonResponse([
-                'file_source' => $source->toArray(),
-            ]);
+            return new JsonResponse($source->toArray());
         } catch (
             ClientExceptionInterface |
             HttpResponseExceptionInterface |
@@ -63,9 +61,7 @@ readonly class FileSourceController
         try {
             $source = $this->client->get($token->token, $sourceId);
 
-            return new JsonResponse([
-                'file_source' => $source->toArray(),
-            ]);
+            return new JsonResponse($source->toArray());
         } catch (
             ClientExceptionInterface |
             HttpResponseExceptionInterface |
@@ -89,9 +85,7 @@ readonly class FileSourceController
         try {
             $source = $this->client->update($token->token, $sourceId, $request->request->getString('label'));
 
-            return new JsonResponse([
-                'file_source' => $source->toArray(),
-            ]);
+            return new JsonResponse($source->toArray());
         } catch (
             ClientExceptionInterface |
             HttpResponseExceptionInterface |
@@ -116,9 +110,7 @@ readonly class FileSourceController
         try {
             $source = $this->client->delete($token->token, $sourceId);
 
-            return new JsonResponse([
-                'file_source' => $source->toArray(),
-            ]);
+            return new JsonResponse($source->toArray());
         } catch (
             ClientExceptionInterface |
             HttpResponseExceptionInterface |
@@ -151,8 +143,6 @@ readonly class FileSourceController
             throw new ServiceException('sources', $e);
         }
 
-        return new JsonResponse([
-            'files' => $filenames,
-        ]);
+        return new JsonResponse($filenames);
     }
 }

@@ -80,12 +80,8 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
         self::assertSame('application/json', $response->getHeaderLine('content-type'));
 
         $data = json_decode($response->getBody()->getContents(), true);
-
         self::assertIsArray($data);
-        self::assertArrayHasKey('files', $data);
 
-        $retrievedFiles = $data['files'];
-        self::assertIsArray($retrievedFiles);
-        self::assertSame($expectedFiles, $retrievedFiles);
+        self::assertSame($expectedFiles, $data);
     }
 }

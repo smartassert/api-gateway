@@ -22,12 +22,8 @@ trait AssertGitSourceTrait
 
         $responseData = json_decode($response->getBody()->getContents(), true);
         Assert::assertIsArray($responseData);
-        Assert::assertArrayHasKey('git_source', $responseData);
 
-        $objectData = $responseData['git_source'];
-        Assert::assertIsArray($objectData);
-
-        $expectedId = is_string($expectedId) ? $expectedId : $objectData['id'];
+        $expectedId = is_string($expectedId) ? $expectedId : $responseData['id'];
 
         Assert::assertSame(
             [
@@ -38,7 +34,7 @@ trait AssertGitSourceTrait
                 'path' => $path,
                 'has_credentials' => $expectedHasCredentials,
             ],
-            $objectData
+            $responseData
         );
     }
 
@@ -55,12 +51,8 @@ trait AssertGitSourceTrait
 
         $responseData = json_decode($response->getBody()->getContents(), true);
         Assert::assertIsArray($responseData);
-        Assert::assertArrayHasKey('git_source', $responseData);
 
-        $objectData = $responseData['git_source'];
-        Assert::assertIsArray($objectData);
-
-        $deletedAt = $objectData['deleted_at'] ?? null;
+        $deletedAt = $responseData['deleted_at'] ?? null;
         Assert::assertIsInt($deletedAt);
 
         Assert::assertSame(
@@ -73,7 +65,7 @@ trait AssertGitSourceTrait
                 'path' => $expectedPath,
                 'has_credentials' => $expectedHasCredentials,
             ],
-            $objectData
+            $responseData
         );
     }
 }

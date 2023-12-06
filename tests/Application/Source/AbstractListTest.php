@@ -159,13 +159,9 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
         self::assertSame('application/json', $response->getHeaderLine('content-type'));
 
         $data = json_decode($response->getBody()->getContents(), true);
-
         self::assertIsArray($data);
-        self::assertArrayHasKey('sources', $data);
 
-        $sourcesData = $data['sources'];
-        self::assertIsArray($sourcesData);
-        self::assertSame($expectedSources, $sourcesData);
+        self::assertSame($expectedSources, $data);
     }
 
     /**
@@ -176,15 +172,7 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
         $data = json_decode($response->getBody()->getContents(), true);
         \assert(is_array($data));
 
-        if (array_key_exists('file_source', $data)) {
-            $sourceData = $data['file_source'];
-        }
-
-        if (array_key_exists('git_source', $data)) {
-            $sourceData = $data['git_source'];
-        }
-
-        $id = $sourceData['id'] ?? '';
+        $id = $data['id'] ?? '';
         $id = is_string($id) ? $id : '';
         \assert('' !== $id);
 
