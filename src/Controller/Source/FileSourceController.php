@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace App\Controller\Source;
 
 use App\Exception\ServiceException;
+use App\Exception\UnexpectedServiceResponseException;
 use App\Security\ApiToken;
+use App\ServiceProxy\ServiceProxy;
+use GuzzleHttp\Psr7\Request as HttpRequest;
 use Psr\Http\Client\ClientExceptionInterface;
 use SmartAssert\ServiceClient\Exception\HttpResponseExceptionInterface;
 use SmartAssert\ServiceClient\Exception\InvalidModelDataException;
@@ -24,28 +27,64 @@ readonly class FileSourceController
 {
     public function __construct(
         private FileSourceClientInterface $client,
+        private ServiceProxy $sourcesProxy,
     ) {
     }
 
     /**
      * @throws ServiceException
-     * @throws UnauthorizedException
+     * @throws UnexpectedServiceResponseException
      */
     #[Route(name: 'create', methods: ['POST'])]
     public function create(ApiToken $token, Request $request): Response
     {
-        try {
-            $source = $this->client->create($token->token, $request->request->getString('label'));
+        $httpRequest = new HttpRequest(
+            $request->getMethod(),
+            '/file-source',
+            [
+                'authorization' => 'Bearer ' . $token->token,
+                'content-type' => 'application/x-www-form-urlencoded',
+            ],
+            http_build_query(['label' => $request->request->get('label')])
+        );
 
-            return new JsonResponse($source->toArray());
-        } catch (
-            ClientExceptionInterface |
-            HttpResponseExceptionInterface |
-            InvalidModelDataException |
-            InvalidResponseDataException |
-            InvalidResponseTypeException $e
-        ) {
-            throw new ServiceException('sources', $e);
+        try {
+            $response = $this->sourcesProxy->sendRequest($httpRequest);
+
+            $statusCode = $response->getStatusCode();
+            $responseContentType = $response->getHeaderLine('content-type');
+
+            if (200 === $statusCode) {
+                if (str_starts_with($responseContentType, 'application/json')) {
+                    return new Response(
+                        $response->getBody()->getContents(),
+                        $response->getStatusCode(),
+                        ['content-type' => $response->getHeaderLine('content-type')]
+                    );
+                }
+
+                throw new UnexpectedServiceResponseException(
+                    'sources',
+                    'application/json',
+                    $response
+                );
+            }
+
+            if (str_starts_with($responseContentType, 'application/json')) {
+                return new Response(
+                    $response->getBody()->getContents(),
+                    $response->getStatusCode(),
+                    ['content-type' => $response->getHeaderLine('content-type')]
+                );
+            }
+
+            throw new UnexpectedServiceResponseException(
+                'sources',
+                'application/json',
+                $response
+            );
+        } catch (ClientExceptionInterface $exception) {
+            throw new ServiceException('sources', $exception);
         }
     }
 

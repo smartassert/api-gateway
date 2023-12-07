@@ -105,6 +105,6 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         $newLabel = md5((string) rand());
 
         $response = $this->applicationClient->makeUpdateFileSourceRequest($apiKey->key, $id, $newLabel);
-        $this->assertRetrievedFileSource($response, $newLabel, $id);
+        $this->assertRetrievedFileSource($response, $newLabel, null, $id);
     }
 }
