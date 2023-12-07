@@ -16,7 +16,6 @@ use SmartAssert\ServiceClient\Exception\InvalidModelDataException;
 use SmartAssert\ServiceClient\Exception\InvalidResponseDataException;
 use SmartAssert\ServiceClient\Exception\InvalidResponseTypeException;
 use SmartAssert\ServiceClient\Exception\UnauthorizedException;
-use SmartAssert\SourcesClient\Exception\ModifyReadOnlyEntityException;
 use SmartAssert\SourcesClient\FileSourceClientInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -123,18 +122,55 @@ readonly class FileSourceController
     #[Route(path: '/{sourceId<[A-Z90-9]{26}>}', name: 'delete', methods: ['DELETE'])]
     public function delete(ApiToken $token, string $sourceId, Request $request): Response
     {
-        try {
-            $source = $this->client->delete($token->token, $sourceId);
+        $httpRequest = new HttpRequest(
+            'DELETE',
+            '/source/' . $sourceId,
+            [
+                'authorization' => 'Bearer ' . $token->token,
+            ]
+        );
 
-            return new JsonResponse($source->toArray());
-        } catch (
-            ClientExceptionInterface |
-            HttpResponseExceptionInterface |
-            InvalidModelDataException |
-            InvalidResponseDataException |
-            InvalidResponseTypeException $e
-        ) {
-            throw new ServiceException('sources', $e);
+        try {
+            $response = $this->sourcesProxy->sendRequest($httpRequest);
+
+            $statusCode = $response->getStatusCode();
+            $responseContentType = $response->getHeaderLine('content-type');
+
+            if (404 === $statusCode) {
+                return new EmptyResponse(404);
+            }
+
+            if (200 === $statusCode) {
+                if (str_starts_with($responseContentType, 'application/json')) {
+                    return new Response(
+                        $response->getBody()->getContents(),
+                        $response->getStatusCode(),
+                        ['content-type' => $response->getHeaderLine('content-type')]
+                    );
+                }
+
+                throw new UnexpectedServiceResponseException(
+                    'sources',
+                    'application/json',
+                    $response
+                );
+            }
+
+            if (str_starts_with($responseContentType, 'application/json')) {
+                return new Response(
+                    $response->getBody()->getContents(),
+                    $response->getStatusCode(),
+                    ['content-type' => $response->getHeaderLine('content-type')]
+                );
+            }
+
+            throw new UnexpectedServiceResponseException(
+                'sources',
+                'application/json',
+                $response
+            );
+        } catch (ClientExceptionInterface $exception) {
+            throw new ServiceException('sources', $exception);
         }
     }
 

@@ -40,6 +40,7 @@ trait AssertFileSourceTrait
     public function assertDeletedFileSource(
         ResponseInterface $response,
         string $expectedLabel,
+        string $expectedUserId,
         string $expectedId,
     ): void {
         Assert::assertSame(200, $response->getStatusCode());
@@ -51,14 +52,14 @@ trait AssertFileSourceTrait
         $deletedAt = $responseData['deleted_at'] ?? null;
         Assert::assertIsInt($deletedAt);
 
-        Assert::assertSame(
-            [
-                'id' => $expectedId,
-                'label' => $expectedLabel,
-                'type' => 'file',
-                'deleted_at' => $deletedAt,
-            ],
-            $responseData
-        );
+        $expectedResponseData = [
+            'id' => $expectedId,
+            'label' => $expectedLabel,
+            'type' => 'file',
+            'deleted_at' => $deletedAt,
+            'user_id' => $expectedUserId,
+        ];
+
+        Assert::assertEquals($expectedResponseData, $responseData);
     }
 }
