@@ -28,3 +28,12 @@ services:
 
   SmartAssert\UsersClient\Client:
     alias: SmartAssert\UsersClient\ClientInterface
+
+  GuzzleHttp\Handler\MockHandler: ~
+
+  app.test.mocking_http_client:
+    public: true
+    class: GuzzleHttp\Client
+    arguments:
+      $config:
+        handler: '@GuzzleHttp\Handler\MockHandler'
