@@ -105,15 +105,23 @@ class FileSourceControllerTest extends AbstractApplicationTestCase
     }
 
     /**
-     * @dataProvider sourcesClientExceptionDataProvider
+     * @dataProvider serviceExceptionDataProvider
      *
      * @param array<mixed> $expectedData
      */
     public function testUpdateHandlesException(
-        \Exception $exception,
+        \Exception|ResponseInterface $httpFixture,
         int $expectedStatusCode,
         array $expectedData
     ): void {
+        $mockingHttpClient = self::getContainer()->get('app.test.mocking_http_client');
+        \assert($mockingHttpClient instanceof HttpClientInterface);
+
+        $httpMockHandler = self::getContainer()->get(MockHandler::class);
+        \assert($httpMockHandler instanceof MockHandler);
+
+        $httpMockHandler->append($httpFixture);
+
         $apiKey = md5((string) rand());
         $apiToken = md5((string) rand());
         $sourceId = (string) new Ulid();
@@ -126,15 +134,8 @@ class FileSourceControllerTest extends AbstractApplicationTestCase
             ->andReturn(new Token($apiToken))
         ;
 
-        $fileSourceClient = \Mockery::mock(FileSourceClientInterface::class);
-        $fileSourceClient
-            ->shouldReceive('update')
-            ->with($apiToken, $sourceId, $label)
-            ->andThrow($exception)
-        ;
-
         self::getContainer()->set(UsersClient::class, $usersClient);
-        self::getContainer()->set(FileSourceClientInterface::class, $fileSourceClient);
+        self::getContainer()->set(HttpClientInterface::class, $mockingHttpClient);
 
         $response = $this->applicationClient->makeUpdateFileSourceRequest($apiKey, $sourceId, $label);
 

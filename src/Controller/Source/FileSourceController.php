@@ -148,9 +148,72 @@ readonly class FileSourceController
         } catch (ClientExceptionInterface $exception) {
             throw new ServiceException('sources', $exception);
         }
+    }
+
+    /**
+     * @param non-empty-string $sourceId
+     *
+     * @throws ServiceException
+     * @throws UnexpectedServiceResponseException
+     */
+    #[Route(path: '/{sourceId<[A-Z90-9]{26}>}', name: 'update', methods: ['PUT'])]
+    public function update(ApiToken $token, string $sourceId, Request $request): Response
+    {
+        $httpRequest = new HttpRequest(
+            'PUT',
+            '/file-source/' . $sourceId,
+            [
+                'authorization' => 'Bearer ' . $token->token,
+                'content-type' => 'application/x-www-form-urlencoded',
+            ],
+            http_build_query(['label' => $request->request->get('label')])
+        );
+
+        try {
+            $response = $this->sourcesProxy->sendRequest($httpRequest);
+
+            $statusCode = $response->getStatusCode();
+            $responseContentType = $response->getHeaderLine('content-type');
+
+            if (404 === $statusCode) {
+                return new EmptyResponse(404);
+            }
+
+            if (200 === $statusCode) {
+                if (str_starts_with($responseContentType, 'application/json')) {
+                    return new Response(
+                        $response->getBody()->getContents(),
+                        $response->getStatusCode(),
+                        ['content-type' => $response->getHeaderLine('content-type')]
+                    );
+                }
+
+                throw new UnexpectedServiceResponseException(
+                    'sources',
+                    'application/json',
+                    $response
+                );
+            }
+
+            if (str_starts_with($responseContentType, 'application/json')) {
+                return new Response(
+                    $response->getBody()->getContents(),
+                    $response->getStatusCode(),
+                    ['content-type' => $response->getHeaderLine('content-type')]
+                );
+            }
+
+            throw new UnexpectedServiceResponseException(
+                'sources',
+                'application/json',
+                $response
+            );
+        } catch (ClientExceptionInterface $exception) {
+            throw new ServiceException('sources', $exception);
+        }
 
 //        try {
-//            $source = $this->client->get($token->token, $sourceId);
+//            $source = $this->client->update($token->token, $sourceId, $request->request->getString('label'));
 //
 //            return new JsonResponse($source->toArray());
 //        } catch (
@@ -158,35 +221,11 @@ readonly class FileSourceController
 //            HttpResponseExceptionInterface |
 //            InvalidModelDataException |
 //            InvalidResponseDataException |
-//            InvalidResponseTypeException $e
+//            InvalidResponseTypeException |
+//            ModifyReadOnlyEntityException $e
 //        ) {
 //            throw new ServiceException('sources', $e);
 //        }
-    }
-
-    /**
-     * @param non-empty-string $sourceId
-     *
-     * @throws ServiceException
-     * @throws UnauthorizedException
-     */
-    #[Route(path: '/{sourceId<[A-Z90-9]{26}>}', name: 'update', methods: ['PUT'])]
-    public function update(ApiToken $token, string $sourceId, Request $request): Response
-    {
-        try {
-            $source = $this->client->update($token->token, $sourceId, $request->request->getString('label'));
-
-            return new JsonResponse($source->toArray());
-        } catch (
-            ClientExceptionInterface |
-            HttpResponseExceptionInterface |
-            InvalidModelDataException |
-            InvalidResponseDataException |
-            InvalidResponseTypeException |
-            ModifyReadOnlyEntityException $e
-        ) {
-            throw new ServiceException('sources', $e);
-        }
     }
 
     /**

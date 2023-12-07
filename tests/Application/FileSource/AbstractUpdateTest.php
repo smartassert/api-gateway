@@ -9,6 +9,7 @@ use App\Tests\Application\AssertBadRequestTrait;
 use App\Tests\Application\CreateSourceTrait;
 use App\Tests\Application\UnauthorizedUserDataProviderTrait;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
+use SmartAssert\TestAuthenticationProviderBundle\UserProvider;
 use Symfony\Component\Uid\Ulid;
 
 abstract class AbstractUpdateTest extends AbstractApplicationTestCase
@@ -68,11 +69,10 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         self::assertSame('application/json', $response->getHeaderLine('content-type'));
         self::assertSame(
             [
-                'type' => 'modify-read-only-entity',
-                'context' => [
-                    'service' => 'sources',
-                    'type' => 'source',
+                'class' => 'modify_read_only',
+                'entity' => [
                     'id' => $id,
+                    'type' => 'file-source',
                 ],
             ],
             json_decode($response->getBody()->getContents(), true)
@@ -90,7 +90,18 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
 
         $response = $this->applicationClient->makeUpdateFileSourceRequest($apiKey->key, $id, null);
 
-        $this->assertBadRequest($response, 'sources', 'label');
+        $this->assertBadRequestFoo(
+            $response,
+            'empty',
+            [
+                'name' => 'label',
+                'value' => '',
+                'requirements' => [
+                    'data_type' => 'string',
+                    'size' => ['minimum' => 1, 'maximum' => 255],
+                ],
+            ]
+        );
     }
 
     public function testUpdateSuccess(): void
@@ -99,12 +110,16 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
+        $userProvider = self::getContainer()->get(UserProvider::class);
+        \assert($userProvider instanceof UserProvider);
+        $user = $userProvider->get('user@example.com');
+
         $label = md5((string) rand());
         $id = $this->createFileSource($apiKey->key, $label);
 
         $newLabel = md5((string) rand());
 
         $response = $this->applicationClient->makeUpdateFileSourceRequest($apiKey->key, $id, $newLabel);
-        $this->assertRetrievedFileSource($response, $newLabel, null, $id);
+        $this->assertRetrievedFileSource($response, $newLabel, $user->id, $id);
     }
 }
