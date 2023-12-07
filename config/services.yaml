@@ -102,4 +102,4 @@ services:
     app.service-proxy.sources:
         class: App\ServiceProxy\ServiceProxy
         arguments:
-            $baseUrl: 'http://localhost:9082'
+            $baseUrl: '%env(string:SOURCES_90_BASE_URL)%'

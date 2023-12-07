@@ -115,8 +115,8 @@
         "sources-setup": [
             "docker compose -f ./tests/build/docker-compose.yml exec -T sources-service php bin/console doctrine:database:create --if-not-exists",
             "docker compose -f ./tests/build/docker-compose.yml exec -T sources-service php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration",
-            "docker compose -f ./tests/build/docker-compose.yml exec -T sources-service-9.0 php bin/console doctrine:database:create --if-not-exists",
-            "docker compose -f ./tests/build/docker-compose.yml exec -T sources-service-9.0 php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration"
+            "docker compose -f ./tests/build/docker-compose.yml exec -T sources-service-90 php bin/console doctrine:database:create --if-not-exists",
+            "docker compose -f ./tests/build/docker-compose.yml exec -T sources-service-90 php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration"
         ],
         "integration-build": "docker compose -f tests/build/docker-compose.yml build app",
         "integration-pull": "docker compose -f tests/build/docker-compose.yml pull",
