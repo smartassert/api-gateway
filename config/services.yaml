@@ -10,6 +10,8 @@ services:
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        bind:
+            $sourcesProxy: '@app.service-proxy.sources'
 
     _instanceof:
         App\ServiceExceptionResponseFactory\HandlerInterface:
@@ -96,3 +98,8 @@ services:
 
     SmartAssert\SourcesClient\SuiteClientInterface:
         class: SmartAssert\SourcesClient\SuiteClient
+
+    app.service-proxy.sources:
+        class: App\ServiceProxy\ServiceProxy
+        arguments:
+            $baseUrl: 'http://localhost:9082'

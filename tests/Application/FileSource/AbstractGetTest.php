@@ -48,6 +48,6 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
 
         $response = $this->applicationClient->makeReadFileSourceRequest($apiKey->key, $id);
 
-        $this->assertRetrievedFileSource($response, $label, $id);
+        $this->assertRetrievedFileSource($response, $label, null, $id);
     }
 }

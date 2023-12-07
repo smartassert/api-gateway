@@ -12,24 +12,29 @@ trait AssertFileSourceTrait
     public function assertRetrievedFileSource(
         ResponseInterface $response,
         string $expectedLabel,
+        ?string $expectedUserId = null,
         ?string $expectedId = null,
     ): void {
         Assert::assertSame(200, $response->getStatusCode());
         Assert::assertSame('application/json', $response->getHeaderLine('content-type'));
 
-        $responseData = json_decode($response->getBody()->getContents(), true);
+        $responseBody = $response->getBody()->getContents();
+        $responseData = json_decode($responseBody, true);
         Assert::assertIsArray($responseData);
 
         $expectedId = is_string($expectedId) ? $expectedId : $responseData['id'];
 
-        Assert::assertSame(
-            [
-                'id' => $expectedId,
-                'label' => $expectedLabel,
-                'type' => 'file',
-            ],
-            $responseData
-        );
+        $expectedResponseData = [
+            'id' => $expectedId,
+            'label' => $expectedLabel,
+            'type' => 'file',
+        ];
+
+        if (is_string($expectedUserId)) {
+            $expectedResponseData['user_id'] = $expectedUserId;
+        }
+
+        Assert::assertEquals($expectedResponseData, $responseData);
     }
 
     public function assertDeletedFileSource(
