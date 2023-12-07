@@ -221,23 +221,6 @@ class FileSourceControllerTest extends AbstractApplicationTestCase
                     ],
                 ],
             ],
-            '404, no response content type' => [
-                'httpFixture' => new Response(
-                    status: 404,
-                    reason: 'Not found.'
-                ),
-                'expectedStatusCode' => 500,
-                'expectedData' => [
-                    'type' => 'service-communication-failure',
-                    'context' => [
-                        'service' => $serviceName,
-                        'code' => 404,
-                        'reason' => 'Not found.',
-                        'expected_content_type' => 'application/json',
-                        'actual_content_type' => null,
-                    ],
-                ],
-            ],
             '405, no response content type' => [
                 'httpFixture' => new Response(
                     status: 405,

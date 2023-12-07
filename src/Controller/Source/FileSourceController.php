@@ -6,6 +6,7 @@ namespace App\Controller\Source;
 
 use App\Exception\ServiceException;
 use App\Exception\UnexpectedServiceResponseException;
+use App\Response\EmptyResponse;
 use App\Security\ApiToken;
 use App\ServiceProxy\ServiceProxy;
 use GuzzleHttp\Psr7\Request as HttpRequest;
