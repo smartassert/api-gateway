@@ -6,6 +6,7 @@ namespace App\Controller\Source;
 
 use App\Exception\ServiceException;
 use App\Exception\UnexpectedServiceResponseException;
+use App\Response\EmptyResponse;
 use App\Security\ApiToken;
 use App\ServiceProxy\ServiceProxy;
 use GuzzleHttp\Psr7\Request as HttpRequest;
@@ -92,24 +93,75 @@ readonly class FileSourceController
      * @param non-empty-string $sourceId
      *
      * @throws ServiceException
-     * @throws UnauthorizedException
+     * @throws UnexpectedServiceResponseException
      */
     #[Route(path: '/{sourceId<[A-Z90-9]{26}>}', name: 'read', methods: ['GET'])]
     public function read(ApiToken $token, string $sourceId): Response
     {
-        try {
-            $source = $this->client->get($token->token, $sourceId);
+        $httpRequest = new HttpRequest(
+            'GET',
+            '/source/' . $sourceId,
+            [
+                'authorization' => 'Bearer ' . $token->token,
+            ]
+        );
 
-            return new JsonResponse($source->toArray());
-        } catch (
-            ClientExceptionInterface |
-            HttpResponseExceptionInterface |
-            InvalidModelDataException |
-            InvalidResponseDataException |
-            InvalidResponseTypeException $e
-        ) {
-            throw new ServiceException('sources', $e);
+        try {
+            $response = $this->sourcesProxy->sendRequest($httpRequest);
+
+            $statusCode = $response->getStatusCode();
+            $responseContentType = $response->getHeaderLine('content-type');
+
+            if (404 === $statusCode) {
+                return new EmptyResponse(404);
+            }
+
+            if (200 === $statusCode) {
+                if (str_starts_with($responseContentType, 'application/json')) {
+                    return new Response(
+                        $response->getBody()->getContents(),
+                        $response->getStatusCode(),
+                        ['content-type' => $response->getHeaderLine('content-type')]
+                    );
+                }
+
+                throw new UnexpectedServiceResponseException(
+                    'sources',
+                    'application/json',
+                    $response
+                );
+            }
+
+            if (str_starts_with($responseContentType, 'application/json')) {
+                return new Response(
+                    $response->getBody()->getContents(),
+                    $response->getStatusCode(),
+                    ['content-type' => $response->getHeaderLine('content-type')]
+                );
+            }
+
+            throw new UnexpectedServiceResponseException(
+                'sources',
+                'application/json',
+                $response
+            );
+        } catch (ClientExceptionInterface $exception) {
+            throw new ServiceException('sources', $exception);
         }
+
+//        try {
+//            $source = $this->client->get($token->token, $sourceId);
+//
+//            return new JsonResponse($source->toArray());
+//        } catch (
+//            ClientExceptionInterface |
+//            HttpResponseExceptionInterface |
+//            InvalidModelDataException |
+//            InvalidResponseDataException |
+//            InvalidResponseTypeException $e
+//        ) {
+//            throw new ServiceException('sources', $e);
+//        }
     }
 
     /**

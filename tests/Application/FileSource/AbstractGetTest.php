@@ -8,6 +8,7 @@ use App\Tests\Application\AbstractApplicationTestCase;
 use App\Tests\Application\CreateSourceTrait;
 use App\Tests\Application\UnauthorizedUserDataProviderTrait;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
+use SmartAssert\TestAuthenticationProviderBundle\UserProvider;
 use Symfony\Component\Uid\Ulid;
 
 abstract class AbstractGetTest extends AbstractApplicationTestCase
@@ -43,11 +44,15 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
+        $userProvider = self::getContainer()->get(UserProvider::class);
+        \assert($userProvider instanceof UserProvider);
+        $user = $userProvider->get('user@example.com');
+
         $label = md5((string) rand());
         $id = $this->createFileSource($apiKey->key, $label);
 
         $response = $this->applicationClient->makeReadFileSourceRequest($apiKey->key, $id);
 
-        $this->assertRetrievedFileSource($response, $label, null, $id);
+        $this->assertRetrievedFileSource($response, $label, $user->id, $id);
     }
 }

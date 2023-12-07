@@ -68,15 +68,23 @@ class FileSourceControllerTest extends AbstractApplicationTestCase
     }
 
     /**
-     * @dataProvider sourcesClientExceptionDataProvider
+     * @dataProvider serviceExceptionDataProvider
      *
      * @param array<mixed> $expectedData
      */
     public function testGetHandlesException(
-        \Exception $exception,
+        \Exception|ResponseInterface $httpFixture,
         int $expectedStatusCode,
         array $expectedData
     ): void {
+        $mockingHttpClient = self::getContainer()->get('app.test.mocking_http_client');
+        \assert($mockingHttpClient instanceof HttpClientInterface);
+
+        $httpMockHandler = self::getContainer()->get(MockHandler::class);
+        \assert($httpMockHandler instanceof MockHandler);
+
+        $httpMockHandler->append($httpFixture);
+
         $apiKey = md5((string) rand());
         $apiToken = md5((string) rand());
         $sourceId = (string) new Ulid();
@@ -88,15 +96,8 @@ class FileSourceControllerTest extends AbstractApplicationTestCase
             ->andReturn(new Token($apiToken))
         ;
 
-        $fileSourceClient = \Mockery::mock(FileSourceClientInterface::class);
-        $fileSourceClient
-            ->shouldReceive('get')
-            ->with($apiToken, $sourceId)
-            ->andThrow($exception)
-        ;
-
         self::getContainer()->set(UsersClient::class, $usersClient);
-        self::getContainer()->set(FileSourceClientInterface::class, $fileSourceClient);
+        self::getContainer()->set(HttpClientInterface::class, $mockingHttpClient);
 
         $response = $this->applicationClient->makeReadFileSourceRequest($apiKey, $sourceId);
 
@@ -254,23 +255,6 @@ class FileSourceControllerTest extends AbstractApplicationTestCase
                             'code' => $exceptionCode,
                             'message' => $exceptionMessage,
                         ],
-                    ],
-                ],
-            ],
-            '404, no response content type' => [
-                'httpFixture' => new Response(
-                    status: 404,
-                    reason: 'Not found.'
-                ),
-                'expectedStatusCode' => 500,
-                'expectedData' => [
-                    'type' => 'service-communication-failure',
-                    'context' => [
-                        'service' => $serviceName,
-                        'code' => 404,
-                        'reason' => 'Not found.',
-                        'expected_content_type' => 'application/json',
-                        'actual_content_type' => null,
                     ],
                 ],
             ],
