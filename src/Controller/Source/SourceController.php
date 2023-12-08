@@ -17,6 +17,7 @@ use SmartAssert\SourcesClient\FileSourceClientInterface;
 use SmartAssert\SourcesClient\GitSourceClientInterface;
 use SmartAssert\SourcesClient\SourceClientInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 readonly class SourceController
@@ -56,4 +57,28 @@ readonly class SourceController
 
         return new JsonResponse($serializedSources);
     }
+
+//    /**
+//     * @param non-empty-string $sourceId
+//     *
+//     * @throws ServiceException
+//     * @throws UnauthorizedException
+//     */
+//    #[Route(path: '/source/{sourceId<[A-Z90-9]{26}>}', name: 'read', methods: ['GET'])]
+//    public function read(ApiToken $token, string $sourceId): Response
+//    {
+//        try {
+//            $source = $this->client->get($token->token, $sourceId);
+//
+//            return new JsonResponse($source->toArray());
+//        } catch (
+//        ClientExceptionInterface |
+//        HttpResponseExceptionInterface |
+//        InvalidModelDataException |
+//        InvalidResponseDataException |
+//        InvalidResponseTypeException $e
+//        ) {
+//            throw new ServiceException('sources', $e);
+//        }
+//    }
 }
