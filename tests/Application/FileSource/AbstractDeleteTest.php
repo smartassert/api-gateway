@@ -46,7 +46,7 @@ abstract class AbstractDeleteTest extends AbstractApplicationTestCase
         $label = md5((string) rand());
         $id = $this->createFileSource($apiKey->key, $label);
 
-        $getResponse = $this->applicationClient->makeReadFileSourceRequest($apiKey->key, $id);
+        $getResponse = $this->applicationClient->makeGetSourceRequest($apiKey->key, $id);
         $this->assertRetrievedFileSource($getResponse, $label, $id);
 
         $deleteResponse = $this->applicationClient->makeDeleteFileSourceRequest($apiKey->key, $id);

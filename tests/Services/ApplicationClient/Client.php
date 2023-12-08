@@ -183,11 +183,6 @@ readonly class Client
         return $this->makeFileSourceRequest($apiKey, 'POST', null, $label);
     }
 
-    public function makeReadFileSourceRequest(?string $apiKey, string $sourceId): ResponseInterface
-    {
-        return $this->makeFileSourceRequest($apiKey, 'GET', $sourceId);
-    }
-
     public function makeUpdateFileSourceRequest(?string $apiKey, string $sourceId, ?string $label): ResponseInterface
     {
         return $this->makeFileSourceRequest($apiKey, 'PUT', $sourceId, $label);
@@ -214,11 +209,6 @@ readonly class Client
             $path,
             $credentials
         );
-    }
-
-    public function makeReadGitSourceRequest(?string $apiKey, ?string $sourceId): ResponseInterface
-    {
-        return $this->makeGitSourceRequest($apiKey, 'GET', $sourceId);
     }
 
     public function makeUpdateGitSourceRequest(
@@ -361,6 +351,23 @@ readonly class Client
         return $this->makeSuiteRequest($apiKey, 'DELETE', $suiteId);
     }
 
+    public function makeGetSourceRequest(
+        ?string $apiKey,
+        string $sourceId,
+        string $method = 'GET',
+    ): ResponseInterface {
+        $headers = [];
+        if (is_string($apiKey)) {
+            $headers['Authorization'] = 'Bearer ' . $apiKey;
+        }
+
+        return $this->client->makeRequest(
+            $method,
+            $this->router->generate('source_read', ['sourceId' => $sourceId]),
+            $headers
+        );
+    }
+
     private function makeFileSourceFileRequest(
         ?string $apiKey,
         string $method,
@@ -399,7 +406,7 @@ readonly class Client
     }
 
     /**
-     * @param 'DELETE'|'GET'|'POST'|'PUT' $method
+     * @param 'DELETE'|'POST'|'PUT' $method
      */
     private function makeGitSourceRequest(
         ?string $apiKey,
@@ -436,10 +443,7 @@ readonly class Client
             $headers['Content-Type'] = 'application/x-www-form-urlencoded';
         }
 
-        $route = 'git_source_read';
-        if ('POST' === $method) {
-            $route = 'git_source_create';
-        }
+        $route = 'git_source_create';
         if ('PUT' === $method) {
             $route = 'git_source_update';
         }
@@ -456,7 +460,7 @@ readonly class Client
     }
 
     /**
-     * @param 'DELETE'|'GET'|'POST'|'PUT' $method
+     * @param 'DELETE'|'POST'|'PUT' $method
      */
     private function makeFileSourceRequest(
         ?string $apiKey,
@@ -478,10 +482,7 @@ readonly class Client
             $headers['Content-Type'] = 'application/x-www-form-urlencoded';
         }
 
-        $route = 'file_source_read';
-        if ('POST' === $method) {
-            $route = 'file_source_create';
-        }
+        $route = 'file_source_create';
         if ('PUT' === $method) {
             $route = 'file_source_update';
         }

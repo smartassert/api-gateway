@@ -70,42 +70,6 @@ class GitSourceControllerTest extends AbstractApplicationTestCase
      *
      * @param array<mixed> $expectedData
      */
-    public function testGetHandlesException(
-        \Exception $exception,
-        int $expectedStatusCode,
-        array $expectedData
-    ): void {
-        $apiKey = md5((string) rand());
-        $apiToken = md5((string) rand());
-        $sourceId = (string) new Ulid();
-
-        $usersClient = \Mockery::mock(UsersClient::class);
-        $usersClient
-            ->shouldReceive('createApiToken')
-            ->with($apiKey)
-            ->andReturn(new Token($apiToken))
-        ;
-
-        $gitSourceClient = \Mockery::mock(GitSourceClientInterface::class);
-        $gitSourceClient
-            ->shouldReceive('get')
-            ->with($apiToken, $sourceId)
-            ->andThrow($exception)
-        ;
-
-        self::getContainer()->set(UsersClient::class, $usersClient);
-        self::getContainer()->set(GitSourceClientInterface::class, $gitSourceClient);
-
-        $response = $this->applicationClient->makeReadGitSourceRequest($apiKey, $sourceId);
-
-        $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
-    }
-
-    /**
-     * @dataProvider usersClientExceptionDataProvider
-     *
-     * @param array<mixed> $expectedData
-     */
     public function testUpdateHandlesException(
         \Exception $exception,
         int $expectedStatusCode,
