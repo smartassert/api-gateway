@@ -341,11 +341,11 @@ readonly class Client
         return $this->makeSuiteRequest($apiKey, 'DELETE', $suiteId);
     }
 
-    public function makeGetSourceRequest(
-        ?string $apiKey,
-        string $sourceId,
-        string $method = 'GET',
-    ): ResponseInterface {
+    /**
+     * @param 'DELETE'|'GET' $method
+     */
+    public function makeSourceActRequest(string $method, ?string $apiKey, string $sourceId): ResponseInterface
+    {
         $headers = [];
         if (is_string($apiKey)) {
             $headers['Authorization'] = 'Bearer ' . $apiKey;
@@ -353,24 +353,7 @@ readonly class Client
 
         return $this->client->makeRequest(
             $method,
-            $this->router->generate('source_read', ['sourceId' => $sourceId]),
-            $headers
-        );
-    }
-
-    public function makeDeleteSourceRequest(
-        ?string $apiKey,
-        string $sourceId,
-        string $method = 'DELETE',
-    ): ResponseInterface {
-        $headers = [];
-        if (is_string($apiKey)) {
-            $headers['Authorization'] = 'Bearer ' . $apiKey;
-        }
-
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('source_read', ['sourceId' => $sourceId]),
+            $this->router->generate('source_act', ['sourceId' => $sourceId]),
             $headers
         );
     }

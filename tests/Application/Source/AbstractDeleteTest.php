@@ -27,7 +27,7 @@ abstract class AbstractDeleteTest extends AbstractApplicationTestCase
      */
     public function testDeleteUnauthorizedUser(?string $token): void
     {
-        $response = $this->applicationClient->makeDeleteSourceRequest($token, (string) new Ulid());
+        $response = $this->applicationClient->makeSourceActRequest('DELETE', $token, (string) new Ulid());
 
         self::assertSame(401, $response->getStatusCode());
     }
@@ -38,7 +38,7 @@ abstract class AbstractDeleteTest extends AbstractApplicationTestCase
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $response = $this->applicationClient->makeDeleteSourceRequest($apiKey->key, (string) new Ulid());
+        $response = $this->applicationClient->makeSourceActRequest('DELETE', $apiKey->key, (string) new Ulid());
 
         self::assertSame(404, $response->getStatusCode());
     }
@@ -56,10 +56,10 @@ abstract class AbstractDeleteTest extends AbstractApplicationTestCase
         $label = md5((string) rand());
         $id = $this->createFileSource($apiKey->key, $label);
 
-        $getResponse = $this->applicationClient->makeGetSourceRequest($apiKey->key, $id);
+        $getResponse = $this->applicationClient->makeSourceActRequest('GET', $apiKey->key, $id);
         $this->assertRetrievedFileSource($getResponse, $label, $user->id, $id);
 
-        $deleteResponse = $this->applicationClient->makeDeleteSourceRequest($apiKey->key, $id);
+        $deleteResponse = $this->applicationClient->makeSourceActRequest('DELETE', $apiKey->key, $id);
         $this->assertDeletedFileSource($deleteResponse, $label, $user->id, $id);
     }
 
@@ -84,10 +84,10 @@ abstract class AbstractDeleteTest extends AbstractApplicationTestCase
             $credentials
         );
 
-        $getResponse = $this->applicationClient->makeGetSourceRequest($apiKey->key, $id);
+        $getResponse = $this->applicationClient->makeSourceActRequest('GET', $apiKey->key, $id);
         self::assertSame(200, $getResponse->getStatusCode());
 
-        $deleteResponse = $this->applicationClient->makeDeleteSourceRequest($apiKey->key, $id);
+        $deleteResponse = $this->applicationClient->makeSourceActRequest('DELETE', $apiKey->key, $id);
         $this->assertDeletedGitSource(
             $deleteResponse,
             $label,

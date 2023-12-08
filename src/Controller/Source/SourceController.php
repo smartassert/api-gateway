@@ -62,29 +62,10 @@ readonly class SourceController
     /**
      * @throws ServiceException
      */
-    #[Route(path: '/source/{sourceId<[A-Z90-9]{26}>}', name: 'source_read', methods: ['GET'])]
-    public function read(ApiToken $token, Request $request): Response
+    #[Route(path: '/source/{sourceId<[A-Z90-9]{26}>}', name: 'source_act', methods: ['GET', 'DELETE'])]
+    public function act(ApiToken $token, Request $request): Response
     {
-        $requestBuilder = $this->requestBuilderFactory->create('GET', $request->getRequestUri());
-        $httpRequest = $requestBuilder
-            ->withAuthorization($token->token)
-            ->get()
-        ;
-
-        try {
-            return $this->sourcesProxy->sendRequest($httpRequest);
-        } catch (ClientExceptionInterface $exception) {
-            throw new ServiceException('sources', $exception);
-        }
-    }
-
-    /**
-     * @throws ServiceException
-     */
-    #[Route(path: '/source/{sourceId<[A-Z90-9]{26}>}', name: 'source_delete', methods: ['DELETE'])]
-    public function delete(ApiToken $token, Request $request): Response
-    {
-        $requestBuilder = $this->requestBuilderFactory->create('DELETE', $request->getRequestUri());
+        $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $request->getRequestUri());
         $httpRequest = $requestBuilder
             ->withAuthorization($token->token)
             ->get()

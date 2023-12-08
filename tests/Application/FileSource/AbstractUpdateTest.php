@@ -57,10 +57,10 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         $label = md5((string) rand());
         $id = $this->createFileSource($apiKey->key, $label);
 
-        $getResponse = $this->applicationClient->makeGetSourceRequest($apiKey->key, $id);
+        $getResponse = $this->applicationClient->makeSourceActRequest('GET', $apiKey->key, $id);
         self::assertSame(200, $getResponse->getStatusCode());
 
-        $deleteResponse = $this->applicationClient->makeDeleteSourceRequest($apiKey->key, $id);
+        $deleteResponse = $this->applicationClient->makeSourceActRequest('DELETE', $apiKey->key, $id);
         self::assertSame(200, $deleteResponse->getStatusCode());
 
         $newLabel = md5((string) rand());

@@ -59,7 +59,7 @@ class SourceControllerTest extends AbstractApplicationTestCase
         self::getContainer()->set(UsersClient::class, $usersClient);
         self::getContainer()->set(HttpClientInterface::class, $mockingHttpClient);
 
-        $response = $this->applicationClient->makeGetSourceRequest($apiKey, $sourceId);
+        $response = $this->applicationClient->makeSourceActRequest('GET', $apiKey, $sourceId);
 
         $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
     }
@@ -98,7 +98,7 @@ class SourceControllerTest extends AbstractApplicationTestCase
         self::getContainer()->set(UsersClient::class, $usersClient);
         self::getContainer()->set(HttpClientInterface::class, $mockingHttpClient);
 
-        $response = $this->applicationClient->makeDeleteSourceRequest($apiKey, $sourceId);
+        $response = $this->applicationClient->makeSourceActRequest('DELETE', $apiKey, $sourceId);
 
         $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
     }

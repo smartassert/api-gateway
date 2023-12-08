@@ -27,7 +27,7 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
      */
     public function testGetUnauthorizedUser(?string $token): void
     {
-        $response = $this->applicationClient->makeGetSourceRequest($token, (string) new Ulid());
+        $response = $this->applicationClient->makeSourceActRequest('GET', $token, (string) new Ulid());
 
         self::assertSame(401, $response->getStatusCode());
     }
@@ -38,7 +38,7 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $response = $this->applicationClient->makeGetSourceRequest($apiKey->key, (string) new Ulid());
+        $response = $this->applicationClient->makeSourceActRequest('GET', $apiKey->key, (string) new Ulid());
 
         self::assertSame(404, $response->getStatusCode());
     }
@@ -56,7 +56,7 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
         $label = md5((string) rand());
         $id = $this->createFileSource($apiKey->key, $label);
 
-        $response = $this->applicationClient->makeGetSourceRequest($apiKey->key, $id);
+        $response = $this->applicationClient->makeSourceActRequest('GET', $apiKey->key, $id);
 
         $this->assertRetrievedFileSource($response, $label, $user->id, $id);
     }
@@ -82,7 +82,7 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
             $credentials
         );
 
-        $getResponse = $this->applicationClient->makeGetSourceRequest($apiKey->key, $id);
+        $getResponse = $this->applicationClient->makeSourceActRequest('GET', $apiKey->key, $id);
         self::assertSame(200, $getResponse->getStatusCode());
         $this->assertRetrievedGitSource(
             $getResponse,
