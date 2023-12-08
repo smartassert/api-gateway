@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Integration\GitSource;
+namespace App\Tests\Integration\Source;
 
-use App\Tests\Application\GitSource\AbstractDeleteTest;
+use App\Tests\Application\Source\AbstractDeleteTest;
 use App\Tests\Integration\GetClientAdapterTrait;
 
 class DeleteTest extends AbstractDeleteTest

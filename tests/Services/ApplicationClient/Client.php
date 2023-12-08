@@ -180,17 +180,12 @@ readonly class Client
 
     public function makeCreateFileSourceRequest(?string $apiKey, ?string $label): ResponseInterface
     {
-        return $this->makeFileSourceRequest($apiKey, 'POST', null, $label);
+        return $this->makeFileSourceMutationRequest($apiKey, 'POST', null, $label);
     }
 
     public function makeUpdateFileSourceRequest(?string $apiKey, string $sourceId, ?string $label): ResponseInterface
     {
-        return $this->makeFileSourceRequest($apiKey, 'PUT', $sourceId, $label);
-    }
-
-    public function makeDeleteFileSourceRequest(?string $apiKey, string $sourceId): ResponseInterface
-    {
-        return $this->makeFileSourceRequest($apiKey, 'DELETE', $sourceId);
+        return $this->makeFileSourceMutationRequest($apiKey, 'PUT', $sourceId, $label);
     }
 
     public function makeCreateGitSourceRequest(
@@ -200,7 +195,7 @@ readonly class Client
         ?string $path,
         ?string $credentials
     ): ResponseInterface {
-        return $this->makeGitSourceRequest(
+        return $this->makeGitSourceMutationRequest(
             $apiKey,
             'POST',
             null,
@@ -219,7 +214,7 @@ readonly class Client
         ?string $path = null,
         ?string $credentials = null
     ): ResponseInterface {
-        return $this->makeGitSourceRequest(
+        return $this->makeGitSourceMutationRequest(
             $apiKey,
             'PUT',
             $sourceId,
@@ -228,11 +223,6 @@ readonly class Client
             $path,
             $credentials
         );
-    }
-
-    public function makeDeleteGitSourceRequest(?string $apiKey, ?string $sourceId): ResponseInterface
-    {
-        return $this->makeGitSourceRequest($apiKey, 'DELETE', $sourceId);
     }
 
     public function makeCreateFileSourceFileRequest(
@@ -351,11 +341,11 @@ readonly class Client
         return $this->makeSuiteRequest($apiKey, 'DELETE', $suiteId);
     }
 
-    public function makeGetSourceRequest(
-        ?string $apiKey,
-        string $sourceId,
-        string $method = 'GET',
-    ): ResponseInterface {
+    /**
+     * @param 'DELETE'|'GET' $method
+     */
+    public function makeSourceActRequest(string $method, ?string $apiKey, string $sourceId): ResponseInterface
+    {
         $headers = [];
         if (is_string($apiKey)) {
             $headers['Authorization'] = 'Bearer ' . $apiKey;
@@ -363,7 +353,7 @@ readonly class Client
 
         return $this->client->makeRequest(
             $method,
-            $this->router->generate('source_read', ['sourceId' => $sourceId]),
+            $this->router->generate('source_act', ['sourceId' => $sourceId]),
             $headers
         );
     }
@@ -406,9 +396,9 @@ readonly class Client
     }
 
     /**
-     * @param 'DELETE'|'POST'|'PUT' $method
+     * @param 'POST'|'PUT' $method
      */
-    private function makeGitSourceRequest(
+    private function makeGitSourceMutationRequest(
         ?string $apiKey,
         string $method,
         string $sourceId = null,
@@ -443,13 +433,7 @@ readonly class Client
             $headers['Content-Type'] = 'application/x-www-form-urlencoded';
         }
 
-        $route = 'git_source_create';
-        if ('PUT' === $method) {
-            $route = 'git_source_update';
-        }
-        if ('DELETE' === $method) {
-            $route = 'git_source_delete';
-        }
+        $route = 'git_source_' . ('POST' === $method ? 'create' : 'update');
 
         return $this->client->makeRequest(
             $method,
@@ -460,9 +444,9 @@ readonly class Client
     }
 
     /**
-     * @param 'DELETE'|'POST'|'PUT' $method
+     * @param 'POST'|'PUT' $method
      */
-    private function makeFileSourceRequest(
+    private function makeFileSourceMutationRequest(
         ?string $apiKey,
         string $method,
         ?string $sourceId,
@@ -482,13 +466,7 @@ readonly class Client
             $headers['Content-Type'] = 'application/x-www-form-urlencoded';
         }
 
-        $route = 'file_source_create';
-        if ('PUT' === $method) {
-            $route = 'file_source_update';
-        }
-        if ('DELETE' === $method) {
-            $route = 'file_source_delete';
-        }
+        $route = 'file_source_' . ('POST' === $method ? 'create' : 'update');
 
         return $this->client->makeRequest(
             $method,

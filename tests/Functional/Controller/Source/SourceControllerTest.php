@@ -59,7 +59,46 @@ class SourceControllerTest extends AbstractApplicationTestCase
         self::getContainer()->set(UsersClient::class, $usersClient);
         self::getContainer()->set(HttpClientInterface::class, $mockingHttpClient);
 
-        $response = $this->applicationClient->makeGetSourceRequest($apiKey, $sourceId);
+        $response = $this->applicationClient->makeSourceActRequest('GET', $apiKey, $sourceId);
+
+        $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
+    }
+
+    /**
+     * @dataProvider serviceBadMethodProvider
+     * @dataProvider serviceBadResponseContentTypeDataProvider
+     * @dataProvider serviceHttpFailureDataProvider
+     *
+     * @param array<mixed> $expectedData
+     */
+    public function testDeleteHandlesException(
+        \Exception|ResponseInterface $httpFixture,
+        int $expectedStatusCode,
+        array $expectedData
+    ): void {
+        $mockingHttpClient = self::getContainer()->get('app.test.mocking_http_client');
+        \assert($mockingHttpClient instanceof HttpClientInterface);
+
+        $httpMockHandler = self::getContainer()->get(MockHandler::class);
+        \assert($httpMockHandler instanceof MockHandler);
+
+        $httpMockHandler->append($httpFixture);
+
+        $apiKey = md5((string) rand());
+        $apiToken = md5((string) rand());
+        $sourceId = (string) new Ulid();
+
+        $usersClient = \Mockery::mock(UsersClient::class);
+        $usersClient
+            ->shouldReceive('createApiToken')
+            ->with($apiKey)
+            ->andReturn(new Token($apiToken))
+        ;
+
+        self::getContainer()->set(UsersClient::class, $usersClient);
+        self::getContainer()->set(HttpClientInterface::class, $mockingHttpClient);
+
+        $response = $this->applicationClient->makeSourceActRequest('DELETE', $apiKey, $sourceId);
 
         $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
     }

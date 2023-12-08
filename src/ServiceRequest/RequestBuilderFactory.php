@@ -13,9 +13,6 @@ readonly class RequestBuilderFactory
     ) {
     }
 
-    /**
-     * @param non-empty-string $method
-     */
     public function create(string $method, string $url): RequestBuilder
     {
         return new RequestBuilder($this->streamFactory, $method, $url);

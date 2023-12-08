@@ -69,27 +69,6 @@ readonly class FileSourceController
      *
      * @throws ServiceException
      */
-    #[Route(path: '/{sourceId<[A-Z90-9]{26}>}', name: 'delete', methods: ['DELETE'])]
-    public function delete(ApiToken $token, string $sourceId): Response
-    {
-        $requestBuilder = $this->requestBuilderFactory->create('DELETE', '/source/' . $sourceId);
-        $httpRequest = $requestBuilder
-            ->withAuthorization($token->token)
-            ->get()
-        ;
-
-        try {
-            return $this->sourcesProxy->sendRequest($httpRequest);
-        } catch (ClientExceptionInterface $exception) {
-            throw new ServiceException('sources', $exception);
-        }
-    }
-
-    /**
-     * @param non-empty-string $sourceId
-     *
-     * @throws ServiceException
-     */
     #[Route(path: '/{sourceId<[A-Z90-9]{26}>}/list', name: 'list', methods: ['GET'])]
     public function list(ApiToken $token, string $sourceId): Response
     {

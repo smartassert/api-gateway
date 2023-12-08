@@ -62,10 +62,10 @@ readonly class SourceController
     /**
      * @throws ServiceException
      */
-    #[Route(path: '/source/{sourceId<[A-Z90-9]{26}>}', name: 'source_read', methods: ['GET'])]
-    public function read(ApiToken $token, Request $request): Response
+    #[Route(path: '/source/{sourceId<[A-Z90-9]{26}>}', name: 'source_act', methods: ['GET', 'DELETE'])]
+    public function act(ApiToken $token, Request $request): Response
     {
-        $requestBuilder = $this->requestBuilderFactory->create('GET', $request->getRequestUri());
+        $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $request->getRequestUri());
         $httpRequest = $requestBuilder
             ->withAuthorization($token->token)
             ->get()
