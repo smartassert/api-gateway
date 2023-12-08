@@ -35,6 +35,8 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
 
         $response = $this->applicationClient->makeFileSourceFilesRequest($apiKey->key, (string) new Ulid());
 
+        echo $response->getBody()->getContents();
+
         self::assertSame(404, $response->getStatusCode());
     }
 
