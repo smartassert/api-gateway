@@ -96,28 +96,4 @@ readonly class GitSourceController
             throw new ServiceException('sources', $e);
         }
     }
-
-    /**
-     * @param non-empty-string $sourceId
-     *
-     * @throws ServiceException
-     * @throws UnauthorizedException
-     */
-    #[Route(path: '/{sourceId<[A-Z90-9]{26}>}', name: 'delete', methods: ['DELETE'])]
-    public function delete(ApiToken $token, string $sourceId): Response
-    {
-        try {
-            $source = $this->client->delete($token->token, $sourceId);
-
-            return new JsonResponse($source->toArray());
-        } catch (
-            ClientExceptionInterface |
-            HttpResponseExceptionInterface |
-            InvalidModelDataException |
-            InvalidResponseDataException |
-            InvalidResponseTypeException $e
-        ) {
-            throw new ServiceException('sources', $e);
-        }
-    }
 }

@@ -77,4 +77,23 @@ readonly class SourceController
             throw new ServiceException('sources', $exception);
         }
     }
+
+    /**
+     * @throws ServiceException
+     */
+    #[Route(path: '/source/{sourceId<[A-Z90-9]{26}>}', name: 'source_delete', methods: ['DELETE'])]
+    public function delete(ApiToken $token, Request $request): Response
+    {
+        $requestBuilder = $this->requestBuilderFactory->create('DELETE', $request->getRequestUri());
+        $httpRequest = $requestBuilder
+            ->withAuthorization($token->token)
+            ->get()
+        ;
+
+        try {
+            return $this->sourcesProxy->sendRequest($httpRequest);
+        } catch (ClientExceptionInterface $exception) {
+            throw new ServiceException('sources', $exception);
+        }
+    }
 }
