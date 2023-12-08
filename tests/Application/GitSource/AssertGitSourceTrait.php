@@ -16,6 +16,7 @@ trait AssertGitSourceTrait
         string $hostUrl,
         string $path,
         bool $expectedHasCredentials,
+        ?string $expectedUserId = null,
     ): void {
         Assert::assertSame(200, $response->getStatusCode());
         Assert::assertSame('application/json', $response->getHeaderLine('content-type'));
@@ -25,17 +26,20 @@ trait AssertGitSourceTrait
 
         $expectedId = is_string($expectedId) ? $expectedId : $responseData['id'];
 
-        Assert::assertSame(
-            [
-                'id' => $expectedId,
-                'label' => $label,
-                'type' => 'git',
-                'host_url' => $hostUrl,
-                'path' => $path,
-                'has_credentials' => $expectedHasCredentials,
-            ],
-            $responseData
-        );
+        $expectedResponseData = [
+            'id' => $expectedId,
+            'label' => $label,
+            'type' => 'git',
+            'host_url' => $hostUrl,
+            'path' => $path,
+            'has_credentials' => $expectedHasCredentials,
+        ];
+
+        if (is_string($expectedUserId)) {
+            $expectedResponseData['user_id'] = $expectedUserId;
+        }
+
+        Assert::assertEquals($expectedResponseData, $responseData);
     }
 
     public function assertDeletedGitSource(

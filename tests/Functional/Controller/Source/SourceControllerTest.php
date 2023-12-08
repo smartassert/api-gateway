@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Controller\Source;
 
 use App\Tests\Application\AbstractApplicationTestCase;
-use App\Tests\DataProvider\InvalidResponseModelDataProviderCreatorTrait;
-use App\Tests\DataProvider\ServiceHttpFailureDataProviderCreatorTrait;
+use App\Tests\DataProvider\ServiceExceptionDataProviderTrait;
 use App\Tests\Functional\Controller\AssertJsonResponseTrait;
 use App\Tests\Functional\GetClientAdapterTrait;
-use SmartAssert\SourcesClient\GitSourceClientInterface;
+use GuzzleHttp\Handler\MockHandler;
+use Psr\Http\Client\ClientInterface as HttpClientInterface;
+use Psr\Http\Message\ResponseInterface;
 use SmartAssert\UsersClient\ClientInterface as UsersClient;
 use SmartAssert\UsersClient\Model\Token;
 use Symfony\Component\Uid\Ulid;
@@ -17,20 +18,27 @@ use Symfony\Component\Uid\Ulid;
 class SourceControllerTest extends AbstractApplicationTestCase
 {
     use GetClientAdapterTrait;
-    use ServiceHttpFailureDataProviderCreatorTrait;
-    use InvalidResponseModelDataProviderCreatorTrait;
     use AssertJsonResponseTrait;
+    use ServiceExceptionDataProviderTrait;
 
     /**
-     * @dataProvider sourcesClientExceptionDataProvider
+     * @dataProvider serviceExceptionDataProvider
      *
      * @param array<mixed> $expectedData
      */
     public function testGetHandlesException(
-        \Exception $exception,
+        \Exception|ResponseInterface $httpFixture,
         int $expectedStatusCode,
         array $expectedData
     ): void {
+        $mockingHttpClient = self::getContainer()->get('app.test.mocking_http_client');
+        \assert($mockingHttpClient instanceof HttpClientInterface);
+
+        $httpMockHandler = self::getContainer()->get(MockHandler::class);
+        \assert($httpMockHandler instanceof MockHandler);
+
+        $httpMockHandler->append($httpFixture);
+
         $apiKey = md5((string) rand());
         $apiToken = md5((string) rand());
         $sourceId = (string) new Ulid();
@@ -42,29 +50,11 @@ class SourceControllerTest extends AbstractApplicationTestCase
             ->andReturn(new Token($apiToken))
         ;
 
-        $gitSourceClient = \Mockery::mock(GitSourceClientInterface::class);
-        $gitSourceClient
-            ->shouldReceive('get')
-            ->with($apiToken, $sourceId)
-            ->andThrow($exception)
-        ;
-
         self::getContainer()->set(UsersClient::class, $usersClient);
-        self::getContainer()->set(GitSourceClientInterface::class, $gitSourceClient);
+        self::getContainer()->set(HttpClientInterface::class, $mockingHttpClient);
 
         $response = $this->applicationClient->makeGetSourceRequest($apiKey, $sourceId);
 
         $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    public function sourcesClientExceptionDataProvider(): array
-    {
-        return array_merge(
-            $this->serviceHttpFailureDataProviderCreator('sources'),
-            $this->invalidResponseModelDataProviderCreator('sources'),
-        );
     }
 }
