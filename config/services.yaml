@@ -99,4 +99,5 @@ services:
     app.service-proxy.sources:
         class: App\ServiceProxy\ServiceProxy
         arguments:
+            $name: 'sources'
             $baseUrl: '%env(string:SOURCES_90_BASE_URL)%'

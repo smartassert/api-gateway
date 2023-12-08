@@ -4,14 +4,11 @@ declare(strict_types=1);
 
 namespace App\EventListener;
 
-use App\Exception\BareHttpException;
 use App\Exception\EmptyAuthenticationTokenException;
 use App\Exception\EmptyUserCredentialsException;
 use App\Exception\EmptyUserIdException;
 use App\Exception\ServiceException;
-use App\Exception\UnexpectedServiceResponseException;
 use App\Response\EmptyResponse;
-use App\Response\ErrorResponse;
 use App\Response\UnauthorizedResponse;
 use App\ServiceExceptionResponseFactory\Factory;
 use SmartAssert\ServiceClient\Exception\UnauthorizedException;
@@ -43,11 +40,6 @@ readonly class KernelExceptionEventSubscriber implements EventSubscriberInterfac
         $throwable = $event->getThrowable();
         $response = null;
 
-        if ($throwable instanceof BareHttpException) {
-            $event->setResponse(new EmptyResponse($throwable->getCode()));
-            $event->stopPropagation();
-        }
-
         if ($throwable instanceof EmptyAuthenticationTokenException) {
             $response = new UnauthorizedResponse();
         }
@@ -66,14 +58,6 @@ readonly class KernelExceptionEventSubscriber implements EventSubscriberInterfac
 
         if ($throwable instanceof ServiceException) {
             $response = $this->serviceExceptionResponseFactory->create($throwable);
-        }
-
-        if ($throwable instanceof UnexpectedServiceResponseException) {
-            $response = new ErrorResponse(
-                'service-communication-failure',
-                500,
-                $throwable->toArray()
-            );
         }
 
         if ($response instanceof Response) {
