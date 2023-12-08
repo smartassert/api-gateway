@@ -11,6 +11,7 @@ use App\Tests\Application\GitSource\AssertGitSourceTrait;
 use App\Tests\Application\GitSource\CreateGitSourceDataProviderTrait;
 use App\Tests\Application\UnauthorizedUserDataProviderTrait;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
+use SmartAssert\TestAuthenticationProviderBundle\UserProvider;
 use Symfony\Component\Uid\Ulid;
 
 abstract class AbstractGetTest extends AbstractApplicationTestCase
@@ -48,12 +49,16 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
+        $userProvider = self::getContainer()->get(UserProvider::class);
+        \assert($userProvider instanceof UserProvider);
+        $user = $userProvider->get('user@example.com');
+
         $label = md5((string) rand());
         $id = $this->createFileSource($apiKey->key, $label);
 
         $response = $this->applicationClient->makeGetSourceRequest($apiKey->key, $id);
 
-        $this->assertRetrievedFileSource($response, $label, $id);
+        $this->assertRetrievedFileSource($response, $label, $user->id, $id);
     }
 
     /**
@@ -64,6 +69,10 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
+
+        $userProvider = self::getContainer()->get(UserProvider::class);
+        \assert($userProvider instanceof UserProvider);
+        $user = $userProvider->get('user@example.com');
 
         $id = $this->createGitSource(
             $apiKey->key,
@@ -81,7 +90,8 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
             $id,
             $hostUrl,
             $path,
-            is_string($credentials)
+            is_string($credentials),
+            $user->id,
         );
     }
 }

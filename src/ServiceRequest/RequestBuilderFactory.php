@@ -15,7 +15,6 @@ readonly class RequestBuilderFactory
 
     /**
      * @param non-empty-string $method
-     * @param non-empty-string $url
      */
     public function create(string $method, string $url): RequestBuilder
     {
