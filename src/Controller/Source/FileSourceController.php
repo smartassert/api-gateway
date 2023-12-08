@@ -25,32 +25,10 @@ readonly class FileSourceController
     /**
      * @throws ServiceException
      */
-    #[Route(name: 'create', methods: ['POST'])]
-    public function create(ApiToken $token, Request $request): Response
+    #[Route(path: '/{sourceId<[A-Z90-9]{26}>?}', name: 'act', methods: ['POST', 'PUT'])]
+    public function act(ApiToken $token, Request $request): Response
     {
-        $requestBuilder = $this->requestBuilderFactory->create('POST', '/file-source');
-        $httpRequest = $requestBuilder
-            ->withAuthorization($token->token)
-            ->withPayload(['label' => $request->request->get('label')])
-            ->get()
-        ;
-
-        try {
-            return $this->sourcesProxy->sendRequest(request: $httpRequest, bareResponseStatusCodes: []);
-        } catch (ClientExceptionInterface $exception) {
-            throw new ServiceException('sources', $exception);
-        }
-    }
-
-    /**
-     * @param non-empty-string $sourceId
-     *
-     * @throws ServiceException
-     */
-    #[Route(path: '/{sourceId<[A-Z90-9]{26}>}', name: 'update', methods: ['PUT'])]
-    public function update(ApiToken $token, string $sourceId, Request $request): Response
-    {
-        $requestBuilder = $this->requestBuilderFactory->create('PUT', '/file-source/' . $sourceId);
+        $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $request->getRequestUri());
         $httpRequest = $requestBuilder
             ->withAuthorization($token->token)
             ->withPayload(['label' => $request->request->get('label')])
