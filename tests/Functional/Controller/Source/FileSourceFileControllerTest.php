@@ -6,9 +6,15 @@ namespace App\Tests\Functional\Controller\Source;
 
 use App\Tests\Application\AbstractApplicationTestCase;
 use App\Tests\DataProvider\InvalidResponseModelDataProviderCreatorTrait;
+use App\Tests\DataProvider\ServiceBadMethodDataProviderTrait;
+use App\Tests\DataProvider\ServiceBadResponseContentTypeDataProviderTrait;
 use App\Tests\DataProvider\ServiceHttpFailureDataProviderCreatorTrait;
+use App\Tests\DataProvider\ServiceHttpFailureDataProviderTrait;
 use App\Tests\Functional\Controller\AssertJsonResponseTrait;
 use App\Tests\Functional\GetClientAdapterTrait;
+use GuzzleHttp\Handler\MockHandler;
+use Psr\Http\Client\ClientInterface as HttpClientInterface;
+use Psr\Http\Message\ResponseInterface;
 use SmartAssert\SourcesClient\FileClientInterface;
 use SmartAssert\UsersClient\ClientInterface as UsersClient;
 use SmartAssert\UsersClient\Model\Token;
@@ -20,17 +26,29 @@ class FileSourceFileControllerTest extends AbstractApplicationTestCase
     use ServiceHttpFailureDataProviderCreatorTrait;
     use InvalidResponseModelDataProviderCreatorTrait;
     use AssertJsonResponseTrait;
+    use ServiceBadMethodDataProviderTrait;
+    use ServiceBadResponseContentTypeDataProviderTrait;
+    use ServiceHttpFailureDataProviderTrait;
 
     /**
-     * @dataProvider usersClientExceptionDataProvider
+     * @dataProvider serviceBadMethodProvider
+     * @dataProvider serviceHttpFailureDataProvider
      *
      * @param array<mixed> $expectedData
      */
     public function testAddHandlesException(
-        \Exception $exception,
+        \Exception|ResponseInterface $httpFixture,
         int $expectedStatusCode,
         array $expectedData
     ): void {
+        $mockingHttpClient = self::getContainer()->get('app.test.mocking_http_client');
+        \assert($mockingHttpClient instanceof HttpClientInterface);
+
+        $httpMockHandler = self::getContainer()->get(MockHandler::class);
+        \assert($httpMockHandler instanceof MockHandler);
+
+        $httpMockHandler->append($httpFixture);
+
         $apiKey = md5((string) rand());
         $apiToken = md5((string) rand());
         $fileSourceId = (string) new Ulid();
@@ -44,15 +62,8 @@ class FileSourceFileControllerTest extends AbstractApplicationTestCase
             ->andReturn(new Token($apiToken))
         ;
 
-        $fileClient = \Mockery::mock(FileClientInterface::class);
-        $fileClient
-            ->shouldReceive('add')
-            ->with($apiToken, $fileSourceId, $filename, $content)
-            ->andThrow($exception)
-        ;
-
         self::getContainer()->set(UsersClient::class, $usersClient);
-        self::getContainer()->set(FileClientInterface::class, $fileClient);
+        self::getContainer()->set(HttpClientInterface::class, $mockingHttpClient);
 
         $response = $this->applicationClient->makeCreateFileSourceFileRequest(
             $apiKey,
