@@ -549,4 +549,21 @@ readonly class Client
             http_build_query($payload)
         );
     }
+
+    public function makeGetSourceRequest(
+        ?string $apiKey,
+        string $sourceId,
+        string $method = 'GET',
+    ): ResponseInterface {
+        $headers = [];
+        if (is_string($apiKey)) {
+            $headers['Authorization'] = 'Bearer ' . $apiKey;
+        }
+
+        return $this->client->makeRequest(
+            $method,
+            $this->router->generate('source_read', ['sourceId' => $sourceId]),
+            $headers
+        );
+    }
 }
