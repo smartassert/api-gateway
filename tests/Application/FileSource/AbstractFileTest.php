@@ -165,10 +165,10 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
 
         self::assertSame(
             [
-                'type' => 'duplicate-file-path',
-                'context' => [
-                    'service' => 'sources',
-                    'path' => $filename,
+                'class' => 'duplicate',
+                'field' => [
+                    'name' => 'filename',
+                    'value' => $filename,
                 ],
             ],
             json_decode($failedCreateResponse->getBody()->getContents(), true)
@@ -193,7 +193,6 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
             $filename,
             $content
         );
-
         self::assertSame(200, $createResponse->getStatusCode());
 
         $updatedContent = md5((string) rand());

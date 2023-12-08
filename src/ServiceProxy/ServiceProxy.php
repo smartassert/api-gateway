@@ -39,7 +39,7 @@ readonly class ServiceProxy
         $response = $this->httpClient->sendRequest($request);
 
         $statusCode = $response->getStatusCode();
-        if (in_array($response->getStatusCode(), $bareResponseStatusCodes)) {
+        if (in_array($statusCode, $bareResponseStatusCodes)) {
             return new EmptyResponse($statusCode);
         }
 
@@ -56,7 +56,7 @@ readonly class ServiceProxy
             500,
             [
                 'service' => $this->name,
-                'code' => $response->getStatusCode(),
+                'code' => $statusCode,
                 'reason' => $response->getReasonPhrase(),
                 'expected_content_type' => $successContentType,
                 'actual_content_type' => $contentType,

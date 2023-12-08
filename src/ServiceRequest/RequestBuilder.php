@@ -43,13 +43,18 @@ class RequestBuilder
         $encodedPayload = http_build_query($payload);
 
         if (in_array($this->request->getMethod(), ['POST', 'PUT'])) {
-            $this->setBody($encodedPayload);
-            $this->setHeader('content-type', 'application/x-www-form-urlencoded');
-        } else {
-            $this->request = $this->request->withUri(
-                $this->request->getUri()->withQuery($encodedPayload)
-            );
+            return $this->withBody($encodedPayload, 'application/x-www-form-urlencoded');
         }
+
+        $this->request = $this->request->withUri($this->request->getUri()->withQuery($encodedPayload));
+
+        return $this;
+    }
+
+    public function withBody(string $content, string $contentType): self
+    {
+        $this->setBody($content);
+        $this->setHeader('content-type', $contentType);
 
         return $this;
     }
