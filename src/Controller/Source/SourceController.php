@@ -7,7 +7,6 @@ namespace App\Controller\Source;
 use App\Exception\ServiceException;
 use App\Security\ApiToken;
 use Psr\Http\Client\ClientExceptionInterface;
-use SmartAssert\ServiceClient\Exception\CurlExceptionInterface;
 use SmartAssert\ServiceClient\Exception\HttpResponseExceptionInterface;
 use SmartAssert\ServiceClient\Exception\InvalidModelDataException;
 use SmartAssert\ServiceClient\Exception\InvalidResponseDataException;
@@ -68,38 +67,22 @@ readonly class SourceController
     #[Route(path: '/source/{sourceId<[A-Z90-9]{26}>}', name: 'source_read', methods: ['GET'])]
     public function read(ApiToken $token, string $sourceId): Response
     {
-        var_dump('foo 01');
-
         try {
-            var_dump($this->fileSourceClient->get($token->token, $sourceId));
-        } catch (\Exception $e) {
-            var_dump('for file');
-            var_dump($e::class);
-        }
+            try {
+                $source = $this->gitSourceClient->get($token->token, $sourceId);
+            } catch (InvalidModelDataException) {
+                $source = $this->fileSourceClient->get($token->token, $sourceId);
+            }
 
-        try {
-            var_dump($this->gitSourceClient->get($token->token, $sourceId));
-        } catch (\Exception $e) {
-            var_dump('for git');
-            var_dump($e::class);
+            return new JsonResponse($source->toArray());
+        } catch (
+            ClientExceptionInterface |
+            HttpResponseExceptionInterface |
+            InvalidModelDataException |
+            InvalidResponseDataException |
+            InvalidResponseTypeException $e
+        ) {
+            throw new ServiceException('sources', $e);
         }
-
-//        try {
-//            try {
-//                $source = $this->fileSourceClient->get($token->token, $sourceId);
-//            } catch (InvalidModelDataException) {
-//                $source = $this->gitSourceClient->get($token->token, $sourceId);
-//            }
-//
-//            return new JsonResponse($source->toArray());
-//        } catch (
-//            ClientExceptionInterface |
-//            HttpResponseExceptionInterface |
-//            InvalidModelDataException |
-//            InvalidResponseDataException |
-//            InvalidResponseTypeException $e
-//        ) {
-//            throw new ServiceException('sources', $e);
-//        }
     }
 }

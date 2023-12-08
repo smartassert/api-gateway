@@ -61,42 +61,6 @@ class FileSourceControllerTest extends AbstractApplicationTestCase
      *
      * @param array<mixed> $expectedData
      */
-    public function testGetHandlesException(
-        \Exception $exception,
-        int $expectedStatusCode,
-        array $expectedData
-    ): void {
-        $apiKey = md5((string) rand());
-        $apiToken = md5((string) rand());
-        $sourceId = (string) new Ulid();
-
-        $usersClient = \Mockery::mock(UsersClient::class);
-        $usersClient
-            ->shouldReceive('createApiToken')
-            ->with($apiKey)
-            ->andReturn(new Token($apiToken))
-        ;
-
-        $fileSourceClient = \Mockery::mock(FileSourceClientInterface::class);
-        $fileSourceClient
-            ->shouldReceive('get')
-            ->with($apiToken, $sourceId)
-            ->andThrow($exception)
-        ;
-
-        self::getContainer()->set(UsersClient::class, $usersClient);
-        self::getContainer()->set(FileSourceClientInterface::class, $fileSourceClient);
-
-        $response = $this->applicationClient->makeReadFileSourceRequest($apiKey, $sourceId);
-
-        $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
-    }
-
-    /**
-     * @dataProvider sourcesClientExceptionDataProvider
-     *
-     * @param array<mixed> $expectedData
-     */
     public function testUpdateHandlesException(
         \Exception $exception,
         int $expectedStatusCode,

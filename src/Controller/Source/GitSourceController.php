@@ -66,30 +66,6 @@ readonly class GitSourceController
      * @throws ServiceException
      * @throws UnauthorizedException
      */
-    #[Route(path: '/{sourceId<[A-Z90-9]{26}>}', name: 'read', methods: ['GET'])]
-    public function read(ApiToken $token, string $sourceId): Response
-    {
-        try {
-            $source = $this->client->get($token->token, $sourceId);
-
-            return new JsonResponse($source->toArray());
-        } catch (
-            ClientExceptionInterface |
-            HttpResponseExceptionInterface |
-            InvalidModelDataException |
-            InvalidResponseDataException |
-            InvalidResponseTypeException $e
-        ) {
-            throw new ServiceException('sources', $e);
-        }
-    }
-
-    /**
-     * @param non-empty-string $sourceId
-     *
-     * @throws ServiceException
-     * @throws UnauthorizedException
-     */
     #[Route(path: '/{sourceId<[A-Z90-9]{26}>}', name: 'update', methods: ['PUT'])]
     public function update(ApiToken $token, string $sourceId, Request $request): Response
     {

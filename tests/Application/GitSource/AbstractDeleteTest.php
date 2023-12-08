@@ -55,7 +55,7 @@ abstract class AbstractDeleteTest extends AbstractApplicationTestCase
             $credentials
         );
 
-        $getResponse = $this->applicationClient->makeReadGitSourceRequest($apiKey->key, $id);
+        $getResponse = $this->applicationClient->makeGetSourceRequest($apiKey->key, $id);
         self::assertSame(200, $getResponse->getStatusCode());
 
         $deleteResponse = $this->applicationClient->makeDeleteGitSourceRequest($apiKey->key, $id);
