@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\EventListener;
 
+use App\Exception\BareHttpException;
 use App\Exception\EmptyAuthenticationTokenException;
 use App\Exception\EmptyUserCredentialsException;
 use App\Exception\EmptyUserIdException;
@@ -41,6 +42,11 @@ readonly class KernelExceptionEventSubscriber implements EventSubscriberInterfac
     {
         $throwable = $event->getThrowable();
         $response = null;
+
+        if ($throwable instanceof BareHttpException) {
+            $event->setResponse(new EmptyResponse($throwable->getCode()));
+            $event->stopPropagation();
+        }
 
         if ($throwable instanceof EmptyAuthenticationTokenException) {
             $response = new UnauthorizedResponse();
