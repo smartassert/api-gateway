@@ -13,6 +13,8 @@ use SmartAssert\ServiceClient\Exception\InvalidResponseDataException;
 use SmartAssert\ServiceClient\Exception\InvalidResponseTypeException;
 use SmartAssert\ServiceClient\Exception\UnauthorizedException;
 use SmartAssert\ServiceClient\SerializableInterface;
+use SmartAssert\SourcesClient\FileSourceClientInterface;
+use SmartAssert\SourcesClient\GitSourceClientInterface;
 use SmartAssert\SourcesClient\SourceClientInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -21,6 +23,8 @@ readonly class SourceController
 {
     public function __construct(
         private SourceClientInterface $client,
+        private FileSourceClientInterface $fileSourceClient,
+        private GitSourceClientInterface $gitSourceClient,
     ) {
     }
 
