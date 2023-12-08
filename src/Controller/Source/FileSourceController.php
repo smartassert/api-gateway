@@ -11,13 +11,6 @@ use App\Security\ApiToken;
 use App\ServiceProxy\ServiceProxy;
 use GuzzleHttp\Psr7\Request as HttpRequest;
 use Psr\Http\Client\ClientExceptionInterface;
-use SmartAssert\ServiceClient\Exception\HttpResponseExceptionInterface;
-use SmartAssert\ServiceClient\Exception\InvalidModelDataException;
-use SmartAssert\ServiceClient\Exception\InvalidResponseDataException;
-use SmartAssert\ServiceClient\Exception\InvalidResponseTypeException;
-use SmartAssert\ServiceClient\Exception\UnauthorizedException;
-use SmartAssert\SourcesClient\FileSourceClientInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -26,7 +19,6 @@ use Symfony\Component\Routing\Annotation\Route;
 readonly class FileSourceController
 {
     public function __construct(
-        private FileSourceClientInterface $client,
         private ServiceProxy $sourcesProxy,
     ) {
     }
@@ -117,10 +109,10 @@ readonly class FileSourceController
      * @param non-empty-string $sourceId
      *
      * @throws ServiceException
-     * @throws UnauthorizedException
+     * @throws UnexpectedServiceResponseException
      */
     #[Route(path: '/{sourceId<[A-Z90-9]{26}>}', name: 'delete', methods: ['DELETE'])]
-    public function delete(ApiToken $token, string $sourceId, Request $request): Response
+    public function delete(ApiToken $token, string $sourceId): Response
     {
         $httpRequest = new HttpRequest(
             'DELETE',
@@ -178,23 +170,60 @@ readonly class FileSourceController
      * @param non-empty-string $sourceId
      *
      * @throws ServiceException
-     * @throws UnauthorizedException
+     * @throws UnexpectedServiceResponseException
      */
     #[Route(path: '/{sourceId<[A-Z90-9]{26}>}/list', name: 'list', methods: ['GET'])]
-    public function list(ApiToken $token, string $sourceId): JsonResponse
+    public function list(ApiToken $token, string $sourceId): Response
     {
-        try {
-            $filenames = $this->client->list($token->token, $sourceId);
-        } catch (
-            ClientExceptionInterface |
-            HttpResponseExceptionInterface |
-            InvalidModelDataException |
-            InvalidResponseDataException |
-            InvalidResponseTypeException $e
-        ) {
-            throw new ServiceException('sources', $e);
-        }
+        $httpRequest = new HttpRequest(
+            'GET',
+            '/file-source/' . $sourceId . '/list/',
+            [
+                'authorization' => 'Bearer ' . $token->token,
+            ]
+        );
 
-        return new JsonResponse($filenames);
+        try {
+            $response = $this->sourcesProxy->sendRequest($httpRequest);
+
+            $statusCode = $response->getStatusCode();
+            $responseContentType = $response->getHeaderLine('content-type');
+
+            if (404 === $statusCode) {
+                return new EmptyResponse(404);
+            }
+
+            if (200 === $statusCode) {
+                if (str_starts_with($responseContentType, 'application/json')) {
+                    return new Response(
+                        $response->getBody()->getContents(),
+                        $response->getStatusCode(),
+                        ['content-type' => $response->getHeaderLine('content-type')]
+                    );
+                }
+
+                throw new UnexpectedServiceResponseException(
+                    'sources',
+                    'application/json',
+                    $response
+                );
+            }
+
+            if (str_starts_with($responseContentType, 'application/json')) {
+                return new Response(
+                    $response->getBody()->getContents(),
+                    $response->getStatusCode(),
+                    ['content-type' => $response->getHeaderLine('content-type')]
+                );
+            }
+
+            throw new UnexpectedServiceResponseException(
+                'sources',
+                'application/json',
+                $response
+            );
+        } catch (ClientExceptionInterface $exception) {
+            throw new ServiceException('sources', $exception);
+        }
     }
 }
