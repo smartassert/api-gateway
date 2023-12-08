@@ -466,11 +466,9 @@ readonly class Client
             $headers['Content-Type'] = 'application/x-www-form-urlencoded';
         }
 
-        $route = 'file_source_' . ('POST' === $method ? 'create' : 'update');
-
         return $this->client->makeRequest(
             $method,
-            $this->router->generate($route, ['sourceId' => $sourceId]),
+            $this->router->generate('file_source_act', ['sourceId' => $sourceId]),
             $headers,
             http_build_query($payload)
         );
