@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\ServiceProxy;
 
+use App\Exception\BareHttpException;
 use GuzzleHttp\Psr7\Uri;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
@@ -20,11 +21,21 @@ readonly class ServiceProxy
 
     /**
      * @throws ClientExceptionInterface
+     * @throws BareHttpException
      */
-    public function sendRequest(RequestInterface $request): ResponseInterface
-    {
+    public function sendRequest(
+        RequestInterface $request,
+        ?ResponseHandlingSpecification $responseHandlingSpecification = null,
+    ): ResponseInterface {
         $request = $request->withUri(new Uri($this->baseUrl . $request->getUri()));
+        $response = $this->httpClient->sendRequest($request);
 
-        return $this->httpClient->sendRequest($request);
+        if ($responseHandlingSpecification instanceof ResponseHandlingSpecification) {
+            if (in_array($response->getStatusCode(), $responseHandlingSpecification->getBareResponseStatusCodes())) {
+                throw new BareHttpException($response->getStatusCode());
+            }
+        }
+
+        return $response;
     }
 }
