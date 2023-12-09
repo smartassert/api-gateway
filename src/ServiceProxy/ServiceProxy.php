@@ -45,7 +45,7 @@ readonly class ServiceProxy
 
         $contentType = $response->getHeaderLine('content-type');
         if (
-            (200 === $statusCode && $contentType === $successContentType)
+            (200 === $statusCode && str_starts_with($contentType, $successContentType))
             || ($contentType === $errorContentType)
         ) {
             return new TransparentResponse($response);
