@@ -39,7 +39,7 @@ readonly class FileSourceFileController
         $requestBuilder = $this->requestBuilderFactory->create('POST', $request->getRequestUri());
         $httpRequest = $requestBuilder
             ->withAuthorization($token->token)
-            ->withBody((string) $request->getContent(), 'text/x-yaml')
+            ->withBody((string) $request->getContent(), (string) $request->headers->get('content-type'))
             ->get()
         ;
 

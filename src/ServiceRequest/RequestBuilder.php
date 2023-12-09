@@ -35,22 +35,6 @@ class RequestBuilder
         return $this;
     }
 
-    /**
-     * @param array<mixed> $payload
-     */
-    public function withPayload(array $payload): self
-    {
-        $encodedPayload = http_build_query($payload);
-
-        if (in_array($this->request->getMethod(), ['POST', 'PUT'])) {
-            return $this->withBody($encodedPayload, 'application/x-www-form-urlencoded');
-        }
-
-        $this->request = $this->request->withUri($this->request->getUri()->withQuery($encodedPayload));
-
-        return $this;
-    }
-
     public function withBody(string $content, string $contentType): self
     {
         $this->setBody($content);
