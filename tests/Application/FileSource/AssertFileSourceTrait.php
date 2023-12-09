@@ -12,7 +12,7 @@ trait AssertFileSourceTrait
     public function assertRetrievedFileSource(
         ResponseInterface $response,
         string $expectedLabel,
-        ?string $expectedUserId = null,
+        string $expectedUserId,
         ?string $expectedId = null,
     ): void {
         Assert::assertSame(200, $response->getStatusCode());
@@ -28,11 +28,8 @@ trait AssertFileSourceTrait
             'id' => $expectedId,
             'label' => $expectedLabel,
             'type' => 'file',
+            'user_id' => $expectedUserId,
         ];
-
-        if (is_string($expectedUserId)) {
-            $expectedResponseData['user_id'] = $expectedUserId;
-        }
 
         Assert::assertEquals($expectedResponseData, $responseData);
     }
