@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Controller\Source;
 
 use App\Tests\Application\AbstractApplicationTestCase;
-use App\Tests\DataProvider\ServiceBadMethodDataProviderTrait;
 use App\Tests\DataProvider\ServiceBadResponseContentTypeDataProviderTrait;
 use App\Tests\DataProvider\ServiceHttpFailureDataProviderTrait;
 use App\Tests\Functional\Controller\AssertJsonResponseTrait;
@@ -21,12 +20,10 @@ class SourceControllerTest extends AbstractApplicationTestCase
 {
     use GetClientAdapterTrait;
     use AssertJsonResponseTrait;
-    use ServiceBadMethodDataProviderTrait;
     use ServiceBadResponseContentTypeDataProviderTrait;
     use ServiceHttpFailureDataProviderTrait;
 
     /**
-     * @dataProvider serviceBadMethodProvider
      * @dataProvider serviceBadResponseContentTypeDataProvider
      * @dataProvider serviceHttpFailureDataProvider
      *
@@ -65,7 +62,6 @@ class SourceControllerTest extends AbstractApplicationTestCase
     }
 
     /**
-     * @dataProvider serviceBadMethodProvider
      * @dataProvider serviceBadResponseContentTypeDataProvider
      * @dataProvider serviceHttpFailureDataProvider
      *

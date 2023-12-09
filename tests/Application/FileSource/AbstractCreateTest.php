@@ -26,6 +26,13 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
         self::assertSame(401, $response->getStatusCode());
     }
 
+    public function testCreateBadMethod(): void
+    {
+        $response = $this->applicationClient->makeCreateFileSourceRequest('token', md5((string) rand()), 'GET');
+
+        self::assertSame(405, $response->getStatusCode());
+    }
+
     public function testCreateBadRequest(): void
     {
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);

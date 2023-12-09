@@ -178,14 +178,21 @@ readonly class Client
         );
     }
 
-    public function makeCreateFileSourceRequest(?string $apiKey, ?string $label): ResponseInterface
-    {
-        return $this->makeFileSourceMutationRequest($apiKey, 'POST', null, $label);
+    public function makeCreateFileSourceRequest(
+        ?string $apiKey,
+        ?string $label,
+        string $method = 'POST'
+    ): ResponseInterface {
+        return $this->makeFileSourceMutationRequest($apiKey, $method, null, $label);
     }
 
-    public function makeUpdateFileSourceRequest(?string $apiKey, string $sourceId, ?string $label): ResponseInterface
-    {
-        return $this->makeFileSourceMutationRequest($apiKey, 'PUT', $sourceId, $label);
+    public function makeUpdateFileSourceRequest(
+        ?string $apiKey,
+        string $sourceId,
+        ?string $label,
+        string $method = 'PUT'
+    ): ResponseInterface {
+        return $this->makeFileSourceMutationRequest($apiKey, $method, $sourceId, $label);
     }
 
     public function makeCreateGitSourceRequest(
@@ -341,9 +348,6 @@ readonly class Client
         return $this->makeSuiteRequest($apiKey, 'DELETE', $suiteId);
     }
 
-    /**
-     * @param 'DELETE'|'GET' $method
-     */
     public function makeSourceActRequest(string $method, ?string $apiKey, string $sourceId): ResponseInterface
     {
         $headers = [];
@@ -445,9 +449,6 @@ readonly class Client
         );
     }
 
-    /**
-     * @param 'POST'|'PUT' $method
-     */
     private function makeFileSourceMutationRequest(
         ?string $apiKey,
         string $method,
