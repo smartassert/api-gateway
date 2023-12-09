@@ -29,7 +29,7 @@ class FileSourceFileControllerTest extends AbstractApplicationTestCase
     use ServiceHttpFailureDataProviderTrait;
 
     /**
-     * @dataProvider serviceHttpFailureDataProvider
+     * @dataProvider serviceExceptionDataProvider
      *
      * @param array<mixed> $expectedData
      */
@@ -70,6 +70,16 @@ class FileSourceFileControllerTest extends AbstractApplicationTestCase
         );
 
         $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function serviceExceptionDataProvider(): array
+    {
+        return array_merge(
+            $this->serviceHttpFailureDataProvider('sources'),
+        );
     }
 
     /**

@@ -24,8 +24,7 @@ class FileSourceControllerTest extends AbstractApplicationTestCase
     use ServiceHttpFailureDataProviderTrait;
 
     /**
-     * @dataProvider serviceBadResponseContentTypeDataProvider
-     * @dataProvider serviceHttpFailureDataProvider
+     * @dataProvider serviceExceptionDataProvider
      *
      * @param array<mixed> $expectedData
      */
@@ -62,8 +61,7 @@ class FileSourceControllerTest extends AbstractApplicationTestCase
     }
 
     /**
-     * @dataProvider serviceBadResponseContentTypeDataProvider
-     * @dataProvider serviceHttpFailureDataProvider
+     * @dataProvider serviceExceptionDataProvider
      *
      * @param array<mixed> $expectedData
      */
@@ -97,5 +95,16 @@ class FileSourceControllerTest extends AbstractApplicationTestCase
         $response = $this->applicationClient->makeFileSourceFilesRequest($apiKey, $sourceId);
 
         $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function serviceExceptionDataProvider(): array
+    {
+        return array_merge(
+            $this->serviceBadResponseContentTypeDataProvider('sources', 'application/json'),
+            $this->serviceHttpFailureDataProvider('sources'),
+        );
     }
 }
