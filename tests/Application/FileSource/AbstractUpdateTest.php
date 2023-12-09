@@ -33,6 +33,18 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         self::assertSame(401, $response->getStatusCode());
     }
 
+    public function testUpdateBadMethod(): void
+    {
+        $response = $this->applicationClient->makeUpdateFileSourceRequest(
+            'token',
+            (string) new Ulid(),
+            md5((string) rand()),
+            'GET'
+        );
+
+        self::assertSame(405, $response->getStatusCode());
+    }
+
     public function testUpdateNotFound(): void
     {
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);

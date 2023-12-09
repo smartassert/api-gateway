@@ -32,6 +32,13 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
         self::assertSame(401, $response->getStatusCode());
     }
 
+    public function testGetBadMethod(): void
+    {
+        $response = $this->applicationClient->makeSourceActRequest('PUT', 'token', (string) new Ulid());
+
+        self::assertSame(405, $response->getStatusCode());
+    }
+
     public function testGetNotFound(): void
     {
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);

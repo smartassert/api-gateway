@@ -6,7 +6,6 @@ namespace App\Tests\Functional\Controller\Source;
 
 use App\Tests\Application\AbstractApplicationTestCase;
 use App\Tests\DataProvider\InvalidResponseModelDataProviderCreatorTrait;
-use App\Tests\DataProvider\ServiceBadMethodDataProviderTrait;
 use App\Tests\DataProvider\ServiceBadResponseContentTypeDataProviderTrait;
 use App\Tests\DataProvider\ServiceHttpFailureDataProviderCreatorTrait;
 use App\Tests\DataProvider\ServiceHttpFailureDataProviderTrait;
@@ -26,12 +25,10 @@ class FileSourceFileControllerTest extends AbstractApplicationTestCase
     use ServiceHttpFailureDataProviderCreatorTrait;
     use InvalidResponseModelDataProviderCreatorTrait;
     use AssertJsonResponseTrait;
-    use ServiceBadMethodDataProviderTrait;
     use ServiceBadResponseContentTypeDataProviderTrait;
     use ServiceHttpFailureDataProviderTrait;
 
     /**
-     * @dataProvider serviceBadMethodProvider
      * @dataProvider serviceHttpFailureDataProvider
      *
      * @param array<mixed> $expectedData

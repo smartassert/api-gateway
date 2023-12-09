@@ -36,7 +36,7 @@ readonly class FileSourceFileController
     #[Route(name: 'create', methods: ['POST'])]
     public function create(ApiToken $token, Request $request): Response
     {
-        $requestBuilder = $this->requestBuilderFactory->create('POST', $request->getRequestUri());
+        $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $request->getRequestUri());
         $httpRequest = $requestBuilder
             ->withAuthorization($token->token)
             ->withBody((string) $request->getContent(), (string) $request->headers->get('content-type'))
@@ -44,7 +44,7 @@ readonly class FileSourceFileController
         ;
 
         try {
-            return $this->sourcesProxy->sendRequest(request: $httpRequest, bareResponseStatusCodes: [200]);
+            return $this->sourcesProxy->sendRequest(request: $httpRequest, bareResponseStatusCodes: [200, 404]);
         } catch (ClientExceptionInterface $exception) {
             throw new ServiceException('sources', $exception);
         }
