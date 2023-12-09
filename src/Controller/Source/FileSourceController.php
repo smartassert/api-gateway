@@ -31,7 +31,7 @@ readonly class FileSourceController
         $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $request->getRequestUri());
         $httpRequest = $requestBuilder
             ->withAuthorization($token->token)
-            ->withPayload(['label' => $request->request->get('label')])
+            ->withBody(http_build_query($request->request->all()), (string) $request->headers->get('content-type'))
             ->get()
         ;
 
