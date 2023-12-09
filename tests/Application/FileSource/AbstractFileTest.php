@@ -207,7 +207,7 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
         $readResponse = $this->applicationClient->makeReadFileSourceFileRequest($apiKey->key, $sourceId, $filename);
 
         self::assertSame(200, $readResponse->getStatusCode());
-        self::assertSame('application/yaml', $readResponse->getHeaderLine('content-type'));
+        self::assertSame('text/x-yaml; charset=utf-8', $readResponse->getHeaderLine('content-type'));
         self::assertSame($updatedContent, $readResponse->getBody()->getContents());
 
         $removeResponse = $this->applicationClient->makeDeleteFileSourceFileRequest($apiKey->key, $sourceId, $filename);

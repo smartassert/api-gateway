@@ -29,7 +29,7 @@ class FileSourceFileControllerTest extends AbstractApplicationTestCase
     use ServiceHttpFailureDataProviderTrait;
 
     /**
-     * @dataProvider serviceExceptionDataProvider
+     * @dataProvider addDataProvider
      *
      * @param array<mixed> $expectedData
      */
@@ -75,7 +75,7 @@ class FileSourceFileControllerTest extends AbstractApplicationTestCase
     /**
      * @return array<mixed>
      */
-    public function serviceExceptionDataProvider(): array
+    public function addDataProvider(): array
     {
         return array_merge(
             $this->serviceHttpFailureDataProvider('sources'),
@@ -83,15 +83,23 @@ class FileSourceFileControllerTest extends AbstractApplicationTestCase
     }
 
     /**
-     * @dataProvider usersClientExceptionDataProvider
+     * @dataProvider readDataProvider
      *
      * @param array<mixed> $expectedData
      */
     public function testReadHandlesException(
-        \Exception $exception,
+        \Exception|ResponseInterface $httpFixture,
         int $expectedStatusCode,
         array $expectedData
     ): void {
+        $mockingHttpClient = self::getContainer()->get('app.test.mocking_http_client');
+        \assert($mockingHttpClient instanceof HttpClientInterface);
+
+        $httpMockHandler = self::getContainer()->get(MockHandler::class);
+        \assert($httpMockHandler instanceof MockHandler);
+
+        $httpMockHandler->append($httpFixture);
+
         $apiKey = md5((string) rand());
         $apiToken = md5((string) rand());
         $fileSourceId = (string) new Ulid();
@@ -104,19 +112,23 @@ class FileSourceFileControllerTest extends AbstractApplicationTestCase
             ->andReturn(new Token($apiToken))
         ;
 
-        $fileClient = \Mockery::mock(FileClientInterface::class);
-        $fileClient
-            ->shouldReceive('read')
-            ->with($apiToken, $fileSourceId, $filename)
-            ->andThrow($exception)
-        ;
-
         self::getContainer()->set(UsersClient::class, $usersClient);
-        self::getContainer()->set(FileClientInterface::class, $fileClient);
+        self::getContainer()->set(HttpClientInterface::class, $mockingHttpClient);
 
         $response = $this->applicationClient->makeReadFileSourceFileRequest($apiKey, $fileSourceId, $filename);
 
         $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function readDataProvider(): array
+    {
+        return array_merge(
+            $this->serviceBadResponseContentTypeDataProvider('sources', 'text/x-yaml'),
+            $this->serviceHttpFailureDataProvider('sources'),
+        );
     }
 
     /**

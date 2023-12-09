@@ -6,7 +6,6 @@ namespace App\Controller\Source;
 
 use App\Exception\ServiceException;
 use App\Response\EmptyResponse;
-use App\Response\YamlResponse;
 use App\Security\ApiToken;
 use App\ServiceProxy\ServiceProxy;
 use App\ServiceRequest\RequestBuilderFactory;
@@ -52,20 +51,20 @@ readonly class FileSourceFileController
 
     /**
      * @throws ServiceException
-     * @throws UnauthorizedException
      */
     #[Route(name: 'read', methods: ['GET'])]
-    public function read(ApiToken $token, string $sourceId, string $filename): YamlResponse
+    public function read(ApiToken $token, Request $request): Response
     {
+        $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $request->getRequestUri());
+        $httpRequest = $requestBuilder
+            ->withAuthorization($token->token)
+            ->get()
+        ;
+
         try {
-            return new YamlResponse($this->client->read($token->token, $sourceId, $filename));
-        } catch (
-            ClientExceptionInterface |
-            HttpResponseExceptionInterface |
-            InvalidModelDataException |
-            InvalidResponseDataException $e
-        ) {
-            throw new ServiceException('sources', $e);
+            return $this->sourcesProxy->sendRequest(request: $httpRequest, successContentType: 'text/x-yaml');
+        } catch (ClientExceptionInterface $exception) {
+            throw new ServiceException('sources', $exception);
         }
     }
 
