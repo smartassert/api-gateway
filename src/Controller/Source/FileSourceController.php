@@ -43,14 +43,12 @@ readonly class FileSourceController
     }
 
     /**
-     * @param non-empty-string $sourceId
-     *
      * @throws ServiceException
      */
-    #[Route(path: '/{sourceId<[A-Z90-9]{26}>}/list', name: 'list', methods: ['GET'])]
-    public function list(ApiToken $token, string $sourceId): Response
+    #[Route(path: '/{sourceId<[A-Z90-9]{26}>}/list/', name: 'list', methods: ['GET'])]
+    public function list(ApiToken $token, Request $request): Response
     {
-        $requestBuilder = $this->requestBuilderFactory->create('GET', '/file-source/' . $sourceId . '/list/');
+        $requestBuilder = $this->requestBuilderFactory->create('GET', $request->getRequestUri());
         $httpRequest = $requestBuilder
             ->withAuthorization($token->token)
             ->get()
