@@ -5,16 +5,10 @@ declare(strict_types=1);
 namespace App\Controller\Source;
 
 use App\Exception\ServiceException;
-use App\Response\EmptyResponse;
 use App\Security\ApiToken;
 use App\ServiceProxy\ServiceProxy;
 use App\ServiceRequest\RequestBuilderFactory;
 use Psr\Http\Client\ClientExceptionInterface;
-use SmartAssert\ServiceClient\Exception\HttpResponseExceptionInterface;
-use SmartAssert\ServiceClient\Exception\InvalidModelDataException;
-use SmartAssert\ServiceClient\Exception\InvalidResponseDataException;
-use SmartAssert\ServiceClient\Exception\UnauthorizedException;
-use SmartAssert\SourcesClient\FileClientInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -23,7 +17,6 @@ use Symfony\Component\Routing\Annotation\Route;
 readonly class FileSourceFileController
 {
     public function __construct(
-        private FileClientInterface $client,
         private RequestBuilderFactory $requestBuilderFactory,
         private ServiceProxy $sourcesProxy,
     ) {
@@ -90,22 +83,20 @@ readonly class FileSourceFileController
 
     /**
      * @throws ServiceException
-     * @throws UnauthorizedException
      */
     #[Route(name: 'delete', methods: ['DELETE'])]
-    public function delete(ApiToken $token, string $sourceId, string $filename): EmptyResponse
+    public function delete(ApiToken $token, Request $request): Response
     {
-        try {
-            $this->client->remove($token->token, $sourceId, $filename);
+        $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $request->getRequestUri());
+        $httpRequest = $requestBuilder
+            ->withAuthorization($token->token)
+            ->get()
+        ;
 
-            return new EmptyResponse();
-        } catch (
-            ClientExceptionInterface |
-            HttpResponseExceptionInterface |
-            InvalidModelDataException |
-            InvalidResponseDataException $e
-        ) {
-            throw new ServiceException('sources', $e);
+        try {
+            return $this->sourcesProxy->sendRequest(request: $httpRequest, bareResponseStatusCodes: [200, 404]);
+        } catch (ClientExceptionInterface $exception) {
+            throw new ServiceException('sources', $exception);
         }
     }
 }

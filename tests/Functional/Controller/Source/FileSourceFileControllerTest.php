@@ -14,7 +14,6 @@ use App\Tests\Functional\GetClientAdapterTrait;
 use GuzzleHttp\Handler\MockHandler;
 use Psr\Http\Client\ClientInterface as HttpClientInterface;
 use Psr\Http\Message\ResponseInterface;
-use SmartAssert\SourcesClient\FileClientInterface;
 use SmartAssert\UsersClient\ClientInterface as UsersClient;
 use SmartAssert\UsersClient\Model\Token;
 use Symfony\Component\Uid\Ulid;
@@ -132,15 +131,23 @@ class FileSourceFileControllerTest extends AbstractApplicationTestCase
     }
 
     /**
-     * @dataProvider usersClientExceptionDataProvider
+     * @dataProvider addDataProvider
      *
      * @param array<mixed> $expectedData
      */
     public function testRemoveHandlesException(
-        \Exception $exception,
+        \Exception|ResponseInterface $httpFixture,
         int $expectedStatusCode,
         array $expectedData
     ): void {
+        $mockingHttpClient = self::getContainer()->get('app.test.mocking_http_client');
+        \assert($mockingHttpClient instanceof HttpClientInterface);
+
+        $httpMockHandler = self::getContainer()->get(MockHandler::class);
+        \assert($httpMockHandler instanceof MockHandler);
+
+        $httpMockHandler->append($httpFixture);
+
         $apiKey = md5((string) rand());
         $apiToken = md5((string) rand());
         $fileSourceId = (string) new Ulid();
@@ -153,28 +160,11 @@ class FileSourceFileControllerTest extends AbstractApplicationTestCase
             ->andReturn(new Token($apiToken))
         ;
 
-        $fileClient = \Mockery::mock(FileClientInterface::class);
-        $fileClient
-            ->shouldReceive('remove')
-            ->with($apiToken, $fileSourceId, $filename)
-            ->andThrow($exception)
-        ;
-
         self::getContainer()->set(UsersClient::class, $usersClient);
-        self::getContainer()->set(FileClientInterface::class, $fileClient);
+        self::getContainer()->set(HttpClientInterface::class, $mockingHttpClient);
 
         $response = $this->applicationClient->makeDeleteFileSourceFileRequest($apiKey, $fileSourceId, $filename);
 
         $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    public function usersClientExceptionDataProvider(): array
-    {
-        return array_merge(
-            $this->serviceHttpFailureDataProviderCreator('sources'),
-        );
     }
 }
