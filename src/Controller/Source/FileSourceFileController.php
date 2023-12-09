@@ -70,22 +70,21 @@ readonly class FileSourceFileController
 
     /**
      * @throws ServiceException
-     * @throws UnauthorizedException
      */
     #[Route(name: 'update', methods: ['PUT'])]
-    public function update(ApiToken $token, string $sourceId, string $filename, Request $request): EmptyResponse
+    public function update(ApiToken $token, Request $request): Response
     {
-        try {
-            $this->client->update($token->token, $sourceId, $filename, (string) $request->getContent());
+        $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $request->getRequestUri());
+        $httpRequest = $requestBuilder
+            ->withAuthorization($token->token)
+            ->withBody((string) $request->getContent(), (string) $request->headers->get('content-type'))
+            ->get()
+        ;
 
-            return new EmptyResponse();
-        } catch (
-            ClientExceptionInterface |
-            HttpResponseExceptionInterface |
-            InvalidModelDataException |
-            InvalidResponseDataException $e
-        ) {
-            throw new ServiceException('sources', $e);
+        try {
+            return $this->sourcesProxy->sendRequest(request: $httpRequest, bareResponseStatusCodes: [200, 404]);
+        } catch (ClientExceptionInterface $exception) {
+            throw new ServiceException('sources', $exception);
         }
     }
 
