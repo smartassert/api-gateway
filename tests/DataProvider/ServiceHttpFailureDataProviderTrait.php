@@ -15,11 +15,10 @@ trait ServiceHttpFailureDataProviderTrait
     /**
      * @return array<mixed>
      */
-    public function serviceHttpFailureDataProvider(): array
+    public function serviceHttpFailureDataProvider(string $serviceName): array
     {
         $exceptionMessage = md5((string) rand());
         $exceptionCode = rand();
-        $serviceName = 'sources';
 
         return [
             ClientExceptionInterface::class => [

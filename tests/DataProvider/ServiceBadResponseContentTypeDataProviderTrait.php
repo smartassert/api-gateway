@@ -11,10 +11,8 @@ trait ServiceBadResponseContentTypeDataProviderTrait
     /**
      * @return array<mixed>
      */
-    public function serviceBadResponseContentTypeDataProvider(): array
+    public function serviceBadResponseContentTypeDataProvider(string $serviceName, string $expectedContentType): array
     {
-        $serviceName = 'sources';
-
         return [
             '200, text/html content type' => [
                 'httpFixture' => new Response(
@@ -30,7 +28,7 @@ trait ServiceBadResponseContentTypeDataProviderTrait
                         'service' => $serviceName,
                         'code' => 200,
                         'reason' => 'Ok.',
-                        'expected_content_type' => 'application/json',
+                        'expected_content_type' => $expectedContentType,
                         'actual_content_type' => 'text/html',
                     ],
                 ],
