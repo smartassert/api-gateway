@@ -12,6 +12,7 @@ services:
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
         bind:
             $sourcesProxy: '@app.service-proxy.sources'
+            $usersProxy: '@app.service-proxy.users'
 
     _instanceof:
         App\ServiceExceptionResponseFactory\HandlerInterface:
@@ -95,3 +96,9 @@ services:
         arguments:
             $name: 'sources'
             $baseUrl: '%env(string:SOURCES_90_BASE_URL)%'
+
+    app.service-proxy.users:
+        class: App\ServiceProxy\ServiceProxy
+        arguments:
+            $name: 'users'
+            $baseUrl: '%env(string:AUTHENTICATION_BASE_URL)%'

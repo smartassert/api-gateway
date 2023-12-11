@@ -63,13 +63,8 @@ abstract class AbstractListApiKeysTest extends AbstractApplicationTestCase
 
         $listResponseData = json_decode($listResponse->getBody()->getContents(), true);
         self::assertIsArray($listResponseData);
-        self::assertArrayHasKey('api_keys', $listResponseData);
 
-        $apiKeysData = $listResponseData['api_keys'];
-        self::assertIsArray($apiKeysData);
-        self::assertCount(1, $apiKeysData);
-
-        $apKeyData = $apiKeysData[0];
+        $apKeyData = $listResponseData[0];
         self::assertIsArray($apKeyData);
 
         self::assertArrayHasKey('label', $apKeyData);
