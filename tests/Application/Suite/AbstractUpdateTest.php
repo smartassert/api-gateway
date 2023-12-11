@@ -82,7 +82,18 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
             [],
         );
 
-        $this->assertBadRequest($updateResponse, 'sources', 'label');
+        $this->assertBadRequestFoo(
+            $updateResponse,
+            'empty',
+            [
+                'name' => 'label',
+                'value' => '',
+                'requirements' => [
+                    'data_type' => 'string',
+                    'size' => ['minimum' => 1, 'maximum' => 255],
+                ],
+            ]
+        );
     }
 
     public function testUpdateDeletedSuite(): void

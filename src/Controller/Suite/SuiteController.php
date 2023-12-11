@@ -15,7 +15,6 @@ use SmartAssert\ServiceClient\Exception\InvalidResponseDataException;
 use SmartAssert\ServiceClient\Exception\InvalidResponseTypeException;
 use SmartAssert\ServiceClient\Exception\UnauthorizedException;
 use SmartAssert\ServiceClient\SerializableInterface;
-use SmartAssert\SourcesClient\Exception\ModifyReadOnlyEntityException;
 use SmartAssert\SourcesClient\SuiteClientInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -72,33 +71,22 @@ readonly class SuiteController
     }
 
     /**
-     * @param non-empty-string $suiteId
-     *
      * @throws ServiceException
-     * @throws UnauthorizedException
      */
     #[Route(path: '/{suiteId<[A-Z90-9]{26}>}', name: 'update', methods: ['PUT'])]
-    public function update(ApiToken $token, string $suiteId, Request $request): Response
+    public function update(ApiToken $token, Request $request): Response
     {
-        try {
-            $suite = $this->client->update(
-                $token->token,
-                $suiteId,
-                $request->request->getString('source_id'),
-                $request->request->getString('label'),
-                $this->getTests($request)
-            );
+        $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $request->getRequestUri());
+        $httpRequest = $requestBuilder
+            ->withAuthorization($token->token)
+            ->withBody(http_build_query($request->request->all()), (string) $request->headers->get('content-type'))
+            ->get()
+        ;
 
-            return new JsonResponse($suite->toArray());
-        } catch (
-            ClientExceptionInterface |
-            HttpResponseExceptionInterface |
-            InvalidModelDataException |
-            InvalidResponseDataException |
-            InvalidResponseTypeException |
-            ModifyReadOnlyEntityException $e
-        ) {
-            throw new ServiceException('sources', $e);
+        try {
+            return $this->sourcesProxy->sendRequest($httpRequest);
+        } catch (ClientExceptionInterface $exception) {
+            throw new ServiceException('sources', $exception);
         }
     }
 
@@ -153,20 +141,5 @@ readonly class SuiteController
         }
 
         return new JsonResponse($serializedSuites);
-    }
-
-    /**
-     * @return non-empty-string[]
-     */
-    private function getTests(Request $request): array
-    {
-        $tests = [];
-        foreach ($request->request->all('tests') as $test) {
-            if (is_string($test) && '' !== $test) {
-                $tests[] = $test;
-            }
-        }
-
-        return $tests;
     }
 }
