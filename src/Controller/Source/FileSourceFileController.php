@@ -5,16 +5,10 @@ declare(strict_types=1);
 namespace App\Controller\Source;
 
 use App\Exception\ServiceException;
-use App\Response\EmptyResponse;
 use App\Security\ApiToken;
 use App\ServiceProxy\ServiceProxy;
 use App\ServiceRequest\RequestBuilderFactory;
 use Psr\Http\Client\ClientExceptionInterface;
-use SmartAssert\ServiceClient\Exception\HttpResponseExceptionInterface;
-use SmartAssert\ServiceClient\Exception\InvalidModelDataException;
-use SmartAssert\ServiceClient\Exception\InvalidResponseDataException;
-use SmartAssert\ServiceClient\Exception\UnauthorizedException;
-use SmartAssert\SourcesClient\FileClientInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -23,7 +17,6 @@ use Symfony\Component\Routing\Annotation\Route;
 readonly class FileSourceFileController
 {
     public function __construct(
-        private FileClientInterface $client,
         private RequestBuilderFactory $requestBuilderFactory,
         private ServiceProxy $sourcesProxy,
     ) {
@@ -32,80 +25,38 @@ readonly class FileSourceFileController
     /**
      * @throws ServiceException
      */
-    #[Route(name: 'create', methods: ['POST'])]
-    public function create(ApiToken $token, Request $request): Response
+    #[Route(name: 'handle', methods: ['GET', 'POST', 'PUT', 'DELETE'])]
+    public function handle(ApiToken $token, Request $request): Response
     {
         $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $request->getRequestUri());
-        $httpRequest = $requestBuilder
-            ->withAuthorization($token->token)
-            ->withBody((string) $request->getContent(), (string) $request->headers->get('content-type'))
-            ->get()
-        ;
+        $requestBuilder = $requestBuilder->withAuthorization($token->token);
+
+        if ('POST' === $request->getMethod() || 'PUT' === $request->getMethod()) {
+            $requestBuilder = $requestBuilder->withBody(
+                (string) $request->getContent(),
+                (string) $request->headers->get('content-type')
+            );
+        }
+
+        $httpRequest = $requestBuilder->get();
+
+        $bareResponseStatusCodes = [404];
+        $successContentType = 'application/json';
+
+        if ('GET' === $request->getMethod()) {
+            $successContentType = 'text/x-yaml';
+        } else {
+            $bareResponseStatusCodes[] = 200;
+        }
 
         try {
-            return $this->sourcesProxy->sendRequest(request: $httpRequest, bareResponseStatusCodes: [200, 404]);
+            return $this->sourcesProxy->sendRequest(
+                request: $httpRequest,
+                successContentType: $successContentType,
+                bareResponseStatusCodes: $bareResponseStatusCodes
+            );
         } catch (ClientExceptionInterface $exception) {
             throw new ServiceException('sources', $exception);
-        }
-    }
-
-    /**
-     * @throws ServiceException
-     */
-    #[Route(name: 'read', methods: ['GET'])]
-    public function read(ApiToken $token, Request $request): Response
-    {
-        $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $request->getRequestUri());
-        $httpRequest = $requestBuilder
-            ->withAuthorization($token->token)
-            ->get()
-        ;
-
-        try {
-            return $this->sourcesProxy->sendRequest(request: $httpRequest, successContentType: 'text/x-yaml');
-        } catch (ClientExceptionInterface $exception) {
-            throw new ServiceException('sources', $exception);
-        }
-    }
-
-    /**
-     * @throws ServiceException
-     */
-    #[Route(name: 'update', methods: ['PUT'])]
-    public function update(ApiToken $token, Request $request): Response
-    {
-        $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $request->getRequestUri());
-        $httpRequest = $requestBuilder
-            ->withAuthorization($token->token)
-            ->withBody((string) $request->getContent(), (string) $request->headers->get('content-type'))
-            ->get()
-        ;
-
-        try {
-            return $this->sourcesProxy->sendRequest(request: $httpRequest, bareResponseStatusCodes: [200, 404]);
-        } catch (ClientExceptionInterface $exception) {
-            throw new ServiceException('sources', $exception);
-        }
-    }
-
-    /**
-     * @throws ServiceException
-     * @throws UnauthorizedException
-     */
-    #[Route(name: 'delete', methods: ['DELETE'])]
-    public function delete(ApiToken $token, string $sourceId, string $filename): EmptyResponse
-    {
-        try {
-            $this->client->remove($token->token, $sourceId, $filename);
-
-            return new EmptyResponse();
-        } catch (
-            ClientExceptionInterface |
-            HttpResponseExceptionInterface |
-            InvalidModelDataException |
-            InvalidResponseDataException $e
-        ) {
-            throw new ServiceException('sources', $e);
         }
     }
 }

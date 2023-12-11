@@ -374,23 +374,10 @@ readonly class Client
             $headers['Authorization'] = 'Bearer ' . $apiKey;
         }
 
-        $route = 'file_source_file_read';
-        if ('POST' === $method) {
-            $route = 'file_source_file_create';
-            $headers['content-type'] = 'text/x-yaml';
-        }
-        if ('PUT' === $method) {
-            $route = 'file_source_file_update';
-            $headers['content-type'] = 'text/x-yaml';
-        }
-        if ('DELETE' === $method) {
-            $route = 'file_source_file_delete';
-        }
-
         return $this->client->makeRequest(
             $method,
             $this->router->generate(
-                $route,
+                'file_source_file_handle',
                 [
                     'sourceId' => $fileSourceId,
                     'filename' => $filename,
