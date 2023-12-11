@@ -498,20 +498,9 @@ readonly class Client
             $headers['Content-Type'] = 'application/x-www-form-urlencoded';
         }
 
-        $route = 'suite_read';
-        if ('POST' === $method) {
-            $route = 'suite_create';
-        }
-        if ('PUT' === $method) {
-            $route = 'suite_update';
-        }
-        if ('DELETE' === $method) {
-            $route = 'suite_delete';
-        }
-
         return $this->client->makeRequest(
             $method,
-            $this->router->generate($route, ['suiteId' => $suiteId]),
+            $this->router->generate('suite_act', ['suiteId' => $suiteId]),
             $headers,
             http_build_query($payload)
         );

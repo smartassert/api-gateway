@@ -34,83 +34,27 @@ readonly class SuiteController
     /**
      * @throws ServiceException
      */
-    #[Route(name: 'create', methods: ['POST'])]
-    public function create(ApiToken $token, Request $request): Response
+    #[Route(path: '/{suiteId<[A-Z90-9]{26}>?}', name: 'act', methods: ['POST', 'GET', 'PUT', 'DELETE'])]
+    public function act(ApiToken $token, Request $request): Response
     {
         $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $request->getRequestUri());
-        $httpRequest = $requestBuilder
+        $requestBuilder = $requestBuilder
             ->withAuthorization($token->token)
-            ->withBody(http_build_query($request->request->all()), (string) $request->headers->get('content-type'))
-            ->get()
         ;
+
+        if ('POST' === $request->getMethod() || 'PUT' === $request->getMethod()) {
+            $requestBuilder = $requestBuilder->withBody(
+                http_build_query($request->request->all()),
+                (string) $request->headers->get('content-type')
+            );
+        }
+
+        $httpRequest = $requestBuilder->get();
 
         try {
             return $this->sourcesProxy->sendRequest($httpRequest);
         } catch (ClientExceptionInterface $exception) {
             throw new ServiceException('sources', $exception);
-        }
-    }
-
-    /**
-     * @throws ServiceException
-     */
-    #[Route(path: '/{suiteId<[A-Z90-9]{26}>}', name: 'read', methods: ['GET'])]
-    public function get(ApiToken $token, Request $request): Response
-    {
-        $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $request->getRequestUri());
-        $httpRequest = $requestBuilder
-            ->withAuthorization($token->token)
-            ->get()
-        ;
-
-        try {
-            return $this->sourcesProxy->sendRequest($httpRequest);
-        } catch (ClientExceptionInterface $exception) {
-            throw new ServiceException('sources', $exception);
-        }
-    }
-
-    /**
-     * @throws ServiceException
-     */
-    #[Route(path: '/{suiteId<[A-Z90-9]{26}>}', name: 'update', methods: ['PUT'])]
-    public function update(ApiToken $token, Request $request): Response
-    {
-        $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $request->getRequestUri());
-        $httpRequest = $requestBuilder
-            ->withAuthorization($token->token)
-            ->withBody(http_build_query($request->request->all()), (string) $request->headers->get('content-type'))
-            ->get()
-        ;
-
-        try {
-            return $this->sourcesProxy->sendRequest($httpRequest);
-        } catch (ClientExceptionInterface $exception) {
-            throw new ServiceException('sources', $exception);
-        }
-    }
-
-    /**
-     * @param non-empty-string $suiteId
-     *
-     * @throws ServiceException
-     * @throws UnauthorizedException
-     */
-    #[Route(path: '/{suiteId<[A-Z90-9]{26}>}', name: 'delete', methods: ['DELETE'])]
-    public function delete(ApiToken $token, string $suiteId): Response
-    {
-        try {
-            $suite = $this->client->delete($token->token, $suiteId);
-
-            return new JsonResponse($suite->toArray());
-        } catch (
-            ClientExceptionInterface |
-            HttpResponseExceptionInterface |
-            InvalidModelDataException |
-            InvalidResponseDataException |
-            InvalidResponseTypeException $e
-        ) {
-            throw new ServiceException('sources', $e);
         }
     }
 
