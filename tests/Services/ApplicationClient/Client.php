@@ -483,7 +483,7 @@ readonly class Client
 
         $payload = [];
         if (is_string($sourceId)) {
-            $payload['sourceId'] = $sourceId;
+            $payload['source_id'] = $sourceId;
         }
 
         if (is_string($label)) {
