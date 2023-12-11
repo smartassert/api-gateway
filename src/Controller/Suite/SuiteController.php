@@ -6,6 +6,8 @@ namespace App\Controller\Suite;
 
 use App\Exception\ServiceException;
 use App\Security\ApiToken;
+use App\ServiceProxy\ServiceProxy;
+use App\ServiceRequest\RequestBuilderFactory;
 use Psr\Http\Client\ClientExceptionInterface;
 use SmartAssert\ServiceClient\Exception\HttpResponseExceptionInterface;
 use SmartAssert\ServiceClient\Exception\InvalidModelDataException;
@@ -25,33 +27,28 @@ readonly class SuiteController
 {
     public function __construct(
         private SuiteClientInterface $client,
+        private RequestBuilderFactory $requestBuilderFactory,
+        private ServiceProxy $sourcesProxy,
     ) {
     }
 
     /**
      * @throws ServiceException
-     * @throws UnauthorizedException
      */
     #[Route(name: 'create', methods: ['POST'])]
     public function create(ApiToken $token, Request $request): Response
     {
-        try {
-            $suite = $this->client->create(
-                $token->token,
-                $request->request->getString('sourceId'),
-                $request->request->getString('label'),
-                $this->getTests($request)
-            );
+        $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $request->getRequestUri());
+        $httpRequest = $requestBuilder
+            ->withAuthorization($token->token)
+            ->withBody(http_build_query($request->request->all()), (string) $request->headers->get('content-type'))
+            ->get()
+        ;
 
-            return new JsonResponse($suite->toArray());
-        } catch (
-            ClientExceptionInterface |
-            HttpResponseExceptionInterface |
-            InvalidModelDataException |
-            InvalidResponseDataException |
-            InvalidResponseTypeException $e
-        ) {
-            throw new ServiceException('sources', $e);
+        try {
+            return $this->sourcesProxy->sendRequest($httpRequest);
+        } catch (ClientExceptionInterface $exception) {
+            throw new ServiceException('sources', $exception);
         }
     }
 
@@ -92,7 +89,7 @@ readonly class SuiteController
             $suite = $this->client->update(
                 $token->token,
                 $suiteId,
-                $request->request->getString('sourceId'),
+                $request->request->getString('source_id'),
                 $request->request->getString('label'),
                 $this->getTests($request)
             );

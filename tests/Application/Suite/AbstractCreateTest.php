@@ -74,7 +74,18 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
             $tests,
         );
 
-        $this->assertBadRequest($response, 'sources', 'label');
+        $this->assertBadRequestFoo(
+            $response,
+            'empty',
+            [
+                'name' => 'label',
+                'value' => '',
+                'requirements' => [
+                    'data_type' => 'string',
+                    'size' => ['minimum' => 1, 'maximum' => 255],
+                ],
+            ]
+        );
     }
 
     /**
