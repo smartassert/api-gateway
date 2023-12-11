@@ -90,9 +90,6 @@ services:
 
     SmartAssert\SourcesClient\SuiteFactory: ~
 
-    SmartAssert\SourcesClient\SuiteClientInterface:
-        class: SmartAssert\SourcesClient\SuiteClient
-
     app.service-proxy.sources:
         class: App\ServiceProxy\ServiceProxy
         arguments:
