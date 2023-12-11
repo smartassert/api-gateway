@@ -53,26 +53,21 @@ readonly class SuiteController
     }
 
     /**
-     * @param non-empty-string $suiteId
-     *
      * @throws ServiceException
-     * @throws UnauthorizedException
      */
     #[Route(path: '/{suiteId<[A-Z90-9]{26}>}', name: 'read', methods: ['GET'])]
-    public function get(ApiToken $token, string $suiteId): Response
+    public function get(ApiToken $token, Request $request): Response
     {
-        try {
-            $suite = $this->client->get($token->token, $suiteId);
+        $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $request->getRequestUri());
+        $httpRequest = $requestBuilder
+            ->withAuthorization($token->token)
+            ->get()
+        ;
 
-            return new JsonResponse($suite->toArray());
-        } catch (
-            ClientExceptionInterface |
-            HttpResponseExceptionInterface |
-            InvalidModelDataException |
-            InvalidResponseDataException |
-            InvalidResponseTypeException $e
-        ) {
-            throw new ServiceException('sources', $e);
+        try {
+            return $this->sourcesProxy->sendRequest($httpRequest);
+        } catch (ClientExceptionInterface $exception) {
+            throw new ServiceException('sources', $exception);
         }
     }
 

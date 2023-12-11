@@ -67,15 +67,23 @@ class SuiteControllerTest extends AbstractApplicationTestCase
     }
 
     /**
-     * @dataProvider sourcesClientExceptionDataProvider
+     * @dataProvider serviceExceptionDataProvider
      *
      * @param array<mixed> $expectedData
      */
     public function testGetHandlesException(
-        \Exception $exception,
+        \Exception|ResponseInterface $httpFixture,
         int $expectedStatusCode,
         array $expectedData
     ): void {
+        $mockingHttpClient = self::getContainer()->get('app.test.mocking_http_client');
+        \assert($mockingHttpClient instanceof HttpClientInterface);
+
+        $httpMockHandler = self::getContainer()->get(MockHandler::class);
+        \assert($httpMockHandler instanceof MockHandler);
+
+        $httpMockHandler->append($httpFixture);
+
         $apiKey = md5((string) rand());
         $apiToken = md5((string) rand());
         $suiteId = (string) new Ulid();
@@ -87,15 +95,8 @@ class SuiteControllerTest extends AbstractApplicationTestCase
             ->andReturn(new Token($apiToken))
         ;
 
-        $suiteClient = \Mockery::mock(SuiteClientInterface::class);
-        $suiteClient
-            ->shouldReceive('get')
-            ->with($apiToken, $suiteId)
-            ->andThrow($exception)
-        ;
-
         self::getContainer()->set(UsersClient::class, $usersClient);
-        self::getContainer()->set(SuiteClientInterface::class, $suiteClient);
+        self::getContainer()->set(HttpClientInterface::class, $mockingHttpClient);
 
         $response = $this->applicationClient->makeGetSuiteRequest($apiKey, $suiteId);
         $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
