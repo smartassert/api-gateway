@@ -91,26 +91,21 @@ readonly class SuiteController
     }
 
     /**
-     * @param non-empty-string $suiteId
-     *
      * @throws ServiceException
-     * @throws UnauthorizedException
      */
     #[Route(path: '/{suiteId<[A-Z90-9]{26}>}', name: 'delete', methods: ['DELETE'])]
-    public function delete(ApiToken $token, string $suiteId): Response
+    public function delete(ApiToken $token, Request $request): Response
     {
-        try {
-            $suite = $this->client->delete($token->token, $suiteId);
+        $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $request->getRequestUri());
+        $httpRequest = $requestBuilder
+            ->withAuthorization($token->token)
+            ->get()
+        ;
 
-            return new JsonResponse($suite->toArray());
-        } catch (
-            ClientExceptionInterface |
-            HttpResponseExceptionInterface |
-            InvalidModelDataException |
-            InvalidResponseDataException |
-            InvalidResponseTypeException $e
-        ) {
-            throw new ServiceException('sources', $e);
+        try {
+            return $this->sourcesProxy->sendRequest($httpRequest);
+        } catch (ClientExceptionInterface $exception) {
+            throw new ServiceException('sources', $exception);
         }
     }
 
