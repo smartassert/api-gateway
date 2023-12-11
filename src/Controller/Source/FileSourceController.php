@@ -48,7 +48,7 @@ readonly class FileSourceController
     #[Route(path: '/{sourceId<[A-Z90-9]{26}>}/list/', name: 'list', methods: ['GET'])]
     public function list(ApiToken $token, Request $request): Response
     {
-        $requestBuilder = $this->requestBuilderFactory->create('GET', $request->getRequestUri());
+        $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $request->getRequestUri());
         $httpRequest = $requestBuilder
             ->withAuthorization($token->token)
             ->get()
