@@ -54,15 +54,13 @@ readonly class Client
 
     public function makeRefreshUserTokenRequest(?string $refreshToken, string $method = 'POST'): ResponseInterface
     {
-        $headers = ['Content-Type' => 'application/x-www-form-urlencoded'];
-        if (is_string($refreshToken)) {
-            $headers['Authorization'] = 'Bearer ' . $refreshToken;
-        }
+        $headers = ['Content-Type' => 'application/json'];
 
         return $this->client->makeRequest(
             $method,
             $this->router->generate('user_token_refresh'),
-            $headers
+            $headers,
+            (string) json_encode(['refresh_token' => $refreshToken])
         );
     }
 

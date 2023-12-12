@@ -11,6 +11,7 @@ use SmartAssert\TestAuthenticationProviderBundle\FrontendTokenProvider;
 abstract class AbstractRefreshTokenTest extends AbstractApplicationTestCase
 {
     use UnauthorizedUserDataProviderTrait;
+    use AssertRefreshTokenResponseTrait;
 
     /**
      * @dataProvider refreshBadMethodDataProvider
@@ -57,17 +58,6 @@ abstract class AbstractRefreshTokenTest extends AbstractApplicationTestCase
         $frontendToken = $frontendTokenProvider->get('user@example.com');
 
         $response = $this->applicationClient->makeRefreshUserTokenRequest($frontendToken->refreshToken);
-
-        self::assertSame(200, $response->getStatusCode());
-        self::assertSame('application/json', $response->getHeaderLine('content-type'));
-
-        $responseData = json_decode($response->getBody()->getContents(), true);
-        self::assertIsArray($responseData);
-        self::assertArrayHasKey('refreshable_token', $responseData);
-
-        $tokenData = $responseData['refreshable_token'];
-        self::assertIsArray($tokenData);
-        self::assertArrayHasKey('token', $tokenData);
-        self::assertArrayHasKey('refresh_token', $tokenData);
+        $this->assertRefreshTokenResponse($response);
     }
 }
