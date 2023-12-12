@@ -24,7 +24,7 @@ readonly class Client
         $payload = [];
 
         if (is_string($userIdentifier)) {
-            $payload['user-identifier'] = $userIdentifier;
+            $payload['identifier'] = $userIdentifier;
         }
 
         if (is_string($password)) {
@@ -94,7 +94,7 @@ readonly class Client
 
     public function makeCreateUserRequest(
         ?string $adminToken,
-        ?string $userIdentifier,
+        ?string $identifier,
         ?string $password,
         string $method = 'POST'
     ): ResponseInterface {
@@ -108,8 +108,8 @@ readonly class Client
 
         $payload = [];
 
-        if (is_string($userIdentifier)) {
-            $payload['user-identifier'] = $userIdentifier;
+        if (is_string($identifier)) {
+            $payload['identifier'] = $identifier;
         }
 
         if (is_string($password)) {

@@ -104,7 +104,7 @@
         ],
         "users-generate-jwt-keys": "docker compose -f tests/build/docker-compose.yml exec -T users-service php bin/console lexik:jwt:generate-keypair --overwrite --no-interaction",
         "users-create-user": [
-            "curl --header 'Authorization: primary_admin_token' --data 'email=user@example.com&password=password' http://localhost:9080/user/create",
+            "curl --header 'Authorization: primary_admin_token' --data 'identifier=user@example.com&password=password' http://localhost:9080/user/create",
             ""
         ],
         "users-setup": [
@@ -114,9 +114,9 @@
         ],
         "sources-setup": [
             "docker compose -f ./tests/build/docker-compose.yml exec -T sources-service php bin/console doctrine:database:create --if-not-exists",
-            "docker compose -f ./tests/build/docker-compose.yml exec -T sources-service php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration",
+            "docker compose -f ./tests/build/docker-compose.yml exec -T sources-service php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration --all-or-nothing",
             "docker compose -f ./tests/build/docker-compose.yml exec -T sources-service-90 php bin/console doctrine:database:create --if-not-exists",
-            "docker compose -f ./tests/build/docker-compose.yml exec -T sources-service-90 php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration"
+            "docker compose -f ./tests/build/docker-compose.yml exec -T sources-service-90 php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration --all-or-nothing"
         ],
         "integration-build": "docker compose -f tests/build/docker-compose.yml build app",
         "integration-pull": "docker compose -f tests/build/docker-compose.yml pull",

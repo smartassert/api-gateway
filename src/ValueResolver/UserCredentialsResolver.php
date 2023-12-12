@@ -23,7 +23,7 @@ class UserCredentialsResolver implements ValueResolverInterface
             return [];
         }
 
-        $userIdentifier = $request->request->get('user-identifier');
+        $userIdentifier = $request->request->get('identifier');
         if (!is_string($userIdentifier) || '' === $userIdentifier) {
             throw new EmptyUserCredentialsException();
         }
