@@ -6,11 +6,11 @@ namespace App\Tests\Application\User;
 
 use App\Tests\Application\AbstractApplicationTestCase;
 use App\Tests\Application\UnauthorizedUserDataProviderTrait;
-use Psr\Http\Message\ResponseInterface;
 
 abstract class AbstractCreateUserTest extends AbstractApplicationTestCase
 {
     use UnauthorizedUserDataProviderTrait;
+    use AssertUserResponseTrait;
 
     /**
      * @dataProvider createBadMethodDataProvider
@@ -85,21 +85,5 @@ abstract class AbstractCreateUserTest extends AbstractApplicationTestCase
 
         $createTokenResponse = $this->applicationClient->makeCreateUserTokenRequest($userIdentifier, $password);
         self::assertSame(200, $createTokenResponse->getStatusCode());
-    }
-
-    private function assertUserResponse(
-        ResponseInterface $response,
-        int $expectedStatusCode,
-        string $expectedUserIdentifier
-    ): void {
-        self::assertSame($expectedStatusCode, $response->getStatusCode());
-        self::assertSame('application/json', $response->getHeaderLine('content-type'));
-
-        $responseData = json_decode($response->getBody()->getContents(), true);
-        self::assertIsArray($responseData);
-
-        self::assertIsArray($responseData);
-        self::assertArrayHasKey('id', $responseData);
-        self::assertSame($expectedUserIdentifier, $responseData['user-identifier']);
     }
 }
