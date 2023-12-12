@@ -63,16 +63,12 @@ abstract class AbstractGetDefaultApiKeyTest extends AbstractApplicationTestCase
 
         $apiKeyResponseData = json_decode($apiKeyResponse->getBody()->getContents(), true);
         self::assertIsArray($apiKeyResponseData);
-        self::assertArrayHasKey('api_key', $apiKeyResponseData);
 
-        $apKeyData = $apiKeyResponseData['api_key'];
-        self::assertIsArray($apKeyData);
+        self::assertArrayHasKey('label', $apiKeyResponseData);
+        self::assertNull($apiKeyResponseData['label']);
 
-        self::assertArrayHasKey('label', $apKeyData);
-        self::assertNull($apKeyData['label']);
-
-        self::assertArrayHasKey('key', $apKeyData);
-        $key = $apKeyData['key'];
+        self::assertArrayHasKey('key', $apiKeyResponseData);
+        $key = $apiKeyResponseData['key'];
         self::assertIsString($key);
         self::assertNotEmpty($key);
     }
