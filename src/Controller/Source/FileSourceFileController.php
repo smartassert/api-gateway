@@ -40,21 +40,8 @@ readonly class FileSourceFileController
 
         $httpRequest = $requestBuilder->get();
 
-        $bareResponseStatusCodes = [401, 404];
-        $successContentType = 'application/json';
-
-        if ('GET' === $request->getMethod()) {
-            $successContentType = 'text/x-yaml';
-        } else {
-            $bareResponseStatusCodes[] = 200;
-        }
-
         try {
-            return $this->sourcesProxy->sendRequest(
-                request: $httpRequest,
-                successContentType: $successContentType,
-                bareResponseStatusCodes: $bareResponseStatusCodes
-            );
+            return $this->sourcesProxy->sendRequest(request: $httpRequest, successContentType: 'text/x-yaml');
         } catch (ClientExceptionInterface $exception) {
             throw new ServiceException('sources', $exception);
         }
