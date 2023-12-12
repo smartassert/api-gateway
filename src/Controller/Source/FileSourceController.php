@@ -30,7 +30,7 @@ readonly class FileSourceController
     {
         $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $request->getRequestUri());
         $httpRequest = $requestBuilder
-            ->withAuthorization($token->token)
+            ->withBearerAuthorization($token->token)
             ->withBody(http_build_query($request->request->all()), (string) $request->headers->get('content-type'))
             ->get()
         ;
@@ -50,7 +50,7 @@ readonly class FileSourceController
     {
         $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $request->getRequestUri());
         $httpRequest = $requestBuilder
-            ->withAuthorization($token->token)
+            ->withBearerAuthorization($token->token)
             ->get()
         ;
 

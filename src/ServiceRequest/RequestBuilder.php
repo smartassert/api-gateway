@@ -28,9 +28,19 @@ class RequestBuilder
     /**
      * @param non-empty-string $token
      */
+    public function withBearerAuthorization(string $token): self
+    {
+        $this->withAuthorization('Bearer ' . $token);
+
+        return $this;
+    }
+
+    /**
+     * @param non-empty-string $token
+     */
     public function withAuthorization(string $token): self
     {
-        $this->setHeader('authorization', 'Bearer ' . $token);
+        $this->setHeader('authorization', $token);
 
         return $this;
     }

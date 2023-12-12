@@ -30,7 +30,7 @@ readonly class SuiteController
     {
         $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $request->getRequestUri());
         $requestBuilder = $requestBuilder
-            ->withAuthorization($token->token)
+            ->withBearerAuthorization($token->token)
         ;
 
         if ('POST' === $request->getMethod() || 'PUT' === $request->getMethod()) {
@@ -57,7 +57,7 @@ readonly class SuiteController
     {
         $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $request->getRequestUri());
         $httpRequest = $requestBuilder
-            ->withAuthorization($token->token)
+            ->withBearerAuthorization($token->token)
             ->get()
         ;
 

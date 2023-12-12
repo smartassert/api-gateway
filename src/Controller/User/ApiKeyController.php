@@ -30,7 +30,7 @@ readonly class ApiKeyController
         $uri = (string) preg_replace('#^/user#', '', $request->getRequestUri());
         $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $uri);
         $httpRequest = $requestBuilder
-            ->withAuthorization($token->token)
+            ->withBearerAuthorization($token->token)
             ->get()
         ;
 

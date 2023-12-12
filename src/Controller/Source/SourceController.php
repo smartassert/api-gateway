@@ -67,7 +67,7 @@ readonly class SourceController
     {
         $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $request->getRequestUri());
         $httpRequest = $requestBuilder
-            ->withAuthorization($token->token)
+            ->withBearerAuthorization($token->token)
             ->get()
         ;
 
