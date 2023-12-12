@@ -24,7 +24,7 @@ readonly class Client
         $payload = [];
 
         if (is_string($userIdentifier)) {
-            $payload['identifier'] = $userIdentifier;
+            $payload['username'] = $userIdentifier;
         }
 
         if (is_string($password)) {
@@ -34,8 +34,8 @@ readonly class Client
         return $this->client->makeRequest(
             $method,
             $this->router->generate('user_token_create'),
-            ['Content-Type' => 'application/x-www-form-urlencoded'],
-            http_build_query($payload)
+            ['Content-Type' => 'application/json'],
+            (string) json_encode($payload)
         );
     }
 

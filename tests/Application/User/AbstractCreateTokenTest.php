@@ -93,11 +93,7 @@ abstract class AbstractCreateTokenTest extends AbstractApplicationTestCase
 
         $responseData = json_decode($response->getBody()->getContents(), true);
         self::assertIsArray($responseData);
-        self::assertArrayHasKey('refreshable_token', $responseData);
-
-        $tokenData = $responseData['refreshable_token'];
-        self::assertIsArray($tokenData);
-        self::assertArrayHasKey('token', $tokenData);
-        self::assertArrayHasKey('refresh_token', $tokenData);
+        self::assertArrayHasKey('token', $responseData);
+        self::assertArrayHasKey('refresh_token', $responseData);
     }
 }
