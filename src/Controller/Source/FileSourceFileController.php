@@ -29,7 +29,7 @@ readonly class FileSourceFileController
     public function handle(ApiToken $token, Request $request): Response
     {
         $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $request->getRequestUri());
-        $requestBuilder = $requestBuilder->withAuthorization($token->token);
+        $requestBuilder = $requestBuilder->withBearerAuthorization($token->token);
 
         if ('POST' === $request->getMethod() || 'PUT' === $request->getMethod()) {
             $requestBuilder = $requestBuilder->withBody(
