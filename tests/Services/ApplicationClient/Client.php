@@ -74,7 +74,7 @@ readonly class Client
 
         return $this->client->makeRequest(
             $method,
-            $this->router->generate('user_apikey_list'),
+            $this->router->generate('user_apikey_act', ['action' => '/list']),
             $headers
         );
     }
@@ -87,7 +87,7 @@ readonly class Client
 
         return $this->client->makeRequest(
             $method,
-            $this->router->generate('user_apikey_get_default'),
+            $this->router->generate('user_apikey_act', ['action' => '']),
             $headers
         );
     }

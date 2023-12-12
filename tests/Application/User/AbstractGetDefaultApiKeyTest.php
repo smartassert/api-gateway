@@ -17,7 +17,7 @@ abstract class AbstractGetDefaultApiKeyTest extends AbstractApplicationTestCase
      */
     public function testGetDefaultApiKeyBadMethod(string $method): void
     {
-        $response = $this->applicationClient->makeListUserApiKeysRequest('token', $method);
+        $response = $this->applicationClient->makeGetUserDefaultApiKeyRequest('token', $method);
 
         self::assertSame(405, $response->getStatusCode());
     }
