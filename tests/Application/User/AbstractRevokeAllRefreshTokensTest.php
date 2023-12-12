@@ -87,6 +87,8 @@ abstract class AbstractRevokeAllRefreshTokensTest extends AbstractApplicationTes
             'primary_admin_token',
             $user->id
         );
+        echo $revokeResponse->getBody()->getContents();
+
         self::assertSame(200, $revokeResponse->getStatusCode());
 
         $refreshResponse = $this->applicationClient->makeRefreshUserTokenRequest($frontendToken->refreshToken);
