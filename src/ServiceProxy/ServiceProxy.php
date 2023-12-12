@@ -44,6 +44,10 @@ readonly class ServiceProxy
         }
 
         $contentType = $response->getHeaderLine('content-type');
+        if ('' === $contentType) {
+            return new EmptyResponse($statusCode);
+        }
+
         if (
             (200 === $statusCode && str_starts_with($contentType, $successContentType))
             || ($contentType === $errorContentType)
