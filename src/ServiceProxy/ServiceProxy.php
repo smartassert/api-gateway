@@ -33,7 +33,7 @@ readonly class ServiceProxy
         RequestInterface $request,
         string $successContentType = 'application/json',
         string $errorContentType = 'application/json',
-        array $bareResponseStatusCodes = [404],
+        array $bareResponseStatusCodes = [401, 404],
     ): Response {
         $request = $request->withUri(new Uri($this->baseUrl . $request->getUri()));
         $response = $this->httpClient->sendRequest($request);

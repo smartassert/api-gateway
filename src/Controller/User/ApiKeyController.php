@@ -35,7 +35,7 @@ readonly class ApiKeyController
         ;
 
         try {
-            return $this->usersProxy->sendRequest(request: $httpRequest, bareResponseStatusCodes: [401, 404]);
+            return $this->usersProxy->sendRequest(request: $httpRequest);
         } catch (ClientExceptionInterface $exception) {
             throw new ServiceException('users', $exception);
         }

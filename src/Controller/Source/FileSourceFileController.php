@@ -40,7 +40,7 @@ readonly class FileSourceFileController
 
         $httpRequest = $requestBuilder->get();
 
-        $bareResponseStatusCodes = [404];
+        $bareResponseStatusCodes = [401, 404];
         $successContentType = 'application/json';
 
         if ('GET' === $request->getMethod()) {
