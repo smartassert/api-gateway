@@ -54,27 +54,22 @@ readonly class TokenController
     /**
      * @throws ServiceException
      */
-    #[Route('/user/token/verify', name: 'verify', methods: ['GET'])]
-    public function verify(AuthenticationToken $token): Response
+    #[Route('/user/frontend-token/verify', name: 'verify', methods: ['GET'])]
+    public function verify(AuthenticationToken $token, Request $request): Response
     {
-        try {
-            $user = $this->client->verifyFrontendToken($token->token);
-            if (null === $user) {
-                return new UnauthorizedResponse();
-            }
-        } catch (
-            ClientExceptionInterface |
-            InvalidModelDataException |
-            InvalidResponseDataException |
-            InvalidResponseTypeException |
-            NonSuccessResponseException $e
-        ) {
-            throw new ServiceException('users', $e);
-        }
+        $uri = (string) preg_replace('#^/user#', '', $request->getRequestUri());
 
-        return new JsonResponse([
-            'user' => $user->toArray(),
-        ]);
+        $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $uri);
+        $httpRequest = $requestBuilder
+            ->withBearerAuthorization($token->token)
+            ->get()
+        ;
+
+        try {
+            return $this->usersProxy->sendRequest(request: $httpRequest);
+        } catch (ClientExceptionInterface $exception) {
+            throw new ServiceException('users', $exception);
+        }
     }
 
     /**
