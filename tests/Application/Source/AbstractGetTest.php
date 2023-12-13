@@ -34,7 +34,11 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
 
     public function testGetBadMethod(): void
     {
-        $response = $this->applicationClient->makeSourceActRequest('PUT', 'token', (string) new Ulid());
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
+
+        $response = $this->applicationClient->makeSourceActRequest('PUT', $apiKey->key, (string) new Ulid());
 
         self::assertSame(405, $response->getStatusCode());
     }

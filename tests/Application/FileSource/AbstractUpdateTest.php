@@ -35,8 +35,12 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
 
     public function testUpdateBadMethod(): void
     {
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
+
         $response = $this->applicationClient->makeUpdateFileSourceRequest(
-            'token',
+            $apiKey->key,
             (string) new Ulid(),
             md5((string) rand()),
             'GET'

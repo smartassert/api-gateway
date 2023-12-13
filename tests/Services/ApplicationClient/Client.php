@@ -272,6 +272,7 @@ readonly class Client
         $headers = [];
         if (is_string($apiKey)) {
             $headers['Authorization'] = 'Bearer ' . $apiKey;
+            $headers['Translate-Authorization-To'] = 'api-token';
         }
 
         return $this->client->makeRequest(
@@ -288,6 +289,7 @@ readonly class Client
         $headers = [];
         if (is_string($apiKey)) {
             $headers['Authorization'] = 'Bearer ' . $apiKey;
+            $headers['Translate-Authorization-To'] = 'api-token';
         }
 
         return $this->client->makeRequest(
@@ -332,6 +334,7 @@ readonly class Client
         $headers = [];
         if (is_string($apiKey)) {
             $headers['Authorization'] = 'Bearer ' . $apiKey;
+            $headers['Translate-Authorization-To'] = 'api-token';
         }
 
         return $this->client->makeRequest(
@@ -351,6 +354,7 @@ readonly class Client
         $headers = [];
         if (is_string($apiKey)) {
             $headers['Authorization'] = 'Bearer ' . $apiKey;
+            $headers['Translate-Authorization-To'] = 'api-token';
         }
 
         return $this->client->makeRequest(
@@ -370,6 +374,7 @@ readonly class Client
         $headers = [];
         if (is_string($apiKey)) {
             $headers['Authorization'] = 'Bearer ' . $apiKey;
+            $headers['Translate-Authorization-To'] = 'api-token';
         }
 
         return $this->client->makeRequest(
@@ -401,6 +406,7 @@ readonly class Client
         $headers = [];
         if (is_string($apiKey)) {
             $headers['Authorization'] = 'Bearer ' . $apiKey;
+            $headers['Translate-Authorization-To'] = 'api-token';
         }
 
         $payload = [];
@@ -441,6 +447,7 @@ readonly class Client
         $headers = [];
         if (is_string($apiKey)) {
             $headers['Authorization'] = 'Bearer ' . $apiKey;
+            $headers['Translate-Authorization-To'] = 'api-token';
         }
 
         $payload = [];
@@ -475,6 +482,7 @@ readonly class Client
         $headers = [];
         if (is_string($apiKey)) {
             $headers['Authorization'] = 'Bearer ' . $apiKey;
+            $headers['Translate-Authorization-To'] = 'api-token';
         }
 
         $payload = [];

@@ -35,9 +35,6 @@ class RequestBuilder
         return $this;
     }
 
-    /**
-     * @param non-empty-string $token
-     */
     public function withAuthorization(string $token): self
     {
         $this->setHeader('authorization', $token);
