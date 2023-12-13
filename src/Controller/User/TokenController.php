@@ -6,7 +6,6 @@ namespace App\Controller\User;
 
 use App\Exception\ServiceException;
 use App\Exception\UndefinedServiceException;
-use App\Security\AuthenticationToken;
 use App\ServiceProxy\ServiceCollection;
 use App\ServiceProxy\ServiceProxy;
 use App\ServiceRequest\RequestBuilderFactory;
@@ -47,13 +46,13 @@ readonly class TokenController
      * @throws UndefinedServiceException
      */
     #[Route('/user/frontend-token/verify', name: 'verify', methods: ['GET'])]
-    public function verify(AuthenticationToken $token, Request $request): Response
+    public function verify(Request $request): Response
     {
         $uri = (string) preg_replace('#^/user#', '', $request->getRequestUri());
 
         $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $uri);
         $httpRequest = $requestBuilder
-            ->withBearerAuthorization($token->token)
+            ->withAuthorization((string) $request->headers->get('authorization'))
             ->get()
         ;
 

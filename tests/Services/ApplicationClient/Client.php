@@ -101,7 +101,7 @@ readonly class Client
         ];
 
         if (is_string($adminToken)) {
-            $headers['Authorization'] = 'Bearer ' . $adminToken;
+            $headers['Authorization'] = $adminToken;
         }
 
         $payload = [];
@@ -132,7 +132,7 @@ readonly class Client
         ];
 
         if (is_string($adminToken)) {
-            $headers['Authorization'] = 'Bearer ' . $adminToken;
+            $headers['Authorization'] = $adminToken;
         }
 
         $payload = [];
