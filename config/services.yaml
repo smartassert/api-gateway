@@ -75,10 +75,6 @@ services:
         arguments:
             - !tagged 'app.service_exception_response_factory.handler'
 
-    SmartAssert\SourcesClient\RequestFactory:
-        arguments:
-            $baseUrl: '%env(string:SOURCES_BASE_URL)%'
-
     app.service-proxy.sources:
         class: App\ServiceProxy\ServiceProxy
         arguments:
