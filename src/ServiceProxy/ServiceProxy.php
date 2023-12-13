@@ -16,9 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 readonly class ServiceProxy
 {
     public function __construct(
-        private string $name,
         private ClientInterface $httpClient,
-        private string $baseUrl,
     ) {
     }
 
@@ -30,12 +28,13 @@ readonly class ServiceProxy
      * @throws ClientExceptionInterface
      */
     public function sendRequest(
+        Service $service,
         RequestInterface $request,
         string $successContentType = 'application/json',
         string $errorContentType = 'application/json',
         array $bareResponseStatusCodes = [401, 404],
     ): Response {
-        $request = $request->withUri(new Uri($this->baseUrl . $request->getUri()));
+        $request = $request->withUri(new Uri($service->getBaseUrl() . $request->getUri()));
         $response = $this->httpClient->sendRequest($request);
 
         $statusCode = $response->getStatusCode();
@@ -59,7 +58,7 @@ readonly class ServiceProxy
             'service-communication-failure',
             500,
             [
-                'service' => $this->name,
+                'service' => $service->getName(),
                 'code' => $statusCode,
                 'reason' => $response->getReasonPhrase(),
                 'expected_content_type' => $successContentType,

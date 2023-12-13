@@ -82,8 +82,8 @@ class RefreshTokenControllerTest extends AbstractApplicationTestCase
     public function serviceExceptionDataProvider(): array
     {
         return array_merge(
-            $this->serviceBadResponseContentTypeDataProvider('users', 'application/json'),
-            $this->serviceHttpFailureDataProvider('users'),
+            $this->serviceBadResponseContentTypeDataProvider('user', 'application/json'),
+            $this->serviceHttpFailureDataProvider('user'),
         );
     }
 }

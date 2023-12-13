@@ -21,4 +21,9 @@ readonly class Service
     {
         return $this->baseUrl;
     }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
 }

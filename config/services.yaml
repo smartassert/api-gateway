@@ -11,8 +11,8 @@ services:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
         bind:
-            $sourcesProxy: '@app.service-proxy.sources'
-            $usersProxy: '@app.service-proxy.users'
+            $sourceService: '@app.service.source'
+            $userService: '@app.service.user'
 
     _instanceof:
         App\ServiceExceptionResponseFactory\HandlerInterface:
@@ -77,18 +77,6 @@ services:
     App\ServiceExceptionResponseFactory\Factory:
         arguments:
             - !tagged 'app.service_exception_response_factory.handler'
-
-    app.service-proxy.sources:
-        class: App\ServiceProxy\ServiceProxy
-        arguments:
-            $name: 'sources'
-            $baseUrl: '%env(string:SOURCES_90_BASE_URL)%'
-
-    app.service-proxy.users:
-        class: App\ServiceProxy\ServiceProxy
-        arguments:
-            $name: 'users'
-            $baseUrl: '%env(string:AUTHENTICATION_BASE_URL)%'
 
     app.service.source:
         class: App\ServiceProxy\Service

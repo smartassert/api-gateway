@@ -6,6 +6,7 @@ namespace App\Controller\Source;
 
 use App\Exception\ServiceException;
 use App\Security\ApiToken;
+use App\ServiceProxy\Service;
 use App\ServiceProxy\ServiceProxy;
 use App\ServiceRequest\RequestBuilderFactory;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -17,7 +18,8 @@ readonly class SourceController
 {
     public function __construct(
         private RequestBuilderFactory $requestBuilderFactory,
-        private ServiceProxy $sourcesProxy,
+        private ServiceProxy $serviceProxy,
+        private Service $sourceService,
     ) {
     }
 
@@ -35,9 +37,9 @@ readonly class SourceController
         ;
 
         try {
-            return $this->sourcesProxy->sendRequest($httpRequest);
+            return $this->serviceProxy->sendRequest($this->sourceService, $httpRequest);
         } catch (ClientExceptionInterface $exception) {
-            throw new ServiceException('sources', $exception);
+            throw new ServiceException($this->sourceService->getName(), $exception);
         }
     }
 
@@ -55,9 +57,9 @@ readonly class SourceController
         ;
 
         try {
-            return $this->sourcesProxy->sendRequest($httpRequest);
+            return $this->serviceProxy->sendRequest($this->sourceService, $httpRequest);
         } catch (ClientExceptionInterface $exception) {
-            throw new ServiceException('sources', $exception);
+            throw new ServiceException($this->sourceService->getName(), $exception);
         }
     }
 }
