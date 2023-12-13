@@ -10,7 +10,6 @@ use App\Security\AuthenticationToken;
 use App\ServiceProxy\ServiceCollection;
 use App\ServiceProxy\ServiceProxy;
 use App\ServiceRequest\RequestBuilderFactory;
-use Psr\Http\Client\ClientExceptionInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -40,13 +39,7 @@ readonly class RefreshTokenController
             ->get()
         ;
 
-        $service = $this->serviceCollection->get('user');
-
-        try {
-            return $this->serviceProxy->sendRequest($service, $httpRequest);
-        } catch (ClientExceptionInterface $exception) {
-            throw new ServiceException($service->getName(), $exception);
-        }
+        return $this->serviceProxy->sendRequest($this->serviceCollection->get('user'), $httpRequest);
     }
 
     /**
@@ -65,12 +58,6 @@ readonly class RefreshTokenController
             ->get()
         ;
 
-        $service = $this->serviceCollection->get('user');
-
-        try {
-            return $this->serviceProxy->sendRequest($service, $httpRequest);
-        } catch (ClientExceptionInterface $exception) {
-            throw new ServiceException($service->getName(), $exception);
-        }
+        return $this->serviceProxy->sendRequest($this->serviceCollection->get('user'), $httpRequest);
     }
 }

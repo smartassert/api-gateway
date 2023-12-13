@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\ServiceProxy;
 
+use App\Exception\ServiceException;
 use App\Response\EmptyResponse;
 use App\Response\ErrorResponse;
 use App\Response\TransparentResponse;
@@ -25,7 +26,7 @@ readonly class ServiceProxy
      * @param non-empty-string     $errorContentType
      * @param array<int<100, 599>> $bareResponseStatusCodes
      *
-     * @throws ClientExceptionInterface
+     * @throws ServiceException
      */
     public function sendRequest(
         Service $service,
@@ -35,7 +36,12 @@ readonly class ServiceProxy
         array $bareResponseStatusCodes = [401, 404],
     ): Response {
         $request = $request->withUri(new Uri($service->getBaseUrl() . $request->getUri()));
-        $response = $this->httpClient->sendRequest($request);
+
+        try {
+            $response = $this->httpClient->sendRequest($request);
+        } catch (ClientExceptionInterface $e) {
+            throw new ServiceException($service->getName(), $e);
+        }
 
         $statusCode = $response->getStatusCode();
         if (in_array($statusCode, $bareResponseStatusCodes)) {

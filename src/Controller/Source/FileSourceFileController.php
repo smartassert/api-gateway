@@ -10,7 +10,6 @@ use App\Security\ApiToken;
 use App\ServiceProxy\ServiceCollection;
 use App\ServiceProxy\ServiceProxy;
 use App\ServiceRequest\RequestBuilderFactory;
-use Psr\Http\Client\ClientExceptionInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -45,16 +44,10 @@ readonly class FileSourceFileController
 
         $httpRequest = $requestBuilder->get();
 
-        $service = $this->serviceCollection->get('source');
-
-        try {
-            return $this->serviceProxy->sendRequest(
-                service: $service,
-                request: $httpRequest,
-                successContentType: 'text/x-yaml'
-            );
-        } catch (ClientExceptionInterface $exception) {
-            throw new ServiceException($service->getName(), $exception);
-        }
+        return $this->serviceProxy->sendRequest(
+            service: $this->serviceCollection->get('source'),
+            request: $httpRequest,
+            successContentType: 'text/x-yaml'
+        );
     }
 }

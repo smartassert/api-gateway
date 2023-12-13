@@ -10,7 +10,6 @@ use App\Security\ApiToken;
 use App\ServiceProxy\ServiceCollection;
 use App\ServiceProxy\ServiceProxy;
 use App\ServiceRequest\RequestBuilderFactory;
-use Psr\Http\Client\ClientExceptionInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -38,13 +37,7 @@ readonly class SourceController
             ->get()
         ;
 
-        $service = $this->serviceCollection->get('source');
-
-        try {
-            return $this->serviceProxy->sendRequest($service, $httpRequest);
-        } catch (ClientExceptionInterface $exception) {
-            throw new ServiceException($service->getName(), $exception);
-        }
+        return $this->serviceProxy->sendRequest($this->serviceCollection->get('source'), $httpRequest);
     }
 
     /**
@@ -61,12 +54,6 @@ readonly class SourceController
             ->get()
         ;
 
-        $service = $this->serviceCollection->get('source');
-
-        try {
-            return $this->serviceProxy->sendRequest($service, $httpRequest);
-        } catch (ClientExceptionInterface $exception) {
-            throw new ServiceException($service->getName(), $exception);
-        }
+        return $this->serviceProxy->sendRequest($this->serviceCollection->get('source'), $httpRequest);
     }
 }
