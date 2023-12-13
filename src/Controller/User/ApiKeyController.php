@@ -6,7 +6,6 @@ namespace App\Controller\User;
 
 use App\Exception\ServiceException;
 use App\Exception\UndefinedServiceException;
-use App\Security\AuthenticationToken;
 use App\ServiceProxy\ServiceCollection;
 use App\ServiceProxy\ServiceProxy;
 use App\ServiceRequest\RequestBuilderFactory;
@@ -28,12 +27,12 @@ readonly class ApiKeyController
      * @throws UndefinedServiceException
      */
     #[Route('/user/apikey{action}', name: 'user_apikey_act', requirements: ['action' => '.*'], methods: ['GET'])]
-    public function list(AuthenticationToken $token, Request $request): Response
+    public function list(Request $request): Response
     {
         $uri = (string) preg_replace('#^/user#', '', $request->getRequestUri());
         $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $uri);
         $httpRequest = $requestBuilder
-            ->withBearerAuthorization($token->token)
+            ->withAuthorization((string) $request->headers->get('authorization'))
             ->get()
         ;
 
