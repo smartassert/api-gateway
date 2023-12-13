@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route(path: '/file-source', name: 'file_source_')]
+#[Route(path: '/source/file-source', name: 'file_source_')]
 readonly class FileSourceController
 {
     public function __construct(
@@ -28,7 +28,8 @@ readonly class FileSourceController
     #[Route(path: '/{sourceId<[A-Z90-9]{26}>?}', name: 'act', methods: ['POST', 'PUT'])]
     public function act(ApiToken $token, Request $request): Response
     {
-        $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $request->getRequestUri());
+        $uri = (string) preg_replace('#^/source#', '', $request->getRequestUri());
+        $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $uri);
         $httpRequest = $requestBuilder
             ->withBearerAuthorization($token->token)
             ->withBody(http_build_query($request->request->all()), (string) $request->headers->get('content-type'))
@@ -48,7 +49,8 @@ readonly class FileSourceController
     #[Route(path: '/{sourceId<[A-Z90-9]{26}>}/list/', name: 'list', methods: ['GET'])]
     public function list(ApiToken $token, Request $request): Response
     {
-        $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $request->getRequestUri());
+        $uri = (string) preg_replace('#^/source#', '', $request->getRequestUri());
+        $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $uri);
         $httpRequest = $requestBuilder
             ->withBearerAuthorization($token->token)
             ->get()

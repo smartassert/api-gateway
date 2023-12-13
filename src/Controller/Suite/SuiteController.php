@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route(path: '/suite', name: 'suite_')]
+#[Route(path: '/source/suite', name: 'suite_')]
 readonly class SuiteController
 {
     public function __construct(
@@ -28,7 +28,8 @@ readonly class SuiteController
     #[Route(path: '/{suiteId<[A-Z90-9]{26}>?}', name: 'act', methods: ['POST', 'GET', 'PUT', 'DELETE'])]
     public function act(ApiToken $token, Request $request): Response
     {
-        $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $request->getRequestUri());
+        $uri = (string) preg_replace('#^/source#', '', $request->getRequestUri());
+        $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $uri);
         $requestBuilder = $requestBuilder
             ->withBearerAuthorization($token->token)
         ;
@@ -55,7 +56,8 @@ readonly class SuiteController
     #[Route(path: 's', name: 'list', methods: ['GET'])]
     public function list(ApiToken $token, Request $request): Response
     {
-        $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $request->getRequestUri());
+        $uri = (string) preg_replace('#^/source#', '', $request->getRequestUri());
+        $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $uri);
         $httpRequest = $requestBuilder
             ->withBearerAuthorization($token->token)
             ->get()
