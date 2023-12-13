@@ -11,6 +11,7 @@ use App\Tests\Application\UnauthorizedUserDataProviderTrait;
 use App\Tests\Services\DataRepository;
 use Psr\Http\Message\ResponseInterface;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
+use SmartAssert\TestAuthenticationProviderBundle\UserProvider;
 
 abstract class AbstractListTest extends AbstractApplicationTestCase
 {
@@ -39,6 +40,10 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
+        $userProvider = self::getContainer()->get(UserProvider::class);
+        \assert($userProvider instanceof UserProvider);
+        $user = $userProvider->get('user@example.com');
+
         $listResponse = $this->applicationClient->makeListSourcesRequest($apiKey->key);
         $this->assertListResponse($listResponse, []);
 
@@ -52,6 +57,7 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
                 'id' => $fileSource1Id,
                 'label' => $fileSource1Label,
                 'type' => 'file',
+                'user_id' => $user->id,
             ],
         ]);
 
@@ -65,11 +71,13 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
                 'id' => $fileSource1Id,
                 'label' => $fileSource1Label,
                 'type' => 'file',
+                'user_id' => $user->id,
             ],
             [
                 'id' => $fileSource2Id,
                 'label' => $fileSource2Label,
                 'type' => 'file',
+                'user_id' => $user->id,
             ],
         ]);
 
@@ -91,11 +99,13 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
                 'id' => $fileSource1Id,
                 'label' => $fileSource1Label,
                 'type' => 'file',
+                'user_id' => $user->id,
             ],
             [
                 'id' => $fileSource2Id,
                 'label' => $fileSource2Label,
                 'type' => 'file',
+                'user_id' => $user->id,
             ],
             [
                 'id' => $gitSource1Id,
@@ -104,6 +114,7 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
                 'host_url' => $gitSource1HostUrl,
                 'path' => $gitSource1Path,
                 'has_credentials' => false,
+                'user_id' => $user->id,
             ],
         ]);
 
@@ -125,11 +136,13 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
                 'id' => $fileSource1Id,
                 'label' => $fileSource1Label,
                 'type' => 'file',
+                'user_id' => $user->id,
             ],
             [
                 'id' => $fileSource2Id,
                 'label' => $fileSource2Label,
                 'type' => 'file',
+                'user_id' => $user->id,
             ],
             [
                 'id' => $gitSource1Id,
@@ -138,6 +151,7 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
                 'host_url' => $gitSource1HostUrl,
                 'path' => $gitSource1Path,
                 'has_credentials' => false,
+                'user_id' => $user->id,
             ],
             [
                 'id' => $gitSource2Id,
@@ -146,6 +160,7 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
                 'host_url' => $gitSource2HostUrl,
                 'path' => $gitSource2Path,
                 'has_credentials' => true,
+                'user_id' => $user->id,
             ],
         ]);
     }
@@ -161,7 +176,7 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
         $data = json_decode($response->getBody()->getContents(), true);
         self::assertIsArray($data);
 
-        self::assertSame($expectedSources, $data);
+        self::assertEquals($expectedSources, $data);
     }
 
     /**

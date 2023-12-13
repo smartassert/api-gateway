@@ -28,7 +28,7 @@ class SourceControllerTest extends AbstractApplicationTestCase
      *
      * @param array<mixed> $expectedData
      */
-    public function testGetHandlesException(
+    public function testActHandlesException(
         \Exception|ResponseInterface $httpFixture,
         int $expectedStatusCode,
         array $expectedData
@@ -65,7 +65,7 @@ class SourceControllerTest extends AbstractApplicationTestCase
      *
      * @param array<mixed> $expectedData
      */
-    public function testDeleteHandlesException(
+    public function testListHandlesException(
         \Exception|ResponseInterface $httpFixture,
         int $expectedStatusCode,
         array $expectedData
@@ -92,7 +92,7 @@ class SourceControllerTest extends AbstractApplicationTestCase
         self::getContainer()->set(UsersClient::class, $usersClient);
         self::getContainer()->set(HttpClientInterface::class, $mockingHttpClient);
 
-        $response = $this->applicationClient->makeSourceActRequest('DELETE', $apiKey, $sourceId);
+        $response = $this->applicationClient->makeListSourcesRequest($apiKey);
 
         $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
     }
