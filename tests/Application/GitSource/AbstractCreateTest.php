@@ -8,6 +8,7 @@ use App\Tests\Application\AbstractApplicationTestCase;
 use App\Tests\Application\AssertBadRequestTrait;
 use App\Tests\Application\UnauthorizedUserDataProviderTrait;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
+use SmartAssert\TestAuthenticationProviderBundle\UserProvider;
 
 abstract class AbstractCreateTest extends AbstractApplicationTestCase
 {
@@ -35,12 +36,14 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
 
     /**
      * @dataProvider createUpdateGitSourceBadRequestDataProvider
+     *
+     * @param array<mixed> $expectedInvalidFieldData
      */
     public function testCreateBadRequest(
         ?string $label,
         ?string $hostUrl,
         ?string $path,
-        string $expectedInvalidField
+        array $expectedInvalidFieldData
     ): void {
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
         \assert($apiKeyProvider instanceof ApiKeyProvider);
@@ -56,7 +59,7 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
             $credentials
         );
 
-        $this->assertBadRequest($response, 'sources', $expectedInvalidField);
+        $this->assertBadRequestFoo($response, 'empty', $expectedInvalidFieldData);
     }
 
     /**
@@ -72,6 +75,10 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
+        $userProvider = self::getContainer()->get(UserProvider::class);
+        \assert($userProvider instanceof UserProvider);
+        $user = $userProvider->get('user@example.com');
+
         $response = $this->applicationClient->makeCreateGitSourceRequest(
             $apiKey->key,
             $label,
@@ -86,7 +93,8 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
             null,
             $hostUrl,
             $path,
-            is_string($credentials)
+            is_string($credentials),
+            $user->id
         );
     }
 }

@@ -9,6 +9,7 @@ use App\Tests\Application\AssertBadRequestTrait;
 use App\Tests\Application\CreateSourceTrait;
 use App\Tests\Application\UnauthorizedUserDataProviderTrait;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
+use SmartAssert\TestAuthenticationProviderBundle\UserProvider;
 use Symfony\Component\Uid\Ulid;
 
 abstract class AbstractUpdateTest extends AbstractApplicationTestCase
@@ -43,12 +44,14 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
 
     /**
      * @dataProvider createUpdateGitSourceBadRequestDataProvider
+     *
+     * @param array<mixed> $expectedInvalidFieldData
      */
     public function testUpdateBadRequest(
         ?string $label,
         ?string $hostUrl,
         ?string $path,
-        string $expectedInvalidField
+        array $expectedInvalidFieldData
     ): void {
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
         \assert($apiKeyProvider instanceof ApiKeyProvider);
@@ -70,7 +73,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
             $path
         );
 
-        $this->assertBadRequest($updateResponse, 'sources', $expectedInvalidField);
+        $this->assertBadRequestFoo($updateResponse, 'empty', $expectedInvalidFieldData);
     }
 
     /**
@@ -89,6 +92,10 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
+
+        $userProvider = self::getContainer()->get(UserProvider::class);
+        \assert($userProvider instanceof UserProvider);
+        $user = $userProvider->get('user@example.com');
 
         $id = $this->createGitSource(
             $apiKey->key,
@@ -113,7 +120,8 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
             $id,
             $newHostUrl,
             $newPath,
-            is_string($newCredentials)
+            is_string($newCredentials),
+            $user->id
         );
     }
 
