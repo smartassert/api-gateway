@@ -32,6 +32,7 @@ services:
             - '../src/Security/AuthenticationToken.php'
             - '../src/Security/UserCredentials.php'
             - '../src/Security/UserId.php'
+            - '../src/ServiceProxy/Service.php'
 
     App\Controller\:
         resource: '../src/Controller/'

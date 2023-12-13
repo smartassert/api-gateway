@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Controller\User;
 
 use App\Exception\ServiceException;
+use App\Exception\UndefinedServiceException;
 use App\Security\AuthenticationToken;
-use App\ServiceProxy\Service;
+use App\ServiceProxy\ServiceCollection;
 use App\ServiceProxy\ServiceProxy;
 use App\ServiceRequest\RequestBuilderFactory;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -20,12 +21,13 @@ readonly class TokenController
     public function __construct(
         private RequestBuilderFactory $requestBuilderFactory,
         private ServiceProxy $serviceProxy,
-        private Service $userService,
+        private ServiceCollection $serviceCollection,
     ) {
     }
 
     /**
      * @throws ServiceException
+     * @throws UndefinedServiceException
      */
     #[Route('/user/frontend-token/create', name: 'create', methods: ['POST'])]
     public function create(Request $request): Response
@@ -38,15 +40,18 @@ readonly class TokenController
             ->get()
         ;
 
+        $service = $this->serviceCollection->get('user');
+
         try {
-            return $this->serviceProxy->sendRequest($this->userService, $httpRequest);
+            return $this->serviceProxy->sendRequest($service, $httpRequest);
         } catch (ClientExceptionInterface $exception) {
-            throw new ServiceException($this->userService->getName(), $exception);
+            throw new ServiceException($service->getName(), $exception);
         }
     }
 
     /**
      * @throws ServiceException
+     * @throws UndefinedServiceException
      */
     #[Route('/user/frontend-token/verify', name: 'verify', methods: ['GET'])]
     public function verify(AuthenticationToken $token, Request $request): Response
@@ -59,15 +64,18 @@ readonly class TokenController
             ->get()
         ;
 
+        $service = $this->serviceCollection->get('user');
+
         try {
-            return $this->serviceProxy->sendRequest($this->userService, $httpRequest);
+            return $this->serviceProxy->sendRequest($service, $httpRequest);
         } catch (ClientExceptionInterface $exception) {
-            throw new ServiceException($this->userService->getName(), $exception);
+            throw new ServiceException($service->getName(), $exception);
         }
     }
 
     /**
      * @throws ServiceException
+     * @throws UndefinedServiceException
      */
     #[Route('/user/frontend-token/refresh ', name: 'refresh', methods: ['POST'])]
     public function refresh(Request $request): Response
@@ -80,10 +88,12 @@ readonly class TokenController
             ->get()
         ;
 
+        $service = $this->serviceCollection->get('user');
+
         try {
-            return $this->serviceProxy->sendRequest($this->userService, $httpRequest);
+            return $this->serviceProxy->sendRequest($service, $httpRequest);
         } catch (ClientExceptionInterface $exception) {
-            throw new ServiceException($this->userService->getName(), $exception);
+            throw new ServiceException($service->getName(), $exception);
         }
     }
 }
