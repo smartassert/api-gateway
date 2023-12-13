@@ -5,32 +5,41 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Controller\Source;
 
 use App\Tests\Application\AbstractApplicationTestCase;
-use App\Tests\DataProvider\InvalidResponseModelDataProviderCreatorTrait;
-use App\Tests\DataProvider\ServiceHttpFailureDataProviderCreatorTrait;
+use App\Tests\DataProvider\ServiceBadResponseContentTypeDataProviderTrait;
+use App\Tests\DataProvider\ServiceHttpFailureDataProviderTrait;
 use App\Tests\Functional\Controller\AssertJsonResponseTrait;
 use App\Tests\Functional\GetClientAdapterTrait;
-use SmartAssert\SourcesClient\GitSourceClientInterface;
+use GuzzleHttp\Handler\MockHandler;
+use Psr\Http\Client\ClientInterface as HttpClientInterface;
+use Psr\Http\Message\ResponseInterface;
 use SmartAssert\UsersClient\ClientInterface as UsersClient;
 use SmartAssert\UsersClient\Model\Token;
-use Symfony\Component\Uid\Ulid;
 
 class GitSourceControllerTest extends AbstractApplicationTestCase
 {
     use GetClientAdapterTrait;
-    use ServiceHttpFailureDataProviderCreatorTrait;
-    use InvalidResponseModelDataProviderCreatorTrait;
     use AssertJsonResponseTrait;
+    use ServiceBadResponseContentTypeDataProviderTrait;
+    use ServiceHttpFailureDataProviderTrait;
 
     /**
-     * @dataProvider usersClientExceptionDataProvider
+     * @dataProvider serviceExceptionDataProvider
      *
      * @param array<mixed> $expectedData
      */
-    public function testCreateHandlesException(
-        \Exception $exception,
+    public function testActHandlesException(
+        \Exception|ResponseInterface $httpFixture,
         int $expectedStatusCode,
         array $expectedData
     ): void {
+        $mockingHttpClient = self::getContainer()->get('app.test.mocking_http_client');
+        \assert($mockingHttpClient instanceof HttpClientInterface);
+
+        $httpMockHandler = self::getContainer()->get(MockHandler::class);
+        \assert($httpMockHandler instanceof MockHandler);
+
+        $httpMockHandler->append($httpFixture);
+
         $apiKey = md5((string) rand());
         $apiToken = md5((string) rand());
         $label = md5((string) rand());
@@ -45,15 +54,8 @@ class GitSourceControllerTest extends AbstractApplicationTestCase
             ->andReturn(new Token($apiToken))
         ;
 
-        $gitSourceClient = \Mockery::mock(GitSourceClientInterface::class);
-        $gitSourceClient
-            ->shouldReceive('create')
-            ->with($apiToken, $label, $hostUrl, $path, $credentials)
-            ->andThrow($exception)
-        ;
-
         self::getContainer()->set(UsersClient::class, $usersClient);
-        self::getContainer()->set(GitSourceClientInterface::class, $gitSourceClient);
+        self::getContainer()->set(HttpClientInterface::class, $mockingHttpClient);
 
         $response = $this->applicationClient->makeCreateGitSourceRequest(
             $apiKey,
@@ -66,60 +68,13 @@ class GitSourceControllerTest extends AbstractApplicationTestCase
     }
 
     /**
-     * @dataProvider usersClientExceptionDataProvider
-     *
-     * @param array<mixed> $expectedData
-     */
-    public function testUpdateHandlesException(
-        \Exception $exception,
-        int $expectedStatusCode,
-        array $expectedData
-    ): void {
-        $apiKey = md5((string) rand());
-        $apiToken = md5((string) rand());
-        $sourceId = (string) new Ulid();
-        $label = md5((string) rand());
-        $hostUrl = md5((string) rand());
-        $path = md5((string) rand());
-        $credentials = md5((string) rand());
-
-        $usersClient = \Mockery::mock(UsersClient::class);
-        $usersClient
-            ->shouldReceive('createApiToken')
-            ->with($apiKey)
-            ->andReturn(new Token($apiToken))
-        ;
-
-        $gitSourceClient = \Mockery::mock(GitSourceClientInterface::class);
-        $gitSourceClient
-            ->shouldReceive('update')
-            ->with($apiToken, $sourceId, $label, $hostUrl, $path, $credentials)
-            ->andThrow($exception)
-        ;
-
-        self::getContainer()->set(UsersClient::class, $usersClient);
-        self::getContainer()->set(GitSourceClientInterface::class, $gitSourceClient);
-
-        $response = $this->applicationClient->makeUpdateGitSourceRequest(
-            $apiKey,
-            $sourceId,
-            $label,
-            $hostUrl,
-            $path,
-            $credentials
-        );
-
-        $this->assertJsonResponse($response, $expectedStatusCode, $expectedData);
-    }
-
-    /**
      * @return array<mixed>
      */
-    public function usersClientExceptionDataProvider(): array
+    public function serviceExceptionDataProvider(): array
     {
         return array_merge(
-            $this->serviceHttpFailureDataProviderCreator('sources'),
-            $this->invalidResponseModelDataProviderCreator('sources'),
+            $this->serviceBadResponseContentTypeDataProvider('sources', 'application/json'),
+            $this->serviceHttpFailureDataProvider('sources'),
         );
     }
 }

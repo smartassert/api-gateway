@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Controller\Source;
 
 use App\Tests\Application\AbstractApplicationTestCase;
-use App\Tests\DataProvider\InvalidResponseModelDataProviderCreatorTrait;
 use App\Tests\DataProvider\ServiceBadResponseContentTypeDataProviderTrait;
-use App\Tests\DataProvider\ServiceHttpFailureDataProviderCreatorTrait;
 use App\Tests\DataProvider\ServiceHttpFailureDataProviderTrait;
 use App\Tests\Functional\Controller\AssertJsonResponseTrait;
 use App\Tests\Functional\GetClientAdapterTrait;
@@ -21,8 +19,6 @@ use Symfony\Component\Uid\Ulid;
 class FileSourceFileControllerTest extends AbstractApplicationTestCase
 {
     use GetClientAdapterTrait;
-    use ServiceHttpFailureDataProviderCreatorTrait;
-    use InvalidResponseModelDataProviderCreatorTrait;
     use AssertJsonResponseTrait;
     use ServiceBadResponseContentTypeDataProviderTrait;
     use ServiceHttpFailureDataProviderTrait;

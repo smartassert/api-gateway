@@ -16,7 +16,7 @@ trait AssertGitSourceTrait
         string $hostUrl,
         string $path,
         bool $expectedHasCredentials,
-        ?string $expectedUserId = null,
+        string $expectedUserId,
     ): void {
         Assert::assertSame(200, $response->getStatusCode());
         Assert::assertSame('application/json', $response->getHeaderLine('content-type'));
@@ -33,11 +33,8 @@ trait AssertGitSourceTrait
             'host_url' => $hostUrl,
             'path' => $path,
             'has_credentials' => $expectedHasCredentials,
+            'user_id' => $expectedUserId,
         ];
-
-        if (is_string($expectedUserId)) {
-            $expectedResponseData['user_id'] = $expectedUserId;
-        }
 
         Assert::assertEquals($expectedResponseData, $responseData);
     }
@@ -49,7 +46,7 @@ trait AssertGitSourceTrait
         string $expectedHostUrl,
         string $expectedPath,
         bool $expectedHasCredentials,
-        ?string $expectedUserId = null,
+        string $expectedUserId,
     ): void {
         Assert::assertSame(200, $response->getStatusCode());
         Assert::assertSame('application/json', $response->getHeaderLine('content-type'));
@@ -68,11 +65,8 @@ trait AssertGitSourceTrait
             'path' => $expectedPath,
             'has_credentials' => $expectedHasCredentials,
             'deleted_at' => $deletedAt,
+            'user_id' => $expectedUserId,
         ];
-
-        if (is_string($expectedUserId)) {
-            $expectedResponseData['user_id'] = $expectedUserId;
-        }
 
         Assert::assertEquals($expectedResponseData, $responseData);
     }

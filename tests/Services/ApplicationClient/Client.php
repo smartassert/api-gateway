@@ -424,11 +424,9 @@ readonly class Client
             $headers['Content-Type'] = 'application/x-www-form-urlencoded';
         }
 
-        $route = 'git_source_' . ('POST' === $method ? 'create' : 'update');
-
         return $this->client->makeRequest(
             $method,
-            $this->router->generate($route, ['sourceId' => $sourceId]),
+            $this->router->generate('git_source_act', ['sourceId' => $sourceId]),
             $headers,
             http_build_query($payload)
         );
