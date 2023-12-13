@@ -24,10 +24,11 @@ readonly class SourceController
     /**
      * @throws ServiceException
      */
-    #[Route(path: '/sources', name: 'sources_list', methods: ['GET'])]
+    #[Route(path: '/source/sources', name: 'sources_list', methods: ['GET'])]
     public function list(ApiToken $token, Request $request): Response
     {
-        $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $request->getRequestUri());
+        $uri = (string) preg_replace('#^/source#', '', $request->getRequestUri());
+        $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $uri);
         $httpRequest = $requestBuilder
             ->withBearerAuthorization($token->token)
             ->get()
@@ -46,7 +47,8 @@ readonly class SourceController
     #[Route(path: '/source/{sourceId<[A-Z90-9]{26}>}', name: 'source_act', methods: ['GET', 'DELETE'])]
     public function act(ApiToken $token, Request $request): Response
     {
-        $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $request->getRequestUri());
+        $uri = (string) preg_replace('#^/source#', '', $request->getRequestUri());
+        $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $uri);
         $httpRequest = $requestBuilder
             ->withBearerAuthorization($token->token)
             ->get()
