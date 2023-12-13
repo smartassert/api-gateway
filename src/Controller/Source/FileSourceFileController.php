@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Controller\Source;
 
 use App\Exception\ServiceException;
+use App\Exception\UndefinedServiceException;
 use App\Security\ApiToken;
-use App\ServiceProxy\Service;
+use App\ServiceProxy\ServiceCollection;
 use App\ServiceProxy\ServiceProxy;
 use App\ServiceRequest\RequestBuilderFactory;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -20,12 +21,13 @@ readonly class FileSourceFileController
     public function __construct(
         private RequestBuilderFactory $requestBuilderFactory,
         private ServiceProxy $serviceProxy,
-        private Service $sourceService,
+        private ServiceCollection $serviceCollection,
     ) {
     }
 
     /**
      * @throws ServiceException
+     * @throws UndefinedServiceException
      */
     #[Route(name: 'handle', methods: ['GET', 'POST', 'PUT', 'DELETE'])]
     public function handle(ApiToken $token, Request $request): Response
@@ -43,14 +45,16 @@ readonly class FileSourceFileController
 
         $httpRequest = $requestBuilder->get();
 
+        $service = $this->serviceCollection->get('source');
+
         try {
             return $this->serviceProxy->sendRequest(
-                service: $this->sourceService,
+                service: $service,
                 request: $httpRequest,
                 successContentType: 'text/x-yaml'
             );
         } catch (ClientExceptionInterface $exception) {
-            throw new ServiceException($this->sourceService->getName(), $exception);
+            throw new ServiceException($service->getName(), $exception);
         }
     }
 }

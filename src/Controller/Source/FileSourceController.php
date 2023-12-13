@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Controller\Source;
 
 use App\Exception\ServiceException;
+use App\Exception\UndefinedServiceException;
 use App\Security\ApiToken;
-use App\ServiceProxy\Service;
+use App\ServiceProxy\ServiceCollection;
 use App\ServiceProxy\ServiceProxy;
 use App\ServiceRequest\RequestBuilderFactory;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -20,12 +21,13 @@ readonly class FileSourceController
     public function __construct(
         private RequestBuilderFactory $requestBuilderFactory,
         private ServiceProxy $serviceProxy,
-        private Service $sourceService,
+        private ServiceCollection $serviceCollection,
     ) {
     }
 
     /**
      * @throws ServiceException
+     * @throws UndefinedServiceException
      */
     #[Route(path: '/{sourceId<[A-Z90-9]{26}>?}', name: 'act', methods: ['POST', 'PUT'])]
     public function act(ApiToken $token, Request $request): Response
@@ -38,15 +40,18 @@ readonly class FileSourceController
             ->get()
         ;
 
+        $service = $this->serviceCollection->get('source');
+
         try {
-            return $this->serviceProxy->sendRequest($this->sourceService, $httpRequest);
+            return $this->serviceProxy->sendRequest($service, $httpRequest);
         } catch (ClientExceptionInterface $exception) {
-            throw new ServiceException($this->sourceService->getName(), $exception);
+            throw new ServiceException($service->getName(), $exception);
         }
     }
 
     /**
      * @throws ServiceException
+     * @throws UndefinedServiceException
      */
     #[Route(path: '/{sourceId<[A-Z90-9]{26}>}/list/', name: 'list', methods: ['GET'])]
     public function list(ApiToken $token, Request $request): Response
@@ -58,10 +63,12 @@ readonly class FileSourceController
             ->get()
         ;
 
+        $service = $this->serviceCollection->get('source');
+
         try {
-            return $this->serviceProxy->sendRequest($this->sourceService, $httpRequest);
+            return $this->serviceProxy->sendRequest($service, $httpRequest);
         } catch (ClientExceptionInterface $exception) {
-            throw new ServiceException($this->sourceService->getName(), $exception);
+            throw new ServiceException($service->getName(), $exception);
         }
     }
 }
