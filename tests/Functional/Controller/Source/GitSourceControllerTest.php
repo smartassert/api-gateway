@@ -73,8 +73,8 @@ class GitSourceControllerTest extends AbstractApplicationTestCase
     public function serviceExceptionDataProvider(): array
     {
         return array_merge(
-            $this->serviceBadResponseContentTypeDataProvider('sources', 'application/json'),
-            $this->serviceHttpFailureDataProvider('sources'),
+            $this->serviceBadResponseContentTypeDataProvider('source', 'application/json'),
+            $this->serviceHttpFailureDataProvider('source'),
         );
     }
 }

@@ -39,7 +39,7 @@ readonly class ApiTokenProvider
             InvalidResponseDataException |
             InvalidResponseTypeException $e
         ) {
-            throw new ServiceException('users', $e);
+            throw new ServiceException('user', $e);
         }
 
         return $apiToken->token;

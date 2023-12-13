@@ -6,6 +6,7 @@ namespace App\Controller\User;
 
 use App\Exception\ServiceException;
 use App\Security\AuthenticationToken;
+use App\ServiceProxy\Service;
 use App\ServiceProxy\ServiceProxy;
 use App\ServiceRequest\RequestBuilderFactory;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -17,7 +18,8 @@ readonly class RefreshTokenController
 {
     public function __construct(
         private RequestBuilderFactory $requestBuilderFactory,
-        private ServiceProxy $usersProxy,
+        private ServiceProxy $serviceProxy,
+        private Service $userService,
     ) {
     }
 
@@ -37,9 +39,9 @@ readonly class RefreshTokenController
         ;
 
         try {
-            return $this->usersProxy->sendRequest(request: $httpRequest);
+            return $this->serviceProxy->sendRequest($this->userService, $httpRequest);
         } catch (ClientExceptionInterface $exception) {
-            throw new ServiceException('users', $exception);
+            throw new ServiceException($this->userService->getName(), $exception);
         }
     }
 
@@ -59,9 +61,9 @@ readonly class RefreshTokenController
         ;
 
         try {
-            return $this->usersProxy->sendRequest(request: $httpRequest);
+            return $this->serviceProxy->sendRequest($this->userService, $httpRequest);
         } catch (ClientExceptionInterface $exception) {
-            throw new ServiceException('users', $exception);
+            throw new ServiceException($this->userService->getName(), $exception);
         }
     }
 }

@@ -6,6 +6,7 @@ namespace App\Controller\Source;
 
 use App\Exception\ServiceException;
 use App\Security\ApiToken;
+use App\ServiceProxy\Service;
 use App\ServiceProxy\ServiceProxy;
 use App\ServiceRequest\RequestBuilderFactory;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -18,7 +19,8 @@ readonly class FileSourceFileController
 {
     public function __construct(
         private RequestBuilderFactory $requestBuilderFactory,
-        private ServiceProxy $sourcesProxy,
+        private ServiceProxy $serviceProxy,
+        private Service $sourceService,
     ) {
     }
 
@@ -42,9 +44,13 @@ readonly class FileSourceFileController
         $httpRequest = $requestBuilder->get();
 
         try {
-            return $this->sourcesProxy->sendRequest(request: $httpRequest, successContentType: 'text/x-yaml');
+            return $this->serviceProxy->sendRequest(
+                service: $this->sourceService,
+                request: $httpRequest,
+                successContentType: 'text/x-yaml'
+            );
         } catch (ClientExceptionInterface $exception) {
-            throw new ServiceException('sources', $exception);
+            throw new ServiceException($this->sourceService->getName(), $exception);
         }
     }
 }
