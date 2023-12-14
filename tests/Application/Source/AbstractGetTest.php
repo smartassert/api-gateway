@@ -38,7 +38,7 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $response = $this->applicationClient->makeSourceActRequest('PUT', $apiKey->key, (string) new Ulid());
+        $response = $this->applicationClient->makeSourceActRequest('PUT', $apiKey['key'], (string) new Ulid());
 
         self::assertSame(405, $response->getStatusCode());
     }
@@ -49,7 +49,7 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $response = $this->applicationClient->makeSourceActRequest('GET', $apiKey->key, (string) new Ulid());
+        $response = $this->applicationClient->makeSourceActRequest('GET', $apiKey['key'], (string) new Ulid());
 
         self::assertSame(404, $response->getStatusCode());
     }
@@ -65,11 +65,11 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
         $user = $userProvider->get('user@example.com');
 
         $label = md5((string) rand());
-        $id = $this->createFileSource($apiKey->key, $label);
+        $id = $this->createFileSource($apiKey['key'], $label);
 
-        $response = $this->applicationClient->makeSourceActRequest('GET', $apiKey->key, $id);
+        $response = $this->applicationClient->makeSourceActRequest('GET', $apiKey['key'], $id);
 
-        $this->assertRetrievedFileSource($response, $label, $user->id, $id);
+        $this->assertRetrievedFileSource($response, $label, $user['id'], $id);
     }
 
     /**
@@ -86,14 +86,14 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
         $user = $userProvider->get('user@example.com');
 
         $id = $this->createGitSource(
-            $apiKey->key,
+            $apiKey['key'],
             $label,
             $hostUrl,
             $path,
             $credentials
         );
 
-        $getResponse = $this->applicationClient->makeSourceActRequest('GET', $apiKey->key, $id);
+        $getResponse = $this->applicationClient->makeSourceActRequest('GET', $apiKey['key'], $id);
         self::assertSame(200, $getResponse->getStatusCode());
         $this->assertRetrievedGitSource(
             $getResponse,
@@ -102,7 +102,7 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
             $hostUrl,
             $path,
             is_string($credentials),
-            $user->id,
+            $user['id'],
         );
     }
 }

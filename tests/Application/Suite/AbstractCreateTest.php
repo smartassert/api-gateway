@@ -47,7 +47,7 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
         $tests = [];
 
         $response = $this->applicationClient->makeCreateSuiteRequest(
-            $apiKey->key,
+            $apiKey['key'],
             $sourceId,
             $label,
             $tests,
@@ -62,13 +62,13 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $sourceId = $this->createFileSource($apiKey->key, md5((string) rand()));
+        $sourceId = $this->createFileSource($apiKey['key'], md5((string) rand()));
 
         $label = '';
         $tests = [];
 
         $response = $this->applicationClient->makeCreateSuiteRequest(
-            $apiKey->key,
+            $apiKey['key'],
             $sourceId,
             $label,
             $tests,
@@ -99,8 +99,8 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $sourceId = $this->createFileSource($apiKey->key, md5((string) rand()));
-        $response = $this->applicationClient->makeCreateSuiteRequest($apiKey->key, $sourceId, $label, $tests);
+        $sourceId = $this->createFileSource($apiKey['key'], md5((string) rand()));
+        $response = $this->applicationClient->makeCreateSuiteRequest($apiKey['key'], $sourceId, $label, $tests);
 
         $this->assertRetrievedSuite($response, $sourceId, $label, $tests);
     }

@@ -52,7 +52,7 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
         $credentials = null;
 
         $response = $this->applicationClient->makeCreateGitSourceRequest(
-            $apiKey->key,
+            $apiKey['key'],
             $label,
             $hostUrl,
             $path,
@@ -80,7 +80,7 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
         $user = $userProvider->get('user@example.com');
 
         $response = $this->applicationClient->makeCreateGitSourceRequest(
-            $apiKey->key,
+            $apiKey['key'],
             $label,
             $hostUrl,
             $path,
@@ -94,7 +94,7 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
             $hostUrl,
             $path,
             is_string($credentials),
-            $user->id
+            $user['id']
         );
     }
 }

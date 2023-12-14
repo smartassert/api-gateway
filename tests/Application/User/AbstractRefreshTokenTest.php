@@ -57,7 +57,7 @@ abstract class AbstractRefreshTokenTest extends AbstractApplicationTestCase
         \assert($frontendTokenProvider instanceof FrontendTokenProvider);
         $frontendToken = $frontendTokenProvider->get('user@example.com');
 
-        $response = $this->applicationClient->makeRefreshUserTokenRequest($frontendToken->refreshToken);
+        $response = $this->applicationClient->makeRefreshUserTokenRequest($frontendToken['refresh_token']);
         $this->assertRefreshTokenResponse($response);
     }
 }

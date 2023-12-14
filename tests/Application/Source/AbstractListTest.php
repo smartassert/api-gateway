@@ -44,40 +44,40 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
         \assert($userProvider instanceof UserProvider);
         $user = $userProvider->get('user@example.com');
 
-        $listResponse = $this->applicationClient->makeListSourcesRequest($apiKey->key);
+        $listResponse = $this->applicationClient->makeListSourcesRequest($apiKey['key']);
         $this->assertListResponse($listResponse, []);
 
         $fileSource1Label = md5((string) rand());
-        $fileSource1Response = $this->applicationClient->makeCreateFileSourceRequest($apiKey->key, $fileSource1Label);
+        $fileSource1Response = $this->applicationClient->makeCreateFileSourceRequest($apiKey['key'], $fileSource1Label);
         $fileSource1Id = $this->extractSourceIdFromResponse($fileSource1Response);
 
-        $listResponse = $this->applicationClient->makeListSourcesRequest($apiKey->key);
+        $listResponse = $this->applicationClient->makeListSourcesRequest($apiKey['key']);
         $this->assertListResponse($listResponse, [
             [
                 'id' => $fileSource1Id,
                 'label' => $fileSource1Label,
                 'type' => 'file',
-                'user_id' => $user->id,
+                'user_id' => $user['id'],
             ],
         ]);
 
         $fileSource2Label = md5((string) rand());
-        $fileSource2Response = $this->applicationClient->makeCreateFileSourceRequest($apiKey->key, $fileSource2Label);
+        $fileSource2Response = $this->applicationClient->makeCreateFileSourceRequest($apiKey['key'], $fileSource2Label);
         $fileSource2Id = $this->extractSourceIdFromResponse($fileSource2Response);
 
-        $listResponse = $this->applicationClient->makeListSourcesRequest($apiKey->key);
+        $listResponse = $this->applicationClient->makeListSourcesRequest($apiKey['key']);
         $this->assertListResponse($listResponse, [
             [
                 'id' => $fileSource1Id,
                 'label' => $fileSource1Label,
                 'type' => 'file',
-                'user_id' => $user->id,
+                'user_id' => $user['id'],
             ],
             [
                 'id' => $fileSource2Id,
                 'label' => $fileSource2Label,
                 'type' => 'file',
-                'user_id' => $user->id,
+                'user_id' => $user['id'],
             ],
         ]);
 
@@ -86,26 +86,26 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
         $gitSource1Path = md5((string) rand());
 
         $gitSource1Id = $this->createGitSource(
-            $apiKey->key,
+            $apiKey['key'],
             $gitSource1Label,
             $gitSource1HostUrl,
             $gitSource1Path,
             null,
         );
 
-        $listResponse = $this->applicationClient->makeListSourcesRequest($apiKey->key);
+        $listResponse = $this->applicationClient->makeListSourcesRequest($apiKey['key']);
         $this->assertListResponse($listResponse, [
             [
                 'id' => $fileSource1Id,
                 'label' => $fileSource1Label,
                 'type' => 'file',
-                'user_id' => $user->id,
+                'user_id' => $user['id'],
             ],
             [
                 'id' => $fileSource2Id,
                 'label' => $fileSource2Label,
                 'type' => 'file',
-                'user_id' => $user->id,
+                'user_id' => $user['id'],
             ],
             [
                 'id' => $gitSource1Id,
@@ -114,7 +114,7 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
                 'host_url' => $gitSource1HostUrl,
                 'path' => $gitSource1Path,
                 'has_credentials' => false,
-                'user_id' => $user->id,
+                'user_id' => $user['id'],
             ],
         ]);
 
@@ -123,26 +123,26 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
         $gitSource2Path = md5((string) rand());
 
         $gitSource2Id = $this->createGitSource(
-            $apiKey->key,
+            $apiKey['key'],
             $gitSource2Label,
             $gitSource2HostUrl,
             $gitSource2Path,
             md5((string) rand()),
         );
 
-        $listResponse = $this->applicationClient->makeListSourcesRequest($apiKey->key);
+        $listResponse = $this->applicationClient->makeListSourcesRequest($apiKey['key']);
         $this->assertListResponse($listResponse, [
             [
                 'id' => $fileSource1Id,
                 'label' => $fileSource1Label,
                 'type' => 'file',
-                'user_id' => $user->id,
+                'user_id' => $user['id'],
             ],
             [
                 'id' => $fileSource2Id,
                 'label' => $fileSource2Label,
                 'type' => 'file',
-                'user_id' => $user->id,
+                'user_id' => $user['id'],
             ],
             [
                 'id' => $gitSource1Id,
@@ -151,7 +151,7 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
                 'host_url' => $gitSource1HostUrl,
                 'path' => $gitSource1Path,
                 'has_credentials' => false,
-                'user_id' => $user->id,
+                'user_id' => $user['id'],
             ],
             [
                 'id' => $gitSource2Id,
@@ -160,7 +160,7 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
                 'host_url' => $gitSource2HostUrl,
                 'path' => $gitSource2Path,
                 'has_credentials' => true,
-                'user_id' => $user->id,
+                'user_id' => $user['id'],
             ],
         ]);
     }

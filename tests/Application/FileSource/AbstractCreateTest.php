@@ -32,7 +32,7 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $response = $this->applicationClient->makeCreateFileSourceRequest($apiKey->key, md5((string) rand()), 'GET');
+        $response = $this->applicationClient->makeCreateFileSourceRequest($apiKey['key'], md5((string) rand()), 'GET');
 
         self::assertSame(405, $response->getStatusCode());
     }
@@ -43,7 +43,7 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $response = $this->applicationClient->makeCreateFileSourceRequest($apiKey->key, null);
+        $response = $this->applicationClient->makeCreateFileSourceRequest($apiKey['key'], null);
 
         $this->assertBadRequestFoo(
             $response,
@@ -71,8 +71,8 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
 
         $label = md5((string) rand());
 
-        $response = $this->applicationClient->makeCreateFileSourceRequest($apiKey->key, $label);
+        $response = $this->applicationClient->makeCreateFileSourceRequest($apiKey['key'], $label);
 
-        $this->assertRetrievedFileSource($response, $label, $user->id);
+        $this->assertRetrievedFileSource($response, $label, $user['id']);
     }
 }
