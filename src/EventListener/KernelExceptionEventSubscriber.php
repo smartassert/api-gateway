@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace App\EventListener;
 
-use App\Exception\EmptyUserIdException;
 use App\Exception\ServiceException;
-use App\Response\EmptyResponse;
 use App\ServiceExceptionResponseFactory\Factory;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -35,10 +33,6 @@ readonly class KernelExceptionEventSubscriber implements EventSubscriberInterfac
     {
         $throwable = $event->getThrowable();
         $response = null;
-
-        if ($throwable instanceof EmptyUserIdException) {
-            $response = new EmptyResponse(400);
-        }
 
         if ($throwable instanceof ServiceException) {
             $response = $this->serviceExceptionResponseFactory->create($throwable);
