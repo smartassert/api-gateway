@@ -21,16 +21,7 @@ readonly class SourceController
     /**
      * @throws ServiceException
      */
-    #[Route(path: '/{serviceName<[a-z]+>}/sources', name: 'sources_list', methods: ['GET'])]
-    public function list(Service $service, Request $request): Response
-    {
-        return $this->serviceProxy->proxy($service, $request);
-    }
-
-    /**
-     * @throws ServiceException
-     */
-    #[Route(path: '/{serviceName<[a-z]+>}/{sourceId<[A-Z90-9]{26}>}', name: 'source_act', methods: ['GET', 'DELETE'])]
+    #[Route(path: '/{serviceName<[a-z]+>}{action<.+>}', name: 'source_act')]
     public function act(Service $service, Request $request): Response
     {
         return $this->serviceProxy->proxy($service, $request);

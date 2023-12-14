@@ -301,7 +301,7 @@ readonly class Client
 
         return $this->client->makeRequest(
             $method,
-            $this->router->generate('sources_list', ['serviceName' => 'source']),
+            $this->router->generate('source_act', ['serviceName' => 'source', 'action' => '/sources']),
             $headers
         );
     }
@@ -369,8 +369,8 @@ readonly class Client
             $this->router->generate(
                 'source_act',
                 [
+                    'action' => '/' . $sourceId,
                     'serviceName' => 'source',
-                    'sourceId' => $sourceId,
                 ]
             ),
             $headers
