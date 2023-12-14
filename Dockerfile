@@ -6,13 +6,11 @@ ARG APP_ENV=prod
 ARG DATABASE_URL=postgresql://database_user:database_password@0.0.0.0:5432/database_name?serverVersion=12&charset=utf8
 ARG AUTHENTICATION_BASE_URL=https://users.example.com
 ARG SOURCES_BASE_URL=https://sources.example.com
-ARG SOURCES_90_BASE_URL=https://sources.example.com
 
 ENV APP_ENV=$APP_ENV
 ENV DATABASE_URL=$DATABASE_URL
 ENV AUTHENTICATION_BASE_URL=$AUTHENTICATION_BASE_URL
 ENV SOURCES_BASE_URL=$SOURCES_BASE_URL
-ENV SOURCES_90_BASE_URL=$SOURCES_90_BASE_URL
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 

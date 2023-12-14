@@ -41,7 +41,7 @@ services:
     restart: unless-stopped
 
   sources-service:
-    image: ghcr.io/smartassert/sources:8.0
+    image: ghcr.io/smartassert/sources:10.0
     container_name: sources-service
     environment:
       DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/sources?serverVersion=12&charset=utf8
@@ -64,30 +64,6 @@ services:
       - ./http-config/caddy/index.php:/app/public/index.php
       - ./http-config/caddy/Caddyfile:/etc/caddy/Caddyfile
 
-  sources-service-90:
-    image: ghcr.io/smartassert/sources:10.0
-    container_name: sources-service-90
-    environment:
-      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/sources?serverVersion=12&charset=utf8
-      AUTHENTICATION_BASE_URL: http://users-http
-      REMOTE_STORAGE_ENDPOINT: http://s3-mock:9090
-      REMOTE_STORAGE_KEY_ID: remote_storage_key_id
-      IS_READY: 1
-    depends_on:
-      - postgres
-
-  sources-http-90:
-    image: caddy:2.4.5-alpine
-    container_name: sources-http-90
-    restart: unless-stopped
-    ports:
-      - "9082:80"
-    links:
-      - sources-service-90:app
-    volumes:
-      - ./http-config/caddy/index.php:/app/public/index.php
-      - ./http-config/caddy/Caddyfile:/etc/caddy/Caddyfile
-
   app:
     build:
       context: ../..
@@ -95,7 +71,6 @@ services:
         DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/job-coordinator?serverVersion=12&charset=utf8
         AUTHENTICATION_BASE_URL: http://users-http
         SOURCES_BASE_URL: http://sources-http
-        SOURCES_90_BASE_URL: http://sources-http-90
     container_name: app
     restart: unless-stopped
     depends_on:

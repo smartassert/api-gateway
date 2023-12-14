@@ -82,7 +82,7 @@ services:
         class: App\ServiceProxy\Service
         arguments:
             $name: 'source'
-            $baseUrl: '%env(string:SOURCES_90_BASE_URL)%'
+            $baseUrl: '%env(string:SOURCES_BASE_URL)%'
 
     app.service.user:
         class: App\ServiceProxy\Service
