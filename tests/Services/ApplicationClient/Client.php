@@ -33,7 +33,7 @@ readonly class Client
 
         return $this->client->makeRequest(
             $method,
-            $this->router->generate('user_token_create'),
+            $this->router->generate('user_token_create', ['serviceName' => 'user']),
             ['Content-Type' => 'application/json'],
             (string) json_encode($payload)
         );
@@ -47,7 +47,7 @@ readonly class Client
 
         return $this->client->makeRequest(
             $method,
-            $this->router->generate('user_token_verify'),
+            $this->router->generate('user_token_verify', ['serviceName' => 'user']),
             $headers
         );
     }
@@ -58,7 +58,7 @@ readonly class Client
 
         return $this->client->makeRequest(
             $method,
-            $this->router->generate('user_token_refresh'),
+            $this->router->generate('user_token_refresh', ['serviceName' => 'user']),
             $headers,
             (string) json_encode(['refresh_token' => $refreshToken])
         );
@@ -72,7 +72,7 @@ readonly class Client
 
         return $this->client->makeRequest(
             $method,
-            $this->router->generate('user_apikey_act', ['action' => '/list']),
+            $this->router->generate('user_apikey_act', ['serviceName' => 'user', 'action' => '/list']),
             $headers
         );
     }
@@ -85,7 +85,7 @@ readonly class Client
 
         return $this->client->makeRequest(
             $method,
-            $this->router->generate('user_apikey_act', ['action' => '']),
+            $this->router->generate('user_apikey_act', ['serviceName' => 'user', 'action' => '']),
             $headers
         );
     }
@@ -116,7 +116,7 @@ readonly class Client
 
         return $this->client->makeRequest(
             $method,
-            $this->router->generate('user_create'),
+            $this->router->generate('user_create', ['serviceName' => 'user']),
             $headers,
             http_build_query($payload)
         );
@@ -143,7 +143,7 @@ readonly class Client
 
         return $this->client->makeRequest(
             $method,
-            $this->router->generate('user_revoke_all_refresh_token'),
+            $this->router->generate('user_revoke_all_refresh_token', ['serviceName' => 'user']),
             $headers,
             http_build_query($payload)
         );
@@ -170,7 +170,7 @@ readonly class Client
 
         return $this->client->makeRequest(
             $method,
-            $this->router->generate('user_revoke_refresh_token'),
+            $this->router->generate('user_revoke_refresh_token', ['serviceName' => 'user']),
             $headers,
             http_build_query($payload)
         );
@@ -277,7 +277,13 @@ readonly class Client
 
         return $this->client->makeRequest(
             $method,
-            $this->router->generate('file_source_list', ['sourceId' => $sourceId]),
+            $this->router->generate(
+                'file_source_list',
+                [
+                    'serviceName' => 'source',
+                    'sourceId' => $sourceId,
+                ]
+            ),
             $headers
         );
     }
@@ -294,7 +300,7 @@ readonly class Client
 
         return $this->client->makeRequest(
             $method,
-            $this->router->generate('sources_list'),
+            $this->router->generate('sources_list', ['serviceName' => 'source']),
             $headers
         );
     }
@@ -339,7 +345,7 @@ readonly class Client
 
         return $this->client->makeRequest(
             'GET',
-            $this->router->generate('suite_list'),
+            $this->router->generate('suite_list', ['serviceName' => 'source']),
             $headers
         );
     }
@@ -359,7 +365,13 @@ readonly class Client
 
         return $this->client->makeRequest(
             $method,
-            $this->router->generate('source_act', ['sourceId' => $sourceId]),
+            $this->router->generate(
+                'source_act',
+                [
+                    'serviceName' => 'source',
+                    'sourceId' => $sourceId,
+                ]
+            ),
             $headers
         );
     }
@@ -386,6 +398,7 @@ readonly class Client
             $this->router->generate(
                 'file_source_file_handle',
                 [
+                    'serviceName' => 'source',
                     'sourceId' => $fileSourceId,
                     'filename' => $filename,
                 ]
@@ -436,7 +449,13 @@ readonly class Client
 
         return $this->client->makeRequest(
             $method,
-            $this->router->generate('git_source_act', ['sourceId' => $sourceId]),
+            $this->router->generate(
+                'git_source_act',
+                [
+                    'serviceName' => 'source',
+                    'sourceId' => $sourceId,
+                ]
+            ),
             $headers,
             http_build_query($payload)
         );
@@ -465,7 +484,10 @@ readonly class Client
 
         return $this->client->makeRequest(
             $method,
-            $this->router->generate('file_source_act', ['sourceId' => $sourceId]),
+            $this->router->generate('file_source_act', [
+                'serviceName' => 'source',
+                'sourceId' => $sourceId,
+            ]),
             $headers,
             http_build_query($payload)
         );
@@ -508,7 +530,13 @@ readonly class Client
 
         return $this->client->makeRequest(
             $method,
-            $this->router->generate('suite_act', ['suiteId' => $suiteId]),
+            $this->router->generate(
+                'suite_act',
+                [
+                    'serviceName' => 'source',
+                    'suiteId' => $suiteId,
+                ]
+            ),
             $headers,
             http_build_query($payload)
         );
