@@ -6,13 +6,11 @@ namespace App\Tests\Services\ApplicationClient;
 
 use Psr\Http\Message\ResponseInterface;
 use SmartAssert\SymfonyTestClient\ClientInterface;
-use Symfony\Component\Routing\RouterInterface;
 
 readonly class Client
 {
     public function __construct(
         private ClientInterface $client,
-        private RouterInterface $router,
     ) {
     }
 
@@ -21,8 +19,10 @@ readonly class Client
         ?string $password,
         string $method = 'POST'
     ): ResponseInterface {
-        $payload = [];
+        $url = '/user/frontend-token/create';
+        $headers = ['Content-Type' => 'application/json'];
 
+        $payload = [];
         if (is_string($userIdentifier)) {
             $payload['username'] = $userIdentifier;
         }
@@ -31,12 +31,7 @@ readonly class Client
             $payload['password'] = $password;
         }
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('user_token_create', ['serviceName' => 'user']),
-            ['Content-Type' => 'application/json'],
-            (string) json_encode($payload)
-        );
+        return $this->client->makeRequest($method, $url, $headers, (string) json_encode($payload));
     }
 
     public function makeVerifyUserTokenRequest(?string $jwt, string $method = 'GET'): ResponseInterface
@@ -45,23 +40,19 @@ readonly class Client
             ? ['Authorization' => 'Bearer ' . $jwt]
             : [];
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('user_token_verify', ['serviceName' => 'user']),
-            $headers
-        );
+        $url = '/user/frontend-token/verify';
+
+        return $this->client->makeRequest($method, $url, $headers);
     }
 
     public function makeRefreshUserTokenRequest(?string $refreshToken, string $method = 'POST'): ResponseInterface
     {
         $headers = ['Content-Type' => 'application/json'];
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('user_token_refresh', ['serviceName' => 'user']),
-            $headers,
-            (string) json_encode(['refresh_token' => $refreshToken])
-        );
+        $url = '/user/frontend-token/refresh';
+        $body = (string) json_encode(['refresh_token' => $refreshToken]);
+
+        return $this->client->makeRequest($method, $url, $headers, $body);
     }
 
     public function makeListUserApiKeysRequest(?string $jwt, string $method = 'GET'): ResponseInterface
@@ -70,11 +61,9 @@ readonly class Client
             ? ['Authorization' => 'Bearer ' . $jwt]
             : [];
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('user_apikey_act', ['serviceName' => 'user', 'action' => '/list']),
-            $headers
-        );
+        $url = '/user/apikey/list';
+
+        return $this->client->makeRequest($method, $url, $headers);
     }
 
     public function makeGetUserDefaultApiKeyRequest(?string $jwt, string $method = 'GET'): ResponseInterface
@@ -83,11 +72,9 @@ readonly class Client
             ? ['Authorization' => 'Bearer ' . $jwt]
             : [];
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('user_apikey_act', ['serviceName' => 'user', 'action' => '']),
-            $headers
-        );
+        $url = '/user/apikey';
+
+        return $this->client->makeRequest($method, $url, $headers);
     }
 
     public function makeCreateUserRequest(
@@ -114,12 +101,9 @@ readonly class Client
             $payload['password'] = $password;
         }
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('user_create', ['serviceName' => 'user']),
-            $headers,
-            http_build_query($payload)
-        );
+        $url = '/user/create';
+
+        return $this->client->makeRequest($method, $url, $headers, http_build_query($payload));
     }
 
     public function makeRevokeAllRefreshTokensForUserRequest(
@@ -141,12 +125,9 @@ readonly class Client
             $payload['id'] = $userId;
         }
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('user_revoke_all_refresh_token', ['serviceName' => 'user']),
-            $headers,
-            http_build_query($payload)
-        );
+        $url = '/user/refresh-token/revoke-all-for-user';
+
+        return $this->client->makeRequest($method, $url, $headers, http_build_query($payload));
     }
 
     public function makeRevokeRefreshTokenRequest(
@@ -168,12 +149,9 @@ readonly class Client
             $payload['refresh_token'] = $refreshToken;
         }
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('user_revoke_refresh_token', ['serviceName' => 'user']),
-            $headers,
-            http_build_query($payload)
-        );
+        $url = '/user/refresh-token/revoke';
+
+        return $this->client->makeRequest($method, $url, $headers, http_build_query($payload));
     }
 
     public function makeCreateFileSourceRequest(
@@ -232,8 +210,8 @@ readonly class Client
 
     public function makeCreateFileSourceFileRequest(
         ?string $apiKey,
-        ?string $fileSourceId,
-        ?string $filename,
+        string $fileSourceId,
+        string $filename,
         ?string $content = null,
     ): ResponseInterface {
         return $this->makeFileSourceFileRequest($apiKey, 'POST', $fileSourceId, $filename, $content);
@@ -241,16 +219,16 @@ readonly class Client
 
     public function makeReadFileSourceFileRequest(
         ?string $apiKey,
-        ?string $fileSourceId,
-        ?string $filename
+        string $fileSourceId,
+        string $filename
     ): ResponseInterface {
         return $this->makeFileSourceFileRequest($apiKey, 'GET', $fileSourceId, $filename);
     }
 
     public function makeUpdateFileSourceFileRequest(
         ?string $apiKey,
-        ?string $fileSourceId,
-        ?string $filename,
+        string $fileSourceId,
+        string $filename,
         ?string $content = null,
     ): ResponseInterface {
         return $this->makeFileSourceFileRequest($apiKey, 'PUT', $fileSourceId, $filename, $content);
@@ -258,8 +236,8 @@ readonly class Client
 
     public function makeDeleteFileSourceFileRequest(
         ?string $apiKey,
-        ?string $fileSourceId,
-        ?string $filename,
+        string $fileSourceId,
+        string $filename,
     ): ResponseInterface {
         return $this->makeFileSourceFileRequest($apiKey, 'DELETE', $fileSourceId, $filename);
     }
@@ -275,16 +253,11 @@ readonly class Client
             $headers['Translate-Authorization-To'] = 'api-token';
         }
 
+        $url = sprintf('/source/file-source/%s/list/', $sourceId);
+
         return $this->client->makeRequest(
             $method,
-            $this->router->generate(
-                'file_source_act',
-                [
-                    'action' => '/list/',
-                    'serviceName' => 'source',
-                    'sourceId' => $sourceId,
-                ]
-            ),
+            $url,
             $headers
         );
     }
@@ -299,11 +272,9 @@ readonly class Client
             $headers['Translate-Authorization-To'] = 'api-token';
         }
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('source_act', ['serviceName' => 'source', 'action' => '/sources']),
-            $headers
-        );
+        $url = '/source/sources';
+
+        return $this->client->makeRequest($method, $url, $headers);
     }
 
     /**
@@ -344,11 +315,9 @@ readonly class Client
             $headers['Translate-Authorization-To'] = 'api-token';
         }
 
-        return $this->client->makeRequest(
-            'GET',
-            $this->router->generate('suite_list', ['serviceName' => 'source']),
-            $headers
-        );
+        $url = '/source/suites';
+
+        return $this->client->makeRequest('GET', $url, $headers);
     }
 
     public function makeDeleteSuiteRequest(?string $apiKey, string $suiteId): ResponseInterface
@@ -364,24 +333,16 @@ readonly class Client
             $headers['Translate-Authorization-To'] = 'api-token';
         }
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate(
-                'source_act',
-                [
-                    'action' => '/' . $sourceId,
-                    'serviceName' => 'source',
-                ]
-            ),
-            $headers
-        );
+        $url = sprintf('/source/%s', $sourceId);
+
+        return $this->client->makeRequest($method, $url, $headers);
     }
 
     private function makeFileSourceFileRequest(
         ?string $apiKey,
         string $method,
-        ?string $fileSourceId,
-        ?string $filename,
+        string $fileSourceId,
+        string $filename,
         ?string $content = null,
     ): ResponseInterface {
         $headers = [];
@@ -398,19 +359,9 @@ readonly class Client
             $headers['accept'] = 'application/yaml, text/x-yaml';
         }
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate(
-                'file_source_file_handle',
-                [
-                    'serviceName' => 'source',
-                    'sourceId' => $fileSourceId,
-                    'filename' => $filename,
-                ]
-            ),
-            $headers,
-            $content
-        );
+        $url = sprintf('/source/file-source/%s/%s', $fileSourceId, $filename);
+
+        return $this->client->makeRequest($method, $url, $headers, $content);
     }
 
     /**
@@ -452,18 +403,12 @@ readonly class Client
             $headers['Content-Type'] = 'application/x-www-form-urlencoded';
         }
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate(
-                'git_source_act',
-                [
-                    'serviceName' => 'source',
-                    'sourceId' => $sourceId,
-                ]
-            ),
-            $headers,
-            http_build_query($payload)
-        );
+        $url = '/source/git-source';
+        if (is_string($sourceId)) {
+            $url .= '/' . $sourceId;
+        }
+
+        return $this->client->makeRequest($method, $url, $headers, http_build_query($payload));
     }
 
     private function makeFileSourceMutationRequest(
@@ -487,15 +432,12 @@ readonly class Client
             $headers['Content-Type'] = 'application/x-www-form-urlencoded';
         }
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('file_source_act', [
-                'serviceName' => 'source',
-                'sourceId' => $sourceId,
-            ]),
-            $headers,
-            http_build_query($payload)
-        );
+        $url = '/source/file-source';
+        if (is_string($sourceId)) {
+            $url .= '/' . $sourceId;
+        }
+
+        return $this->client->makeRequest($method, $url, $headers, http_build_query($payload));
     }
 
     /**
@@ -533,17 +475,11 @@ readonly class Client
             $headers['Content-Type'] = 'application/x-www-form-urlencoded';
         }
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate(
-                'suite_act',
-                [
-                    'serviceName' => 'source',
-                    'suiteId' => $suiteId,
-                ]
-            ),
-            $headers,
-            http_build_query($payload)
-        );
+        $url = '/source/suite';
+        if (is_string($suiteId)) {
+            $url .= '/' . $suiteId;
+        }
+
+        return $this->client->makeRequest($method, $url, $headers, http_build_query($payload));
     }
 }
