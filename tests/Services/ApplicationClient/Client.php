@@ -437,18 +437,12 @@ readonly class Client
             $headers['Content-Type'] = 'application/x-www-form-urlencoded';
         }
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate(
-                'git_source_act',
-                [
-                    'serviceName' => 'source',
-                    'sourceId' => $sourceId,
-                ]
-            ),
-            $headers,
-            http_build_query($payload)
-        );
+        $url = '/source/git-source';
+        if (is_string($sourceId)) {
+            $url .= '/' . $sourceId;
+        }
+
+        return $this->client->makeRequest($method, $url, $headers, http_build_query($payload));
     }
 
     private function makeFileSourceMutationRequest(
