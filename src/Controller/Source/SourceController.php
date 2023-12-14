@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Source;
 
 use App\Exception\ServiceException;
-use App\Exception\UndefinedServiceException;
-use App\ServiceProxy\ServiceCollection;
+use App\ServiceProxy\Service;
 use App\ServiceProxy\ServiceProxy;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,27 +15,24 @@ readonly class SourceController
 {
     public function __construct(
         private ServiceProxy $serviceProxy,
-        private ServiceCollection $serviceCollection,
     ) {
     }
 
     /**
      * @throws ServiceException
-     * @throws UndefinedServiceException
      */
-    #[Route(path: '/source/sources', name: 'sources_list', methods: ['GET'])]
-    public function list(Request $request): Response
+    #[Route(path: '/{serviceName<[a-z]+>}/sources', name: 'sources_list', methods: ['GET'])]
+    public function list(Service $service, Request $request): Response
     {
-        return $this->serviceProxy->proxy($this->serviceCollection->get('source'), $request);
+        return $this->serviceProxy->proxy($service, $request);
     }
 
     /**
      * @throws ServiceException
-     * @throws UndefinedServiceException
      */
-    #[Route(path: '/source/{sourceId<[A-Z90-9]{26}>}', name: 'source_act', methods: ['GET', 'DELETE'])]
-    public function act(Request $request): Response
+    #[Route(path: '/{serviceName<[a-z]+>}/{sourceId<[A-Z90-9]{26}>}', name: 'source_act', methods: ['GET', 'DELETE'])]
+    public function act(Service $service, Request $request): Response
     {
-        return $this->serviceProxy->proxy($this->serviceCollection->get('source'), $request);
+        return $this->serviceProxy->proxy($service, $request);
     }
 }
