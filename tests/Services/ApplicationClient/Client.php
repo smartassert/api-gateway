@@ -275,16 +275,11 @@ readonly class Client
             $headers['Translate-Authorization-To'] = 'api-token';
         }
 
+        $url = sprintf('/source/file-source/%s/list/', $sourceId);
+
         return $this->client->makeRequest(
             $method,
-            $this->router->generate(
-                'file_source_act',
-                [
-                    'action' => '/list/',
-                    'serviceName' => 'source',
-                    'sourceId' => $sourceId,
-                ]
-            ),
+            $url,
             $headers
         );
     }
@@ -398,11 +393,7 @@ readonly class Client
             $headers['accept'] = 'application/yaml, text/x-yaml';
         }
 
-        $url = sprintf(
-            '/source/file-source/%s/%s',
-            $fileSourceId,
-            $filename,
-        );
+        $url = sprintf('/source/file-source/%s/%s', $fileSourceId, $filename);
 
         return $this->client->makeRequest($method, $url, $headers, $content);
     }
