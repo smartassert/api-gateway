@@ -11,7 +11,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route(path: '/{serviceName<[a-z]+>}/file-source', name: 'file_source_')]
 readonly class FileSourceController
 {
     public function __construct(
@@ -22,17 +21,11 @@ readonly class FileSourceController
     /**
      * @throws ServiceException
      */
-    #[Route(path: '/{sourceId<[A-Z90-9]{26}>?}', name: 'act', methods: ['POST', 'PUT'])]
+    #[Route(
+        path: '/{serviceName<[a-z]+>}/file-source/{sourceId<[A-Z90-9]{26}>?}{action<.*>?}',
+        name: 'file_source_act'
+    )]
     public function act(Service $service, Request $request): Response
-    {
-        return $this->serviceProxy->proxy($service, $request);
-    }
-
-    /**
-     * @throws ServiceException
-     */
-    #[Route(path: '/{sourceId<[A-Z90-9]{26}>}/list/', name: 'list', methods: ['GET'])]
-    public function list(Service $service, Request $request): Response
     {
         return $this->serviceProxy->proxy($service, $request);
     }

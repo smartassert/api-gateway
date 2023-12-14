@@ -278,8 +278,9 @@ readonly class Client
         return $this->client->makeRequest(
             $method,
             $this->router->generate(
-                'file_source_list',
+                'file_source_act',
                 [
+                    'action' => '/list/',
                     'serviceName' => 'source',
                     'sourceId' => $sourceId,
                 ]
