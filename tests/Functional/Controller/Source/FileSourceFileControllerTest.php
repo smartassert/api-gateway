@@ -121,7 +121,7 @@ class FileSourceFileControllerTest extends AbstractApplicationTestCase
     public function readDataProvider(): array
     {
         return array_merge(
-            $this->serviceBadResponseContentTypeDataProvider('source', 'text/x-yaml'),
+            $this->serviceBadResponseContentTypeDataProvider('source', 'application/yaml, text/x-yaml'),
             $this->serviceHttpFailureDataProvider('source'),
         );
     }
