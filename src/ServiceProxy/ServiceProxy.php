@@ -22,9 +22,7 @@ readonly class ServiceProxy
     }
 
     /**
-     * @param non-empty-string     $successContentType
-     * @param non-empty-string     $errorContentType
-     * @param array<int<100, 599>> $bareResponseStatusCodes
+     * @param non-empty-string $successContentType
      *
      * @throws ServiceException
      */
@@ -32,8 +30,6 @@ readonly class ServiceProxy
         Service $service,
         Request $inbound,
         string $successContentType = 'application/json',
-        string $errorContentType = 'application/json',
-        array $bareResponseStatusCodes = [401, 404],
     ): Response {
         $outbound = $this->requestFactory->create($service, $inbound);
 
@@ -44,7 +40,7 @@ readonly class ServiceProxy
         }
 
         $statusCode = $response->getStatusCode();
-        if (in_array($statusCode, $bareResponseStatusCodes)) {
+        if (in_array($statusCode, [401, 404])) {
             return new EmptyResponse($statusCode);
         }
 
