@@ -393,6 +393,10 @@ readonly class Client
             $headers['content-type'] = 'application/yaml';
         }
 
+        if ('GET' === $method) {
+            $headers['accept'] = 'application/yaml, text/x-yaml';
+        }
+
         return $this->client->makeRequest(
             $method,
             $this->router->generate(

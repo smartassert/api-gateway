@@ -28,6 +28,6 @@ readonly class FileSourceFileController
     #[Route(name: 'handle', methods: ['GET', 'POST', 'PUT', 'DELETE'])]
     public function handle(Service $service, Request $request): Response
     {
-        return $this->serviceProxy->proxy($service, $request, 'text/x-yaml');
+        return $this->serviceProxy->proxy($service, $request);
     }
 }
