@@ -82,7 +82,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
             [],
         );
 
-        $this->assertBadRequestFoo(
+        $this->assertBadRequest(
             $updateResponse,
             'empty',
             [

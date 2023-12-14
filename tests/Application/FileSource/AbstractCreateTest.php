@@ -45,7 +45,7 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
 
         $response = $this->applicationClient->makeCreateFileSourceRequest($apiKey['key'], null);
 
-        $this->assertBadRequestFoo(
+        $this->assertBadRequest(
             $response,
             'empty',
             [

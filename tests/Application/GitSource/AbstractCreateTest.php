@@ -59,7 +59,7 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
             $credentials
         );
 
-        $this->assertBadRequestFoo($response, 'empty', $expectedInvalidFieldData);
+        $this->assertBadRequest($response, 'empty', $expectedInvalidFieldData);
     }
 
     /**
