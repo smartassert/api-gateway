@@ -232,8 +232,8 @@ readonly class Client
 
     public function makeCreateFileSourceFileRequest(
         ?string $apiKey,
-        ?string $fileSourceId,
-        ?string $filename,
+        string $fileSourceId,
+        string $filename,
         ?string $content = null,
     ): ResponseInterface {
         return $this->makeFileSourceFileRequest($apiKey, 'POST', $fileSourceId, $filename, $content);
@@ -241,16 +241,16 @@ readonly class Client
 
     public function makeReadFileSourceFileRequest(
         ?string $apiKey,
-        ?string $fileSourceId,
-        ?string $filename
+        string $fileSourceId,
+        string $filename
     ): ResponseInterface {
         return $this->makeFileSourceFileRequest($apiKey, 'GET', $fileSourceId, $filename);
     }
 
     public function makeUpdateFileSourceFileRequest(
         ?string $apiKey,
-        ?string $fileSourceId,
-        ?string $filename,
+        string $fileSourceId,
+        string $filename,
         ?string $content = null,
     ): ResponseInterface {
         return $this->makeFileSourceFileRequest($apiKey, 'PUT', $fileSourceId, $filename, $content);
@@ -258,8 +258,8 @@ readonly class Client
 
     public function makeDeleteFileSourceFileRequest(
         ?string $apiKey,
-        ?string $fileSourceId,
-        ?string $filename,
+        string $fileSourceId,
+        string $filename,
     ): ResponseInterface {
         return $this->makeFileSourceFileRequest($apiKey, 'DELETE', $fileSourceId, $filename);
     }
@@ -380,8 +380,8 @@ readonly class Client
     private function makeFileSourceFileRequest(
         ?string $apiKey,
         string $method,
-        ?string $fileSourceId,
-        ?string $filename,
+        string $fileSourceId,
+        string $filename,
         ?string $content = null,
     ): ResponseInterface {
         $headers = [];
@@ -398,19 +398,13 @@ readonly class Client
             $headers['accept'] = 'application/yaml, text/x-yaml';
         }
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate(
-                'file_source_file_handle',
-                [
-                    'serviceName' => 'source',
-                    'sourceId' => $fileSourceId,
-                    'filename' => $filename,
-                ]
-            ),
-            $headers,
-            $content
+        $url = sprintf(
+            '/source/file-source/%s/%s',
+            $fileSourceId,
+            $filename,
         );
+
+        return $this->client->makeRequest($method, $url, $headers, $content);
     }
 
     /**
