@@ -11,12 +11,7 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Response;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface as HttpClientInterface;
-use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use SmartAssert\ServiceClient\Exception\CurlException;
-use SmartAssert\ServiceClient\Exception\CurlExceptionInterface;
-use SmartAssert\UsersClient\ClientInterface as UsersClient;
-use SmartAssert\UsersClient\Model\Token;
 
 class RequestHandlerTest extends AbstractApplicationTestCase
 {
@@ -38,20 +33,22 @@ class RequestHandlerTest extends AbstractApplicationTestCase
         $httpMockHandler = self::getContainer()->get(MockHandler::class);
         \assert($httpMockHandler instanceof MockHandler);
 
+        $apiToken = md5((string) rand());
+
+        $httpMockHandler->append(
+            new Response(
+                200,
+                ['content-type' => 'application/json'],
+                (string) json_encode([
+                    'token' => $apiToken,
+                ])
+            )
+        );
         $httpMockHandler->append($httpFixture);
 
         $apiKey = md5((string) rand());
-        $apiToken = md5((string) rand());
         $label = md5((string) rand());
 
-        $usersClient = \Mockery::mock(UsersClient::class);
-        $usersClient
-            ->shouldReceive('createApiToken')
-            ->with($apiKey)
-            ->andReturn(new Token($apiToken))
-        ;
-
-        self::getContainer()->set(UsersClient::class, $usersClient);
         self::getContainer()->set(HttpClientInterface::class, $mockingHttpClient);
 
         $response = $this->applicationClient->makeCreateFileSourceRequest($apiKey, $label);
@@ -116,24 +113,6 @@ class RequestHandlerTest extends AbstractApplicationTestCase
                 'httpFixture' => new ClientException(
                     $exceptionMessage,
                     $exceptionCode
-                ),
-                'expectedStatusCode' => 500,
-                'expectedData' => [
-                    'type' => 'service-communication-failure',
-                    'context' => [
-                        'service' => $serviceName,
-                        'error' => [
-                            'code' => $exceptionCode,
-                            'message' => $exceptionMessage,
-                        ],
-                    ],
-                ],
-            ],
-            CurlExceptionInterface::class => [
-                'httpFixture' => new CurlException(
-                    \Mockery::mock(RequestInterface::class),
-                    $exceptionCode,
-                    $exceptionMessage,
                 ),
                 'expectedStatusCode' => 500,
                 'expectedData' => [

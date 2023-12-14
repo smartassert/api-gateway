@@ -6,7 +6,6 @@ namespace App\EventListener;
 
 use App\Exception\ServiceException;
 use App\Security\ApiTokenProvider;
-use SmartAssert\ServiceClient\Exception\UnauthorizedException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 
@@ -31,7 +30,6 @@ readonly class AuthorizationHeaderParametersTranslator implements EventSubscribe
 
     /**
      * @throws ServiceException
-     * @throws UnauthorizedException
      */
     public function translateAuthorizationHeaderParameters(RequestEvent $event): void
     {

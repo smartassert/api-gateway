@@ -11,7 +11,6 @@ services:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
         bind:
-            $sourceService: '@app.service.source'
             $userService: '@app.service.user'
 
     _instanceof:
@@ -61,19 +60,19 @@ services:
     Psr\Http\Client\ClientInterface:
         class: GuzzleHttp\Client
 
-    SmartAssert\ServiceClient\ResponseFactory\ResponseFactory:
-        factory: ['SmartAssert\ServiceClient\ResponseFactory\ResponseFactory', 'createFactory']
-
-    SmartAssert\ServiceClient\ExceptionFactory\CurlExceptionFactory: ~
-
-    SmartAssert\ServiceClient\Client: ~
-
-    SmartAssert\UsersClient\ClientInterface:
-        class: SmartAssert\UsersClient\Client
-        arguments:
-            $baseUrl: '%env(string:AUTHENTICATION_BASE_URL)%'
-
-    SmartAssert\SecurityTokenExtractor\TokenExtractor: ~
+#    SmartAssert\ServiceClient\ResponseFactory\ResponseFactory:
+#        factory: ['SmartAssert\ServiceClient\ResponseFactory\ResponseFactory', 'createFactory']
+#
+#    SmartAssert\ServiceClient\ExceptionFactory\CurlExceptionFactory: ~
+#
+#    SmartAssert\ServiceClient\Client: ~
+#
+#    SmartAssert\UsersClient\ClientInterface:
+#        class: SmartAssert\UsersClient\Client
+#        arguments:
+#            $baseUrl: '%env(string:AUTHENTICATION_BASE_URL)%'
+#
+#    SmartAssert\SecurityTokenExtractor\TokenExtractor: ~
 
     App\ServiceExceptionResponseFactory\Factory:
         arguments:

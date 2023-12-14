@@ -5,43 +5,43 @@ declare(strict_types=1);
 namespace App\Security;
 
 use App\Exception\ServiceException;
-use Psr\Http\Client\ClientExceptionInterface;
-use SmartAssert\ServiceClient\Exception\HttpResponseExceptionInterface;
-use SmartAssert\ServiceClient\Exception\InvalidModelDataException;
-use SmartAssert\ServiceClient\Exception\InvalidResponseDataException;
-use SmartAssert\ServiceClient\Exception\InvalidResponseTypeException;
-use SmartAssert\ServiceClient\Exception\UnauthorizedException;
-use SmartAssert\UsersClient\ClientInterface as UsersClient;
+use App\ServiceProxy\Service;
+use App\ServiceProxy\ServiceProxy;
+use GuzzleHttp\Psr7\Request;
 
 readonly class ApiTokenProvider
 {
     public function __construct(
-        private UsersClient $client,
+        private ServiceProxy $serviceProxy,
+        private Service $userService,
     ) {
     }
 
     /**
      * @param non-empty-string $apiKey
      *
-     * @return non-empty-string
+     * @return ?string
      *
      * @throws ServiceException
-     * @throws UnauthorizedException
      */
-    public function get(string $apiKey): string
+    public function get(string $apiKey): ?string
     {
-        try {
-            $apiToken = $this->client->createApiToken($apiKey);
-        } catch (
-            ClientExceptionInterface |
-            HttpResponseExceptionInterface |
-            InvalidModelDataException |
-            InvalidResponseDataException |
-            InvalidResponseTypeException $e
-        ) {
-            throw new ServiceException('user', $e);
+        $createTokenResponse = $this->serviceProxy->proxy(
+            $this->userService,
+            new Request('POST', $this->userService->createUrl('/api-token/create'), ['authorization' => $apiKey]),
+            ['application/json']
+        );
+
+        $responseData = json_decode((string) $createTokenResponse->getContent(), true);
+        $apiToken = null;
+
+        if (is_array($responseData)) {
+            $apiToken = $responseData['token'] ?? null;
+            if (!is_string($apiToken)) {
+                $apiToken = null;
+            }
         }
 
-        return $apiToken->token;
+        return $apiToken;
     }
 }
