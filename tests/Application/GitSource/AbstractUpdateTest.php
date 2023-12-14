@@ -37,7 +37,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $response = $this->applicationClient->makeUpdateGitSourceRequest($apiKey->key, (string) new Ulid());
+        $response = $this->applicationClient->makeUpdateGitSourceRequest($apiKey['key'], (string) new Ulid());
 
         self::assertSame(404, $response->getStatusCode());
     }
@@ -58,7 +58,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         $apiKey = $apiKeyProvider->get('user@example.com');
 
         $id = $this->createGitSource(
-            $apiKey->key,
+            $apiKey['key'],
             md5((string) rand()),
             md5((string) rand()),
             md5((string) rand()),
@@ -66,7 +66,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         );
 
         $updateResponse = $this->applicationClient->makeUpdateGitSourceRequest(
-            $apiKey->key,
+            $apiKey['key'],
             $id,
             $label,
             $hostUrl,
@@ -98,7 +98,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         $user = $userProvider->get('user@example.com');
 
         $id = $this->createGitSource(
-            $apiKey->key,
+            $apiKey['key'],
             $label,
             $hostUrl,
             $path,
@@ -106,7 +106,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         );
 
         $updateResponse = $this->applicationClient->makeUpdateGitSourceRequest(
-            $apiKey->key,
+            $apiKey['key'],
             $id,
             $newLabel,
             $newHostUrl,
@@ -121,7 +121,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
             $newHostUrl,
             $newPath,
             is_string($newCredentials),
-            $user->id
+            $user['id']
         );
     }
 

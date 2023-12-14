@@ -44,7 +44,7 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
         $label = md5((string) rand());
         $tests = [];
 
-        $response = $this->applicationClient->makeGetSuiteRequest($apiKey->key, $suiteId);
+        $response = $this->applicationClient->makeGetSuiteRequest($apiKey['key'], $suiteId);
 
         self::assertSame(404, $response->getStatusCode());
     }
@@ -60,10 +60,10 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $sourceId = $this->createFileSource($apiKey->key, md5((string) rand()));
-        $suiteId = $this->createSuite($apiKey->key, $sourceId, $label, $tests);
+        $sourceId = $this->createFileSource($apiKey['key'], md5((string) rand()));
+        $suiteId = $this->createSuite($apiKey['key'], $sourceId, $label, $tests);
 
-        $response = $this->applicationClient->makeGetSuiteRequest($apiKey->key, $suiteId);
+        $response = $this->applicationClient->makeGetSuiteRequest($apiKey['key'], $suiteId);
 
         $this->assertRetrievedSuite($response, $sourceId, $label, $tests);
     }

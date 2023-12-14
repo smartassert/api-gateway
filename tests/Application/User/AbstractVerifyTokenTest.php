@@ -57,7 +57,7 @@ abstract class AbstractVerifyTokenTest extends AbstractApplicationTestCase
         \assert($frontendTokenProvider instanceof FrontendTokenProvider);
         $frontendToken = $frontendTokenProvider->get('user@example.com');
 
-        $verifyResponse = $this->applicationClient->makeVerifyUserTokenRequest($frontendToken->token);
+        $verifyResponse = $this->applicationClient->makeVerifyUserTokenRequest($frontendToken['token']);
 
         $this->assertUserResponse($verifyResponse, 200, 'user@example.com');
     }
