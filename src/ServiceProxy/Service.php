@@ -26,4 +26,9 @@ readonly class Service
     {
         return $this->name;
     }
+
+    public function createUrl(string $relative): string
+    {
+        return $this->baseUrl . $relative;
+    }
 }

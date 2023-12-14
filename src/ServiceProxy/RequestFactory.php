@@ -27,7 +27,9 @@ readonly class RequestFactory
 
     private function createRequestUrl(Service $service, Request $inbound): string
     {
-        return $service->getBaseUrl() . preg_replace('#^/' . $service->getName() . '#', '', $inbound->getRequestUri());
+        return $service->createUrl(
+            (string) preg_replace('#^/' . $service->getName() . '#', '', $inbound->getRequestUri())
+        );
     }
 
     private function setRequestAuthorization(Request $inbound, RequestInterface $outbound): RequestInterface
