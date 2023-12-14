@@ -339,11 +339,9 @@ readonly class Client
             $headers['Translate-Authorization-To'] = 'api-token';
         }
 
-        return $this->client->makeRequest(
-            'GET',
-            $this->router->generate('suite_list', ['serviceName' => 'source']),
-            $headers
-        );
+        $url = '/source/suites';
+
+        return $this->client->makeRequest('GET', $url, $headers);
     }
 
     public function makeDeleteSuiteRequest(?string $apiKey, string $suiteId): ResponseInterface
@@ -359,17 +357,9 @@ readonly class Client
             $headers['Translate-Authorization-To'] = 'api-token';
         }
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate(
-                'source_act',
-                [
-                    'action' => '/' . $sourceId,
-                    'serviceName' => 'source',
-                ]
-            ),
-            $headers
-        );
+        $url = sprintf('/source/%s', $sourceId);
+
+        return $this->client->makeRequest($method, $url, $headers);
     }
 
     private function makeFileSourceFileRequest(
@@ -509,17 +499,11 @@ readonly class Client
             $headers['Content-Type'] = 'application/x-www-form-urlencoded';
         }
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate(
-                'suite_act',
-                [
-                    'serviceName' => 'source',
-                    'suiteId' => $suiteId,
-                ]
-            ),
-            $headers,
-            http_build_query($payload)
-        );
+        $url = '/source/suite';
+        if (is_string($suiteId)) {
+            $url .= '/' . $suiteId;
+        }
+
+        return $this->client->makeRequest($method, $url, $headers, http_build_query($payload));
     }
 }
