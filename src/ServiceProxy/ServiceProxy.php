@@ -10,31 +10,24 @@ use App\Response\ErrorResponse;
 use App\Response\TransparentResponse;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 readonly class ServiceProxy
 {
-    /**
-     * @var string[]
-     */
-    private array $acceptableContentTypes;
-
     public function __construct(
         private ClientInterface $httpClient,
-        private RequestFactory $requestFactory,
     ) {
-        $this->acceptableContentTypes = ['application/json'];
     }
 
     /**
+     * @param string[] $acceptableContentTypes
+     *
      * @throws ServiceException
      */
-    public function proxy(Service $service, Request $inbound): Response
+    public function proxy(Service $service, RequestInterface $outbound, array $acceptableContentTypes): Response
     {
-        $outbound = $this->requestFactory->create($service, $inbound);
-
         try {
             $response = $this->httpClient->sendRequest($outbound);
         } catch (ClientExceptionInterface $e) {
@@ -55,8 +48,6 @@ readonly class ServiceProxy
             return new EmptyResponse(405);
         }
 
-        $acceptableContentTypes = $this->getAcceptableContentTypes($inbound);
-
         if (
             (200 === $statusCode && $this->responseHasAcceptableContentType($response, $acceptableContentTypes))
             || ('application/json' === $contentType)
@@ -75,19 +66,6 @@ readonly class ServiceProxy
                 'actual_content_type' => $contentType,
             ]
         );
-    }
-
-    /**
-     * @return string[]
-     */
-    private function getAcceptableContentTypes(Request $request): array
-    {
-        $acceptableContentTypes = $request->getAcceptableContentTypes();
-        if ([] === $acceptableContentTypes) {
-            $acceptableContentTypes = $this->acceptableContentTypes;
-        }
-
-        return $acceptableContentTypes;
     }
 
     /**
