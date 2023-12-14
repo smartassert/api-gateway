@@ -6,13 +6,11 @@ namespace App\Tests\Services\ApplicationClient;
 
 use Psr\Http\Message\ResponseInterface;
 use SmartAssert\SymfonyTestClient\ClientInterface;
-use Symfony\Component\Routing\RouterInterface;
 
 readonly class Client
 {
     public function __construct(
         private ClientInterface $client,
-        private RouterInterface $router,
     ) {
     }
 
@@ -274,11 +272,9 @@ readonly class Client
             $headers['Translate-Authorization-To'] = 'api-token';
         }
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('source_act', ['serviceName' => 'source', 'action' => '/sources']),
-            $headers
-        );
+        $url = '/source/sources';
+
+        return $this->client->makeRequest($method, $url, $headers);
     }
 
     /**
