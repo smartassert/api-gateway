@@ -51,6 +51,10 @@ readonly class ServiceProxy
             return new EmptyResponse($statusCode);
         }
 
+        if (405 === $statusCode && 'application/json' !== $contentType) {
+            return new EmptyResponse(405);
+        }
+
         $acceptableContentTypes = $this->getAcceptableContentTypes($inbound);
 
         if (
