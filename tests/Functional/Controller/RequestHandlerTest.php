@@ -15,8 +15,6 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use SmartAssert\ServiceClient\Exception\CurlException;
 use SmartAssert\ServiceClient\Exception\CurlExceptionInterface;
-use SmartAssert\UsersClient\ClientInterface as UsersClient;
-use SmartAssert\UsersClient\Model\Token;
 
 class RequestHandlerTest extends AbstractApplicationTestCase
 {
@@ -38,20 +36,22 @@ class RequestHandlerTest extends AbstractApplicationTestCase
         $httpMockHandler = self::getContainer()->get(MockHandler::class);
         \assert($httpMockHandler instanceof MockHandler);
 
+        $apiToken = md5((string) rand());
+
+        $httpMockHandler->append(
+            new Response(
+                200,
+                ['content-type' => 'application/json'],
+                (string) json_encode([
+                    'token' => $apiToken,
+                ])
+            )
+        );
         $httpMockHandler->append($httpFixture);
 
         $apiKey = md5((string) rand());
-        $apiToken = md5((string) rand());
         $label = md5((string) rand());
 
-        $usersClient = \Mockery::mock(UsersClient::class);
-        $usersClient
-            ->shouldReceive('createApiToken')
-            ->with($apiKey)
-            ->andReturn(new Token($apiToken))
-        ;
-
-        self::getContainer()->set(UsersClient::class, $usersClient);
         self::getContainer()->set(HttpClientInterface::class, $mockingHttpClient);
 
         $response = $this->applicationClient->makeCreateFileSourceRequest($apiKey, $label);

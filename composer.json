@@ -10,8 +10,6 @@
         "ext-pdo": "*",
         "guzzlehttp/guzzle": "^7.8",
         "smartassert/security-token-extractor": "^1.0",
-        "smartassert/service-client": "^7.1",
-        "smartassert/users-client": "^13.1",
         "symfony/console": "7.0.*",
         "symfony/dotenv": "7.0.*",
         "symfony/flex": "^2",
