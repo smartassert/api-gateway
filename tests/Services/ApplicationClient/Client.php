@@ -21,8 +21,10 @@ readonly class Client
         ?string $password,
         string $method = 'POST'
     ): ResponseInterface {
-        $payload = [];
+        $url = '/user/frontend-token/create';
+        $headers = ['Content-Type' => 'application/json'];
 
+        $payload = [];
         if (is_string($userIdentifier)) {
             $payload['username'] = $userIdentifier;
         }
@@ -31,12 +33,7 @@ readonly class Client
             $payload['password'] = $password;
         }
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('user_token_create', ['serviceName' => 'user']),
-            ['Content-Type' => 'application/json'],
-            (string) json_encode($payload)
-        );
+        return $this->client->makeRequest($method, $url, $headers, (string) json_encode($payload));
     }
 
     public function makeVerifyUserTokenRequest(?string $jwt, string $method = 'GET'): ResponseInterface
@@ -45,23 +42,19 @@ readonly class Client
             ? ['Authorization' => 'Bearer ' . $jwt]
             : [];
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('user_token_verify', ['serviceName' => 'user']),
-            $headers
-        );
+        $url = '/user/frontend-token/verify';
+
+        return $this->client->makeRequest($method, $url, $headers);
     }
 
     public function makeRefreshUserTokenRequest(?string $refreshToken, string $method = 'POST'): ResponseInterface
     {
         $headers = ['Content-Type' => 'application/json'];
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('user_token_refresh', ['serviceName' => 'user']),
-            $headers,
-            (string) json_encode(['refresh_token' => $refreshToken])
-        );
+        $url = '/user/frontend-token/refresh';
+        $body = (string) json_encode(['refresh_token' => $refreshToken]);
+
+        return $this->client->makeRequest($method, $url, $headers, $body);
     }
 
     public function makeListUserApiKeysRequest(?string $jwt, string $method = 'GET'): ResponseInterface
@@ -70,11 +63,9 @@ readonly class Client
             ? ['Authorization' => 'Bearer ' . $jwt]
             : [];
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('user_apikey_act', ['serviceName' => 'user', 'action' => '/list']),
-            $headers
-        );
+        $url = '/user/apikey/list';
+
+        return $this->client->makeRequest($method, $url, $headers);
     }
 
     public function makeGetUserDefaultApiKeyRequest(?string $jwt, string $method = 'GET'): ResponseInterface
@@ -83,11 +74,9 @@ readonly class Client
             ? ['Authorization' => 'Bearer ' . $jwt]
             : [];
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('user_apikey_act', ['serviceName' => 'user', 'action' => '']),
-            $headers
-        );
+        $url = '/user/apikey';
+
+        return $this->client->makeRequest($method, $url, $headers);
     }
 
     public function makeCreateUserRequest(
@@ -114,12 +103,9 @@ readonly class Client
             $payload['password'] = $password;
         }
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('user_create', ['serviceName' => 'user']),
-            $headers,
-            http_build_query($payload)
-        );
+        $url = '/user/create';
+
+        return $this->client->makeRequest($method, $url, $headers, http_build_query($payload));
     }
 
     public function makeRevokeAllRefreshTokensForUserRequest(
@@ -141,12 +127,9 @@ readonly class Client
             $payload['id'] = $userId;
         }
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('user_revoke_all_refresh_token', ['serviceName' => 'user']),
-            $headers,
-            http_build_query($payload)
-        );
+        $url = '/user/refresh-token/revoke-all-for-user';
+
+        return $this->client->makeRequest($method, $url, $headers, http_build_query($payload));
     }
 
     public function makeRevokeRefreshTokenRequest(
@@ -168,12 +151,9 @@ readonly class Client
             $payload['refresh_token'] = $refreshToken;
         }
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('user_revoke_refresh_token', ['serviceName' => 'user']),
-            $headers,
-            http_build_query($payload)
-        );
+        $url = '/user/refresh-token/revoke';
+
+        return $this->client->makeRequest($method, $url, $headers, http_build_query($payload));
     }
 
     public function makeCreateFileSourceRequest(
