@@ -11,10 +11,7 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Response;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface as HttpClientInterface;
-use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use SmartAssert\ServiceClient\Exception\CurlException;
-use SmartAssert\ServiceClient\Exception\CurlExceptionInterface;
 
 class RequestHandlerTest extends AbstractApplicationTestCase
 {
@@ -116,24 +113,6 @@ class RequestHandlerTest extends AbstractApplicationTestCase
                 'httpFixture' => new ClientException(
                     $exceptionMessage,
                     $exceptionCode
-                ),
-                'expectedStatusCode' => 500,
-                'expectedData' => [
-                    'type' => 'service-communication-failure',
-                    'context' => [
-                        'service' => $serviceName,
-                        'error' => [
-                            'code' => $exceptionCode,
-                            'message' => $exceptionMessage,
-                        ],
-                    ],
-                ],
-            ],
-            CurlExceptionInterface::class => [
-                'httpFixture' => new CurlException(
-                    \Mockery::mock(RequestInterface::class),
-                    $exceptionCode,
-                    $exceptionMessage,
                 ),
                 'expectedStatusCode' => 500,
                 'expectedData' => [

@@ -11,7 +11,6 @@ use App\Exception\ServiceException;
 use App\Response\EmptyResponse;
 use App\Response\UnauthorizedResponse;
 use App\ServiceExceptionResponseFactory\Factory;
-use SmartAssert\ServiceClient\Exception\UnauthorizedException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
@@ -50,10 +49,6 @@ readonly class KernelExceptionEventSubscriber implements EventSubscriberInterfac
 
         if ($throwable instanceof EmptyUserIdException) {
             $response = new EmptyResponse(400);
-        }
-
-        if ($throwable instanceof UnauthorizedException) {
-            $response = new UnauthorizedResponse();
         }
 
         if ($throwable instanceof ServiceException) {
