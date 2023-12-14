@@ -55,7 +55,7 @@ readonly class ServiceProxy
 
         if (
             (200 === $statusCode && str_starts_with($contentType, $successContentType))
-            || ($contentType === $errorContentType)
+            || ('application/json' === $contentType)
         ) {
             return new TransparentResponse($response);
         }
