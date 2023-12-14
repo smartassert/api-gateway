@@ -8,7 +8,6 @@ use App\Exception\ServiceException;
 use App\Exception\UndefinedServiceException;
 use App\ServiceProxy\ServiceCollection;
 use App\ServiceProxy\ServiceProxy;
-use App\ServiceRequest\RequestBuilderFactory;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -16,7 +15,6 @@ use Symfony\Component\Routing\Annotation\Route;
 readonly class ApiKeyController
 {
     public function __construct(
-        private RequestBuilderFactory $requestBuilderFactory,
         private ServiceProxy $serviceProxy,
         private ServiceCollection $serviceCollection,
     ) {
@@ -29,13 +27,6 @@ readonly class ApiKeyController
     #[Route('/user/apikey{action}', name: 'user_apikey_act', requirements: ['action' => '.*'], methods: ['GET'])]
     public function list(Request $request): Response
     {
-        $uri = (string) preg_replace('#^/user#', '', $request->getRequestUri());
-        $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $uri);
-        $httpRequest = $requestBuilder
-            ->withAuthorization((string) $request->headers->get('authorization'))
-            ->get()
-        ;
-
-        return $this->serviceProxy->sendRequest($this->serviceCollection->get('user'), $httpRequest);
+        return $this->serviceProxy->proxy($this->serviceCollection->get('user'), $request);
     }
 }

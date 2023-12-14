@@ -377,6 +377,10 @@ readonly class Client
             $headers['Translate-Authorization-To'] = 'api-token';
         }
 
+        if ('POST' === $method || 'PUT' === $method) {
+            $headers['content-type'] = 'application/yaml';
+        }
+
         return $this->client->makeRequest(
             $method,
             $this->router->generate(
