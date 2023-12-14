@@ -8,16 +8,16 @@ use App\Exception\ServiceException;
 use App\Response\EmptyResponse;
 use App\Response\ErrorResponse;
 use App\Response\TransparentResponse;
-use GuzzleHttp\Psr7\Uri;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
-use Psr\Http\Message\RequestInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 readonly class ServiceProxy
 {
     public function __construct(
         private ClientInterface $httpClient,
+        private RequestFactory $requestFactory,
     ) {
     }
 
@@ -28,17 +28,17 @@ readonly class ServiceProxy
      *
      * @throws ServiceException
      */
-    public function sendRequest(
+    public function proxy(
         Service $service,
-        RequestInterface $request,
+        Request $inbound,
         string $successContentType = 'application/json',
         string $errorContentType = 'application/json',
         array $bareResponseStatusCodes = [401, 404],
     ): Response {
-        $request = $request->withUri(new Uri($service->getBaseUrl() . $request->getUri()));
+        $outbound = $this->requestFactory->create($service, $inbound);
 
         try {
-            $response = $this->httpClient->sendRequest($request);
+            $response = $this->httpClient->sendRequest($outbound);
         } catch (ClientExceptionInterface $e) {
             throw new ServiceException($service->getName(), $e);
         }

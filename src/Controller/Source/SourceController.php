@@ -8,7 +8,6 @@ use App\Exception\ServiceException;
 use App\Exception\UndefinedServiceException;
 use App\ServiceProxy\ServiceCollection;
 use App\ServiceProxy\ServiceProxy;
-use App\ServiceRequest\RequestBuilderFactory;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -16,7 +15,6 @@ use Symfony\Component\Routing\Annotation\Route;
 readonly class SourceController
 {
     public function __construct(
-        private RequestBuilderFactory $requestBuilderFactory,
         private ServiceProxy $serviceProxy,
         private ServiceCollection $serviceCollection,
     ) {
@@ -29,14 +27,7 @@ readonly class SourceController
     #[Route(path: '/source/sources', name: 'sources_list', methods: ['GET'])]
     public function list(Request $request): Response
     {
-        $uri = (string) preg_replace('#^/source#', '', $request->getRequestUri());
-        $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $uri);
-        $httpRequest = $requestBuilder
-            ->withAuthorization((string) $request->headers->get('authorization'))
-            ->get()
-        ;
-
-        return $this->serviceProxy->sendRequest($this->serviceCollection->get('source'), $httpRequest);
+        return $this->serviceProxy->proxy($this->serviceCollection->get('source'), $request);
     }
 
     /**
@@ -46,13 +37,6 @@ readonly class SourceController
     #[Route(path: '/source/{sourceId<[A-Z90-9]{26}>}', name: 'source_act', methods: ['GET', 'DELETE'])]
     public function act(Request $request): Response
     {
-        $uri = (string) preg_replace('#^/source#', '', $request->getRequestUri());
-        $requestBuilder = $this->requestBuilderFactory->create($request->getMethod(), $uri);
-        $httpRequest = $requestBuilder
-            ->withAuthorization((string) $request->headers->get('authorization'))
-            ->get()
-        ;
-
-        return $this->serviceProxy->sendRequest($this->serviceCollection->get('source'), $httpRequest);
+        return $this->serviceProxy->proxy($this->serviceCollection->get('source'), $request);
     }
 }
