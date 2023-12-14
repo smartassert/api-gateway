@@ -7,7 +7,6 @@ namespace App\ServiceProxy;
 use App\Exception\ServiceException;
 use App\Response\EmptyResponse;
 use App\Response\ErrorResponse;
-use App\Response\TransparentResponse;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
@@ -52,7 +51,11 @@ readonly class ServiceProxy
             (200 === $statusCode && $this->responseHasAcceptableContentType($response, $acceptableContentTypes))
             || ('application/json' === $contentType)
         ) {
-            return new TransparentResponse($response);
+            return new Response(
+                $response->getBody()->getContents(),
+                $response->getStatusCode(),
+                ['content-type' => $response->getHeaderLine('content-type')]
+            );
         }
 
         return new ErrorResponse(
