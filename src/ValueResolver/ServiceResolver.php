@@ -29,6 +29,14 @@ readonly class ServiceResolver implements ValueResolverInterface
             return [];
         }
 
-        return [$this->serviceCollection->get($request->attributes->getString('serviceName'))];
+        $name = $request->attributes->getString('serviceName');
+        $service = $this->serviceCollection->get($name);
+        if (null === $service) {
+            $action = $request->attributes->getString('action');
+
+            throw new UndefinedServiceException($name, $action);
+        }
+
+        return [$service];
     }
 }

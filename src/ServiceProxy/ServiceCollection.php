@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\ServiceProxy;
 
-use App\Exception\UndefinedServiceException;
-
 readonly class ServiceCollection
 {
     /**
@@ -16,10 +14,7 @@ readonly class ServiceCollection
     ) {
     }
 
-    /**
-     * @throws UndefinedServiceException
-     */
-    public function get(string $name): Service
+    public function get(string $name): ?Service
     {
         foreach ($this->services as $service) {
             if ($service->is($name)) {
@@ -27,6 +22,6 @@ readonly class ServiceCollection
             }
         }
 
-        throw new UndefinedServiceException($name);
+        return null;
     }
 }
