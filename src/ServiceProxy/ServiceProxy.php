@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\ServiceProxy;
 
 use App\Exception\ServiceException;
-use App\Response\EmptyResponse;
 use App\Response\ErrorResponse;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
@@ -35,16 +34,16 @@ readonly class ServiceProxy
 
         $statusCode = $response->getStatusCode();
         if (in_array($statusCode, [401, 404])) {
-            return new EmptyResponse($statusCode);
+            return new Response(null, $statusCode, ['content-type' => null]);
         }
 
         $contentType = $response->getHeaderLine('content-type');
         if ('' === $contentType) {
-            return new EmptyResponse($statusCode);
+            return new Response(null, $statusCode, ['content-type' => null]);
         }
 
         if (405 === $statusCode && 'application/json' !== $contentType) {
-            return new EmptyResponse(405);
+            return new Response(null, $statusCode, ['content-type' => null]);
         }
 
         if (
