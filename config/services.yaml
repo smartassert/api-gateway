@@ -10,10 +10,12 @@ services:
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        bind:
+            $userService: '@app.service.user'
 
     _instanceof:
-        App\ServiceExceptionResponseFactory\HandlerInterface:
-            tags: ['app.service_exception_response_factory.handler']
+        App\ServiceProxy\Service:
+            tags: ['app.service']
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
@@ -26,6 +28,7 @@ services:
             - '../src/Security/AuthenticationToken.php'
             - '../src/Security/UserCredentials.php'
             - '../src/Security/UserId.php'
+            - '../src/ServiceProxy/Service.php'
 
     App\Controller\:
         resource: '../src/Controller/'
@@ -54,45 +57,18 @@ services:
     Psr\Http\Client\ClientInterface:
         class: GuzzleHttp\Client
 
-    SmartAssert\ServiceClient\ResponseFactory\ResponseFactory:
-        factory: ['SmartAssert\ServiceClient\ResponseFactory\ResponseFactory', 'createFactory']
-
-    SmartAssert\ServiceClient\ExceptionFactory\CurlExceptionFactory: ~
-
-    SmartAssert\ServiceClient\Client: ~
-
-    SmartAssert\UsersClient\ClientInterface:
-        class: SmartAssert\UsersClient\Client
+    app.service.source:
+        class: App\ServiceProxy\Service
         arguments:
-            $baseUrl: '%env(string:AUTHENTICATION_BASE_URL)%'
-
-    SmartAssert\SecurityTokenExtractor\TokenExtractor: ~
-
-    App\ServiceExceptionResponseFactory\Factory:
-        arguments:
-            - !tagged 'app.service_exception_response_factory.handler'
-
-    SmartAssert\SourcesClient\RequestFactory:
-        arguments:
+            $name: 'source'
             $baseUrl: '%env(string:SOURCES_BASE_URL)%'
 
-    SmartAssert\SourcesClient\SourceFactory: ~
+    app.service.user:
+        class: App\ServiceProxy\Service
+        arguments:
+            $name: 'user'
+            $baseUrl: '%env(string:AUTHENTICATION_BASE_URL)%'
 
-    SmartAssert\SourcesClient\ExceptionFactory: ~
-
-    SmartAssert\SourcesClient\FileSourceClientInterface:
-        class: SmartAssert\SourcesClient\FileSourceClient
-
-    SmartAssert\SourcesClient\GitSourceClientInterface:
-        class: SmartAssert\SourcesClient\GitSourceClient
-
-    SmartAssert\SourcesClient\FileClientInterface:
-        class: SmartAssert\SourcesClient\FileClient
-
-    SmartAssert\SourcesClient\SourceClientInterface:
-        class: SmartAssert\SourcesClient\SourceClient
-
-    SmartAssert\SourcesClient\SuiteFactory: ~
-
-    SmartAssert\SourcesClient\SuiteClientInterface:
-        class: SmartAssert\SourcesClient\SuiteClient
+    App\ServiceProxy\ServiceCollection:
+        arguments:
+            - !tagged 'app.service'

@@ -9,6 +9,7 @@ use App\Tests\Application\AssertBadRequestTrait;
 use App\Tests\Application\CreateSourceTrait;
 use App\Tests\Application\UnauthorizedUserDataProviderTrait;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
+use SmartAssert\TestAuthenticationProviderBundle\UserProvider;
 use Symfony\Component\Uid\Ulid;
 
 abstract class AbstractUpdateTest extends AbstractApplicationTestCase
@@ -32,6 +33,22 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         self::assertSame(401, $response->getStatusCode());
     }
 
+    public function testUpdateBadMethod(): void
+    {
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
+
+        $response = $this->applicationClient->makeUpdateFileSourceRequest(
+            $apiKey['key'],
+            (string) new Ulid(),
+            md5((string) rand()),
+            'GET'
+        );
+
+        self::assertSame(405, $response->getStatusCode());
+    }
+
     public function testUpdateNotFound(): void
     {
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
@@ -39,7 +56,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         $apiKey = $apiKeyProvider->get('user@example.com');
 
         $response = $this->applicationClient->makeUpdateFileSourceRequest(
-            $apiKey->key,
+            $apiKey['key'],
             (string) new Ulid(),
             md5((string) rand())
         );
@@ -54,25 +71,24 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         $apiKey = $apiKeyProvider->get('user@example.com');
 
         $label = md5((string) rand());
-        $id = $this->createFileSource($apiKey->key, $label);
+        $id = $this->createFileSource($apiKey['key'], $label);
 
-        $getResponse = $this->applicationClient->makeGetSourceRequest($apiKey->key, $id);
+        $getResponse = $this->applicationClient->makeSourceActRequest('GET', $apiKey['key'], $id);
         self::assertSame(200, $getResponse->getStatusCode());
 
-        $deleteResponse = $this->applicationClient->makeDeleteFileSourceRequest($apiKey->key, $id);
+        $deleteResponse = $this->applicationClient->makeSourceActRequest('DELETE', $apiKey['key'], $id);
         self::assertSame(200, $deleteResponse->getStatusCode());
 
         $newLabel = md5((string) rand());
-        $response = $this->applicationClient->makeUpdateFileSourceRequest($apiKey->key, $id, $newLabel);
+        $response = $this->applicationClient->makeUpdateFileSourceRequest($apiKey['key'], $id, $newLabel);
         self::assertSame(405, $response->getStatusCode());
         self::assertSame('application/json', $response->getHeaderLine('content-type'));
         self::assertSame(
             [
-                'type' => 'modify-read-only-entity',
-                'context' => [
-                    'service' => 'sources',
-                    'type' => 'source',
+                'class' => 'modify_read_only',
+                'entity' => [
                     'id' => $id,
+                    'type' => 'file-source',
                 ],
             ],
             json_decode($response->getBody()->getContents(), true)
@@ -86,11 +102,22 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         $apiKey = $apiKeyProvider->get('user@example.com');
 
         $label = md5((string) rand());
-        $id = $this->createFileSource($apiKey->key, $label);
+        $id = $this->createFileSource($apiKey['key'], $label);
 
-        $response = $this->applicationClient->makeUpdateFileSourceRequest($apiKey->key, $id, null);
+        $response = $this->applicationClient->makeUpdateFileSourceRequest($apiKey['key'], $id, null);
 
-        $this->assertBadRequest($response, 'sources', 'label');
+        $this->assertBadRequest(
+            $response,
+            'empty',
+            [
+                'name' => 'label',
+                'value' => '',
+                'requirements' => [
+                    'data_type' => 'string',
+                    'size' => ['minimum' => 1, 'maximum' => 255],
+                ],
+            ]
+        );
     }
 
     public function testUpdateSuccess(): void
@@ -99,12 +126,16 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
+        $userProvider = self::getContainer()->get(UserProvider::class);
+        \assert($userProvider instanceof UserProvider);
+        $user = $userProvider->get('user@example.com');
+
         $label = md5((string) rand());
-        $id = $this->createFileSource($apiKey->key, $label);
+        $id = $this->createFileSource($apiKey['key'], $label);
 
         $newLabel = md5((string) rand());
 
-        $response = $this->applicationClient->makeUpdateFileSourceRequest($apiKey->key, $id, $newLabel);
-        $this->assertRetrievedFileSource($response, $newLabel, $id);
+        $response = $this->applicationClient->makeUpdateFileSourceRequest($apiKey['key'], $id, $newLabel);
+        $this->assertRetrievedFileSource($response, $newLabel, $user['id'], $id);
     }
 }

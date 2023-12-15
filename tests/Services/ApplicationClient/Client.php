@@ -6,14 +6,17 @@ namespace App\Tests\Services\ApplicationClient;
 
 use Psr\Http\Message\ResponseInterface;
 use SmartAssert\SymfonyTestClient\ClientInterface;
-use Symfony\Component\Routing\RouterInterface;
 
 readonly class Client
 {
     public function __construct(
         private ClientInterface $client,
-        private RouterInterface $router,
     ) {
+    }
+
+    public function makeUndefinedServiceRequest(string $url): ResponseInterface
+    {
+        return $this->client->makeRequest('GET', $url);
     }
 
     public function makeCreateUserTokenRequest(
@@ -21,22 +24,19 @@ readonly class Client
         ?string $password,
         string $method = 'POST'
     ): ResponseInterface {
-        $payload = [];
+        $url = '/user/frontend-token/create';
+        $headers = ['Content-Type' => 'application/json'];
 
+        $payload = [];
         if (is_string($userIdentifier)) {
-            $payload['user-identifier'] = $userIdentifier;
+            $payload['username'] = $userIdentifier;
         }
 
         if (is_string($password)) {
             $payload['password'] = $password;
         }
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('user_token_create'),
-            ['Content-Type' => 'application/x-www-form-urlencoded'],
-            http_build_query($payload)
-        );
+        return $this->client->makeRequest($method, $url, $headers, (string) json_encode($payload));
     }
 
     public function makeVerifyUserTokenRequest(?string $jwt, string $method = 'GET'): ResponseInterface
@@ -45,25 +45,19 @@ readonly class Client
             ? ['Authorization' => 'Bearer ' . $jwt]
             : [];
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('user_token_verify'),
-            $headers
-        );
+        $url = '/user/frontend-token/verify';
+
+        return $this->client->makeRequest($method, $url, $headers);
     }
 
     public function makeRefreshUserTokenRequest(?string $refreshToken, string $method = 'POST'): ResponseInterface
     {
-        $headers = ['Content-Type' => 'application/x-www-form-urlencoded'];
-        if (is_string($refreshToken)) {
-            $headers['Authorization'] = 'Bearer ' . $refreshToken;
-        }
+        $headers = ['Content-Type' => 'application/json'];
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('user_token_refresh'),
-            $headers
-        );
+        $url = '/user/frontend-token/refresh';
+        $body = (string) json_encode(['refresh_token' => $refreshToken]);
+
+        return $this->client->makeRequest($method, $url, $headers, $body);
     }
 
     public function makeListUserApiKeysRequest(?string $jwt, string $method = 'GET'): ResponseInterface
@@ -72,11 +66,9 @@ readonly class Client
             ? ['Authorization' => 'Bearer ' . $jwt]
             : [];
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('user_apikey_list'),
-            $headers
-        );
+        $url = '/user/apikey/list';
+
+        return $this->client->makeRequest($method, $url, $headers);
     }
 
     public function makeGetUserDefaultApiKeyRequest(?string $jwt, string $method = 'GET'): ResponseInterface
@@ -85,16 +77,14 @@ readonly class Client
             ? ['Authorization' => 'Bearer ' . $jwt]
             : [];
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('user_apikey_get_default'),
-            $headers
-        );
+        $url = '/user/apikey';
+
+        return $this->client->makeRequest($method, $url, $headers);
     }
 
     public function makeCreateUserRequest(
         ?string $adminToken,
-        ?string $userIdentifier,
+        ?string $identifier,
         ?string $password,
         string $method = 'POST'
     ): ResponseInterface {
@@ -103,25 +93,22 @@ readonly class Client
         ];
 
         if (is_string($adminToken)) {
-            $headers['Authorization'] = 'Bearer ' . $adminToken;
+            $headers['Authorization'] = $adminToken;
         }
 
         $payload = [];
 
-        if (is_string($userIdentifier)) {
-            $payload['user-identifier'] = $userIdentifier;
+        if (is_string($identifier)) {
+            $payload['identifier'] = $identifier;
         }
 
         if (is_string($password)) {
             $payload['password'] = $password;
         }
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('user_create'),
-            $headers,
-            http_build_query($payload)
-        );
+        $url = '/user/create';
+
+        return $this->client->makeRequest($method, $url, $headers, http_build_query($payload));
     }
 
     public function makeRevokeAllRefreshTokensForUserRequest(
@@ -134,7 +121,7 @@ readonly class Client
         ];
 
         if (is_string($adminToken)) {
-            $headers['Authorization'] = 'Bearer ' . $adminToken;
+            $headers['Authorization'] = $adminToken;
         }
 
         $payload = [];
@@ -143,12 +130,9 @@ readonly class Client
             $payload['id'] = $userId;
         }
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('user_revoke_all_refresh_token'),
-            $headers,
-            http_build_query($payload)
-        );
+        $url = '/user/refresh-token/revoke-all-for-user';
+
+        return $this->client->makeRequest($method, $url, $headers, http_build_query($payload));
     }
 
     public function makeRevokeRefreshTokenRequest(
@@ -170,27 +154,26 @@ readonly class Client
             $payload['refresh_token'] = $refreshToken;
         }
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('user_revoke_refresh_token'),
-            $headers,
-            http_build_query($payload)
-        );
+        $url = '/user/refresh-token/revoke';
+
+        return $this->client->makeRequest($method, $url, $headers, http_build_query($payload));
     }
 
-    public function makeCreateFileSourceRequest(?string $apiKey, ?string $label): ResponseInterface
-    {
-        return $this->makeFileSourceRequest($apiKey, 'POST', null, $label);
+    public function makeCreateFileSourceRequest(
+        ?string $apiKey,
+        ?string $label,
+        string $method = 'POST'
+    ): ResponseInterface {
+        return $this->makeFileSourceMutationRequest($apiKey, $method, null, $label);
     }
 
-    public function makeUpdateFileSourceRequest(?string $apiKey, string $sourceId, ?string $label): ResponseInterface
-    {
-        return $this->makeFileSourceRequest($apiKey, 'PUT', $sourceId, $label);
-    }
-
-    public function makeDeleteFileSourceRequest(?string $apiKey, string $sourceId): ResponseInterface
-    {
-        return $this->makeFileSourceRequest($apiKey, 'DELETE', $sourceId);
+    public function makeUpdateFileSourceRequest(
+        ?string $apiKey,
+        string $sourceId,
+        ?string $label,
+        string $method = 'PUT'
+    ): ResponseInterface {
+        return $this->makeFileSourceMutationRequest($apiKey, $method, $sourceId, $label);
     }
 
     public function makeCreateGitSourceRequest(
@@ -200,7 +183,7 @@ readonly class Client
         ?string $path,
         ?string $credentials
     ): ResponseInterface {
-        return $this->makeGitSourceRequest(
+        return $this->makeGitSourceMutationRequest(
             $apiKey,
             'POST',
             null,
@@ -219,7 +202,7 @@ readonly class Client
         ?string $path = null,
         ?string $credentials = null
     ): ResponseInterface {
-        return $this->makeGitSourceRequest(
+        return $this->makeGitSourceMutationRequest(
             $apiKey,
             'PUT',
             $sourceId,
@@ -230,15 +213,10 @@ readonly class Client
         );
     }
 
-    public function makeDeleteGitSourceRequest(?string $apiKey, ?string $sourceId): ResponseInterface
-    {
-        return $this->makeGitSourceRequest($apiKey, 'DELETE', $sourceId);
-    }
-
     public function makeCreateFileSourceFileRequest(
         ?string $apiKey,
-        ?string $fileSourceId,
-        ?string $filename,
+        string $fileSourceId,
+        string $filename,
         ?string $content = null,
     ): ResponseInterface {
         return $this->makeFileSourceFileRequest($apiKey, 'POST', $fileSourceId, $filename, $content);
@@ -246,16 +224,16 @@ readonly class Client
 
     public function makeReadFileSourceFileRequest(
         ?string $apiKey,
-        ?string $fileSourceId,
-        ?string $filename
+        string $fileSourceId,
+        string $filename
     ): ResponseInterface {
         return $this->makeFileSourceFileRequest($apiKey, 'GET', $fileSourceId, $filename);
     }
 
     public function makeUpdateFileSourceFileRequest(
         ?string $apiKey,
-        ?string $fileSourceId,
-        ?string $filename,
+        string $fileSourceId,
+        string $filename,
         ?string $content = null,
     ): ResponseInterface {
         return $this->makeFileSourceFileRequest($apiKey, 'PUT', $fileSourceId, $filename, $content);
@@ -263,8 +241,8 @@ readonly class Client
 
     public function makeDeleteFileSourceFileRequest(
         ?string $apiKey,
-        ?string $fileSourceId,
-        ?string $filename,
+        string $fileSourceId,
+        string $filename,
     ): ResponseInterface {
         return $this->makeFileSourceFileRequest($apiKey, 'DELETE', $fileSourceId, $filename);
     }
@@ -277,11 +255,14 @@ readonly class Client
         $headers = [];
         if (is_string($apiKey)) {
             $headers['Authorization'] = 'Bearer ' . $apiKey;
+            $headers['Translate-Authorization-To'] = 'api-token';
         }
+
+        $url = sprintf('/source/file-source/%s/list/', $sourceId);
 
         return $this->client->makeRequest(
             $method,
-            $this->router->generate('file_source_list', ['sourceId' => $sourceId]),
+            $url,
             $headers
         );
     }
@@ -293,13 +274,12 @@ readonly class Client
         $headers = [];
         if (is_string($apiKey)) {
             $headers['Authorization'] = 'Bearer ' . $apiKey;
+            $headers['Translate-Authorization-To'] = 'api-token';
         }
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('sources_list'),
-            $headers
-        );
+        $url = '/source/sources';
+
+        return $this->client->makeRequest($method, $url, $headers);
     }
 
     /**
@@ -337,13 +317,12 @@ readonly class Client
         $headers = [];
         if (is_string($apiKey)) {
             $headers['Authorization'] = 'Bearer ' . $apiKey;
+            $headers['Translate-Authorization-To'] = 'api-token';
         }
 
-        return $this->client->makeRequest(
-            'GET',
-            $this->router->generate('suite_list'),
-            $headers
-        );
+        $url = '/source/suites';
+
+        return $this->client->makeRequest('GET', $url, $headers);
     }
 
     public function makeDeleteSuiteRequest(?string $apiKey, string $suiteId): ResponseInterface
@@ -351,64 +330,49 @@ readonly class Client
         return $this->makeSuiteRequest($apiKey, 'DELETE', $suiteId);
     }
 
-    public function makeGetSourceRequest(
-        ?string $apiKey,
-        string $sourceId,
-        string $method = 'GET',
-    ): ResponseInterface {
+    public function makeSourceActRequest(string $method, ?string $apiKey, string $sourceId): ResponseInterface
+    {
         $headers = [];
         if (is_string($apiKey)) {
             $headers['Authorization'] = 'Bearer ' . $apiKey;
+            $headers['Translate-Authorization-To'] = 'api-token';
         }
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate('source_read', ['sourceId' => $sourceId]),
-            $headers
-        );
+        $url = sprintf('/source/%s', $sourceId);
+
+        return $this->client->makeRequest($method, $url, $headers);
     }
 
     private function makeFileSourceFileRequest(
         ?string $apiKey,
         string $method,
-        ?string $fileSourceId,
-        ?string $filename,
+        string $fileSourceId,
+        string $filename,
         ?string $content = null,
     ): ResponseInterface {
         $headers = [];
         if (is_string($apiKey)) {
             $headers['Authorization'] = 'Bearer ' . $apiKey;
+            $headers['Translate-Authorization-To'] = 'api-token';
         }
 
-        $route = 'file_source_file_read';
-        if ('POST' === $method) {
-            $route = 'file_source_file_create';
-        }
-        if ('PUT' === $method) {
-            $route = 'file_source_file_update';
-        }
-        if ('DELETE' === $method) {
-            $route = 'file_source_file_delete';
+        if ('POST' === $method || 'PUT' === $method) {
+            $headers['content-type'] = 'application/yaml';
         }
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate(
-                $route,
-                [
-                    'sourceId' => $fileSourceId,
-                    'filename' => $filename,
-                ]
-            ),
-            $headers,
-            $content
-        );
+        if ('GET' === $method) {
+            $headers['accept'] = 'application/yaml, text/x-yaml';
+        }
+
+        $url = sprintf('/source/file-source/%s/%s', $fileSourceId, $filename);
+
+        return $this->client->makeRequest($method, $url, $headers, $content);
     }
 
     /**
-     * @param 'DELETE'|'POST'|'PUT' $method
+     * @param 'POST'|'PUT' $method
      */
-    private function makeGitSourceRequest(
+    private function makeGitSourceMutationRequest(
         ?string $apiKey,
         string $method,
         string $sourceId = null,
@@ -420,6 +384,7 @@ readonly class Client
         $headers = [];
         if (is_string($apiKey)) {
             $headers['Authorization'] = 'Bearer ' . $apiKey;
+            $headers['Translate-Authorization-To'] = 'api-token';
         }
 
         $payload = [];
@@ -443,26 +408,15 @@ readonly class Client
             $headers['Content-Type'] = 'application/x-www-form-urlencoded';
         }
 
-        $route = 'git_source_create';
-        if ('PUT' === $method) {
-            $route = 'git_source_update';
-        }
-        if ('DELETE' === $method) {
-            $route = 'git_source_delete';
+        $url = '/source/git-source';
+        if (is_string($sourceId)) {
+            $url .= '/' . $sourceId;
         }
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate($route, ['sourceId' => $sourceId]),
-            $headers,
-            http_build_query($payload)
-        );
+        return $this->client->makeRequest($method, $url, $headers, http_build_query($payload));
     }
 
-    /**
-     * @param 'DELETE'|'POST'|'PUT' $method
-     */
-    private function makeFileSourceRequest(
+    private function makeFileSourceMutationRequest(
         ?string $apiKey,
         string $method,
         ?string $sourceId,
@@ -471,6 +425,7 @@ readonly class Client
         $headers = [];
         if (is_string($apiKey)) {
             $headers['Authorization'] = 'Bearer ' . $apiKey;
+            $headers['Translate-Authorization-To'] = 'api-token';
         }
 
         $payload = [];
@@ -482,20 +437,12 @@ readonly class Client
             $headers['Content-Type'] = 'application/x-www-form-urlencoded';
         }
 
-        $route = 'file_source_create';
-        if ('PUT' === $method) {
-            $route = 'file_source_update';
-        }
-        if ('DELETE' === $method) {
-            $route = 'file_source_delete';
+        $url = '/source/file-source';
+        if (is_string($sourceId)) {
+            $url .= '/' . $sourceId;
         }
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate($route, ['sourceId' => $sourceId]),
-            $headers,
-            http_build_query($payload)
-        );
+        return $this->client->makeRequest($method, $url, $headers, http_build_query($payload));
     }
 
     /**
@@ -513,11 +460,12 @@ readonly class Client
         $headers = [];
         if (is_string($apiKey)) {
             $headers['Authorization'] = 'Bearer ' . $apiKey;
+            $headers['Translate-Authorization-To'] = 'api-token';
         }
 
         $payload = [];
         if (is_string($sourceId)) {
-            $payload['sourceId'] = $sourceId;
+            $payload['source_id'] = $sourceId;
         }
 
         if (is_string($label)) {
@@ -532,22 +480,11 @@ readonly class Client
             $headers['Content-Type'] = 'application/x-www-form-urlencoded';
         }
 
-        $route = 'suite_read';
-        if ('POST' === $method) {
-            $route = 'suite_create';
-        }
-        if ('PUT' === $method) {
-            $route = 'suite_update';
-        }
-        if ('DELETE' === $method) {
-            $route = 'suite_delete';
+        $url = '/source/suite';
+        if (is_string($suiteId)) {
+            $url .= '/' . $suiteId;
         }
 
-        return $this->client->makeRequest(
-            $method,
-            $this->router->generate($route, ['suiteId' => $suiteId]),
-            $headers,
-            http_build_query($payload)
-        );
+        return $this->client->makeRequest($method, $url, $headers, http_build_query($payload));
     }
 }

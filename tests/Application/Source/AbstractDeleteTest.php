@@ -14,47 +14,36 @@ use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 use SmartAssert\TestAuthenticationProviderBundle\UserProvider;
 use Symfony\Component\Uid\Ulid;
 
-abstract class AbstractGetTest extends AbstractApplicationTestCase
+abstract class AbstractDeleteTest extends AbstractApplicationTestCase
 {
     use UnauthorizedUserDataProviderTrait;
     use AssertFileSourceTrait;
+    use AssertGitSourceTrait;
     use CreateSourceTrait;
     use CreateGitSourceDataProviderTrait;
-    use AssertGitSourceTrait;
 
     /**
      * @dataProvider unauthorizedUserDataProvider
      */
-    public function testGetUnauthorizedUser(?string $token): void
+    public function testDeleteUnauthorizedUser(?string $token): void
     {
-        $response = $this->applicationClient->makeSourceActRequest('GET', $token, (string) new Ulid());
+        $response = $this->applicationClient->makeSourceActRequest('DELETE', $token, (string) new Ulid());
 
         self::assertSame(401, $response->getStatusCode());
     }
 
-    public function testGetBadMethod(): void
+    public function testDeleteNotFound(): void
     {
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $response = $this->applicationClient->makeSourceActRequest('PUT', $apiKey['key'], (string) new Ulid());
-
-        self::assertSame(405, $response->getStatusCode());
-    }
-
-    public function testGetNotFound(): void
-    {
-        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
-        \assert($apiKeyProvider instanceof ApiKeyProvider);
-        $apiKey = $apiKeyProvider->get('user@example.com');
-
-        $response = $this->applicationClient->makeSourceActRequest('GET', $apiKey['key'], (string) new Ulid());
+        $response = $this->applicationClient->makeSourceActRequest('DELETE', $apiKey['key'], (string) new Ulid());
 
         self::assertSame(404, $response->getStatusCode());
     }
 
-    public function testGetFileSourceSuccess(): void
+    public function testDeleteFileSourceSuccess(): void
     {
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
         \assert($apiKeyProvider instanceof ApiKeyProvider);
@@ -67,15 +56,17 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
         $label = md5((string) rand());
         $id = $this->createFileSource($apiKey['key'], $label);
 
-        $response = $this->applicationClient->makeSourceActRequest('GET', $apiKey['key'], $id);
+        $getResponse = $this->applicationClient->makeSourceActRequest('GET', $apiKey['key'], $id);
+        $this->assertRetrievedFileSource($getResponse, $label, $user['id'], $id);
 
-        $this->assertRetrievedFileSource($response, $label, $user['id'], $id);
+        $deleteResponse = $this->applicationClient->makeSourceActRequest('DELETE', $apiKey['key'], $id);
+        $this->assertDeletedFileSource($deleteResponse, $label, $user['id'], $id);
     }
 
     /**
      * @dataProvider createGitSourceDataProvider
      */
-    public function testGetGitSourceSuccess(string $label, string $hostUrl, string $path, ?string $credentials): void
+    public function testDeleteGitSourceSuccess(string $label, string $hostUrl, string $path, ?string $credentials): void
     {
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
         \assert($apiKeyProvider instanceof ApiKeyProvider);
@@ -95,14 +86,16 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
 
         $getResponse = $this->applicationClient->makeSourceActRequest('GET', $apiKey['key'], $id);
         self::assertSame(200, $getResponse->getStatusCode());
-        $this->assertRetrievedGitSource(
-            $getResponse,
+
+        $deleteResponse = $this->applicationClient->makeSourceActRequest('DELETE', $apiKey['key'], $id);
+        $this->assertDeletedGitSource(
+            $deleteResponse,
             $label,
             $id,
             $hostUrl,
             $path,
             is_string($credentials),
-            $user['id'],
+            $user['id']
         );
     }
 }

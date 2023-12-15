@@ -8,6 +8,8 @@ use App\Tests\Application\AbstractApplicationTestCase;
 
 abstract class AbstractCreateTokenTest extends AbstractApplicationTestCase
 {
+    use AssertRefreshTokenResponseTrait;
+
     /**
      * @dataProvider createBadMethodDataProvider
      */
@@ -87,17 +89,6 @@ abstract class AbstractCreateTokenTest extends AbstractApplicationTestCase
     public function testCreateSuccess(): void
     {
         $response = $this->applicationClient->makeCreateUserTokenRequest('user@example.com', 'password');
-
-        self::assertSame(200, $response->getStatusCode());
-        self::assertSame('application/json', $response->getHeaderLine('content-type'));
-
-        $responseData = json_decode($response->getBody()->getContents(), true);
-        self::assertIsArray($responseData);
-        self::assertArrayHasKey('refreshable_token', $responseData);
-
-        $tokenData = $responseData['refreshable_token'];
-        self::assertIsArray($tokenData);
-        self::assertArrayHasKey('token', $tokenData);
-        self::assertArrayHasKey('refresh_token', $tokenData);
+        $this->assertRefreshTokenResponse($response);
     }
 }

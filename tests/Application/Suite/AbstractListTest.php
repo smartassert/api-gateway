@@ -41,13 +41,13 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $listResponse = $this->applicationClient->makeListSuitesRequest($apiKey->key);
+        $listResponse = $this->applicationClient->makeListSuitesRequest($apiKey['key']);
         $this->assertListResponse($listResponse, []);
 
-        $source1Id = $this->createFileSource($apiKey->key, md5((string) rand()));
-        $suite1Id = $this->createSuite($apiKey->key, $source1Id, 'suite 1 label', []);
+        $source1Id = $this->createFileSource($apiKey['key'], md5((string) rand()));
+        $suite1Id = $this->createSuite($apiKey['key'], $source1Id, 'suite 1 label', []);
 
-        $listResponse = $this->applicationClient->makeListSuitesRequest($apiKey->key);
+        $listResponse = $this->applicationClient->makeListSuitesRequest($apiKey['key']);
         $this->assertListResponse(
             $listResponse,
             [
@@ -60,9 +60,9 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
             ]
         );
 
-        $suite2Id = $this->createSuite($apiKey->key, $source1Id, 'suite 2 label', ['Z.yaml', 'A.yml']);
+        $suite2Id = $this->createSuite($apiKey['key'], $source1Id, 'suite 2 label', ['Z.yaml', 'A.yml']);
 
-        $listResponse = $this->applicationClient->makeListSuitesRequest($apiKey->key);
+        $listResponse = $this->applicationClient->makeListSuitesRequest($apiKey['key']);
         $this->assertListResponse(
             $listResponse,
             [
@@ -84,10 +84,10 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
             ]
         );
 
-        $source2Id = $this->createFileSource($apiKey->key, md5((string) rand()));
-        $suite3Id = $this->createSuite($apiKey->key, $source2Id, 'suite 3 label', []);
+        $source2Id = $this->createFileSource($apiKey['key'], md5((string) rand()));
+        $suite3Id = $this->createSuite($apiKey['key'], $source2Id, 'suite 3 label', []);
 
-        $listResponse = $this->applicationClient->makeListSuitesRequest($apiKey->key);
+        $listResponse = $this->applicationClient->makeListSuitesRequest($apiKey['key']);
         $this->assertListResponse(
             $listResponse,
             [
@@ -115,9 +115,9 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
             ]
         );
 
-        $this->applicationClient->makeDeleteSuiteRequest($apiKey->key, $suite2Id);
+        $this->applicationClient->makeDeleteSuiteRequest($apiKey['key'], $suite2Id);
 
-        $listResponse = $this->applicationClient->makeListSuitesRequest($apiKey->key);
+        $listResponse = $this->applicationClient->makeListSuitesRequest($apiKey['key']);
         $this->assertListResponse(
             $listResponse,
             [

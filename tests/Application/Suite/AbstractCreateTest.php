@@ -47,7 +47,7 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
         $tests = [];
 
         $response = $this->applicationClient->makeCreateSuiteRequest(
-            $apiKey->key,
+            $apiKey['key'],
             $sourceId,
             $label,
             $tests,
@@ -62,19 +62,30 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $sourceId = $this->createFileSource($apiKey->key, md5((string) rand()));
+        $sourceId = $this->createFileSource($apiKey['key'], md5((string) rand()));
 
         $label = '';
         $tests = [];
 
         $response = $this->applicationClient->makeCreateSuiteRequest(
-            $apiKey->key,
+            $apiKey['key'],
             $sourceId,
             $label,
             $tests,
         );
 
-        $this->assertBadRequest($response, 'sources', 'label');
+        $this->assertBadRequest(
+            $response,
+            'empty',
+            [
+                'name' => 'label',
+                'value' => '',
+                'requirements' => [
+                    'data_type' => 'string',
+                    'size' => ['minimum' => 1, 'maximum' => 255],
+                ],
+            ]
+        );
     }
 
     /**
@@ -88,8 +99,8 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $sourceId = $this->createFileSource($apiKey->key, md5((string) rand()));
-        $response = $this->applicationClient->makeCreateSuiteRequest($apiKey->key, $sourceId, $label, $tests);
+        $sourceId = $this->createFileSource($apiKey['key'], md5((string) rand()));
+        $response = $this->applicationClient->makeCreateSuiteRequest($apiKey['key'], $sourceId, $label, $tests);
 
         $this->assertRetrievedSuite($response, $sourceId, $label, $tests);
     }

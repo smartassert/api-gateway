@@ -55,7 +55,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         $tests = [];
 
         $response = $this->applicationClient->makeUpdateSuiteRequest(
-            $apiKey->key,
+            $apiKey['key'],
             $suiteId,
             $sourceId,
             $label,
@@ -71,18 +71,29 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $sourceId = $this->createFileSource($apiKey->key, md5((string) rand()));
-        $suiteId = $this->createSuite($apiKey->key, $sourceId, md5((string) rand()), []);
+        $sourceId = $this->createFileSource($apiKey['key'], md5((string) rand()));
+        $suiteId = $this->createSuite($apiKey['key'], $sourceId, md5((string) rand()), []);
 
         $updateResponse = $this->applicationClient->makeUpdateSuiteRequest(
-            $apiKey->key,
+            $apiKey['key'],
             $suiteId,
             $sourceId,
             '',
             [],
         );
 
-        $this->assertBadRequest($updateResponse, 'sources', 'label');
+        $this->assertBadRequest(
+            $updateResponse,
+            'empty',
+            [
+                'name' => 'label',
+                'value' => '',
+                'requirements' => [
+                    'data_type' => 'string',
+                    'size' => ['minimum' => 1, 'maximum' => 255],
+                ],
+            ]
+        );
     }
 
     public function testUpdateDeletedSuite(): void
@@ -91,12 +102,12 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $sourceId = $this->createFileSource($apiKey->key, md5((string) rand()));
-        $suiteId = $this->createSuite($apiKey->key, $sourceId, md5((string) rand()), []);
-        $this->applicationClient->makeDeleteSuiteRequest($apiKey->key, $suiteId);
+        $sourceId = $this->createFileSource($apiKey['key'], md5((string) rand()));
+        $suiteId = $this->createSuite($apiKey['key'], $sourceId, md5((string) rand()), []);
+        $this->applicationClient->makeDeleteSuiteRequest($apiKey['key'], $suiteId);
 
         $updateResponse = $this->applicationClient->makeUpdateSuiteRequest(
-            $apiKey->key,
+            $apiKey['key'],
             $suiteId,
             $sourceId,
             md5((string) rand()),
@@ -122,14 +133,14 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $sourceId = $this->createFileSource($apiKey->key, md5((string) rand()));
-        $suiteId = $this->createSuite($apiKey->key, $sourceId, $originalLabel, $originalTests);
+        $sourceId = $this->createFileSource($apiKey['key'], md5((string) rand()));
+        $suiteId = $this->createSuite($apiKey['key'], $sourceId, $originalLabel, $originalTests);
 
-        $retrievedSuite = $this->applicationClient->makeGetSuiteRequest($apiKey->key, $suiteId);
+        $retrievedSuite = $this->applicationClient->makeGetSuiteRequest($apiKey['key'], $suiteId);
         $this->assertRetrievedSuite($retrievedSuite, $sourceId, $originalLabel, $originalTests);
 
         $updatedSuite = $this->applicationClient->makeUpdateSuiteRequest(
-            $apiKey->key,
+            $apiKey['key'],
             $suiteId,
             $sourceId,
             $newLabel,

@@ -1,14 +1,11 @@
 parameters:
   test_authentication_provider_bundle_frontend_token_provider_users:
     'user@example.com': 'password'
-
+  test_authentication_provider_bundle_users_url: 'http://localhost:9080'
 services:
   _defaults:
     autowire: true
     autoconfigure: true
-
-  App\Tests\Services\ApplicationClient\ClientFactory:
-    public: true
 
   SmartAssert\SymfonyTestClient\SymfonyClient:
     public: true
@@ -26,5 +23,11 @@ services:
     arguments:
       $httpClient: '@app.tests.integration.http.client'
 
-  SmartAssert\UsersClient\Client:
-    alias: SmartAssert\UsersClient\ClientInterface
+  GuzzleHttp\Handler\MockHandler: ~
+
+  app.test.mocking_http_client:
+    public: true
+    class: GuzzleHttp\Client
+    arguments:
+      $config:
+        handler: '@GuzzleHttp\Handler\MockHandler'

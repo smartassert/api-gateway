@@ -56,20 +56,15 @@ abstract class AbstractListApiKeysTest extends AbstractApplicationTestCase
         \assert($frontendTokenProvider instanceof FrontendTokenProvider);
         $frontendToken = $frontendTokenProvider->get('user@example.com');
 
-        $listResponse = $this->applicationClient->makeListUserApiKeysRequest($frontendToken->token);
+        $listResponse = $this->applicationClient->makeListUserApiKeysRequest($frontendToken['token']);
 
         self::assertSame(200, $listResponse->getStatusCode());
         self::assertSame('application/json', $listResponse->getHeaderLine('content-type'));
 
         $listResponseData = json_decode($listResponse->getBody()->getContents(), true);
         self::assertIsArray($listResponseData);
-        self::assertArrayHasKey('api_keys', $listResponseData);
 
-        $apiKeysData = $listResponseData['api_keys'];
-        self::assertIsArray($apiKeysData);
-        self::assertCount(1, $apiKeysData);
-
-        $apKeyData = $apiKeysData[0];
+        $apKeyData = $listResponseData[0];
         self::assertIsArray($apKeyData);
 
         self::assertArrayHasKey('label', $apKeyData);

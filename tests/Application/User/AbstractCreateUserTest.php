@@ -10,6 +10,7 @@ use App\Tests\Application\UnauthorizedUserDataProviderTrait;
 abstract class AbstractCreateUserTest extends AbstractApplicationTestCase
 {
     use UnauthorizedUserDataProviderTrait;
+    use AssertUserResponseTrait;
 
     /**
      * @dataProvider createBadMethodDataProvider
@@ -64,17 +65,10 @@ abstract class AbstractCreateUserTest extends AbstractApplicationTestCase
         $password = 'password';
 
         $createTokenResponse = $this->applicationClient->makeCreateUserTokenRequest($userIdentifier, $password);
-
         self::assertSame(200, $createTokenResponse->getStatusCode());
 
         $response = $this->applicationClient->makeCreateUserRequest('primary_admin_token', $userIdentifier, $password);
-
-        self::assertSame(409, $response->getStatusCode());
-        self::assertSame('application/json', $response->getHeaderLine('content-type'));
-
-        $responseData = json_decode($response->getBody()->getContents(), true);
-        self::assertIsArray($responseData);
-        self::assertSame(['type' => 'user-already-exists'], $responseData);
+        $this->assertUserResponse($response, 409, $userIdentifier);
     }
 
     public function testCreateUserSuccess(): void
@@ -87,21 +81,9 @@ abstract class AbstractCreateUserTest extends AbstractApplicationTestCase
         self::assertSame(401, $createTokenResponse->getStatusCode());
 
         $response = $this->applicationClient->makeCreateUserRequest('primary_admin_token', $userIdentifier, $password);
-
-        self::assertSame(200, $response->getStatusCode());
-        self::assertSame('application/json', $response->getHeaderLine('content-type'));
-
-        $responseData = json_decode($response->getBody()->getContents(), true);
-        self::assertIsArray($responseData);
-        self::assertArrayHasKey('user', $responseData);
-
-        $userData = $responseData['user'];
-        self::assertIsArray($userData);
-        self::assertArrayHasKey('id', $userData);
-        self::assertArrayHasKey('user-identifier', $userData);
+        $this->assertUserResponse($response, 200, $userIdentifier);
 
         $createTokenResponse = $this->applicationClient->makeCreateUserTokenRequest($userIdentifier, $password);
-
         self::assertSame(200, $createTokenResponse->getStatusCode());
     }
 }

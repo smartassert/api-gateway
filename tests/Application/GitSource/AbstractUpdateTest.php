@@ -9,6 +9,7 @@ use App\Tests\Application\AssertBadRequestTrait;
 use App\Tests\Application\CreateSourceTrait;
 use App\Tests\Application\UnauthorizedUserDataProviderTrait;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
+use SmartAssert\TestAuthenticationProviderBundle\UserProvider;
 use Symfony\Component\Uid\Ulid;
 
 abstract class AbstractUpdateTest extends AbstractApplicationTestCase
@@ -36,26 +37,28 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $response = $this->applicationClient->makeUpdateGitSourceRequest($apiKey->key, (string) new Ulid());
+        $response = $this->applicationClient->makeUpdateGitSourceRequest($apiKey['key'], (string) new Ulid());
 
         self::assertSame(404, $response->getStatusCode());
     }
 
     /**
      * @dataProvider createUpdateGitSourceBadRequestDataProvider
+     *
+     * @param array<mixed> $expectedInvalidFieldData
      */
     public function testUpdateBadRequest(
         ?string $label,
         ?string $hostUrl,
         ?string $path,
-        string $expectedInvalidField
+        array $expectedInvalidFieldData
     ): void {
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
         $id = $this->createGitSource(
-            $apiKey->key,
+            $apiKey['key'],
             md5((string) rand()),
             md5((string) rand()),
             md5((string) rand()),
@@ -63,14 +66,14 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         );
 
         $updateResponse = $this->applicationClient->makeUpdateGitSourceRequest(
-            $apiKey->key,
+            $apiKey['key'],
             $id,
             $label,
             $hostUrl,
             $path
         );
 
-        $this->assertBadRequest($updateResponse, 'sources', $expectedInvalidField);
+        $this->assertBadRequest($updateResponse, 'empty', $expectedInvalidFieldData);
     }
 
     /**
@@ -90,8 +93,12 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
+        $userProvider = self::getContainer()->get(UserProvider::class);
+        \assert($userProvider instanceof UserProvider);
+        $user = $userProvider->get('user@example.com');
+
         $id = $this->createGitSource(
-            $apiKey->key,
+            $apiKey['key'],
             $label,
             $hostUrl,
             $path,
@@ -99,7 +106,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         );
 
         $updateResponse = $this->applicationClient->makeUpdateGitSourceRequest(
-            $apiKey->key,
+            $apiKey['key'],
             $id,
             $newLabel,
             $newHostUrl,
@@ -113,7 +120,8 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
             $id,
             $newHostUrl,
             $newPath,
-            is_string($newCredentials)
+            is_string($newCredentials),
+            $user['id']
         );
     }
 

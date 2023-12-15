@@ -33,7 +33,9 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $response = $this->applicationClient->makeFileSourceFilesRequest($apiKey->key, (string) new Ulid());
+        $response = $this->applicationClient->makeFileSourceFilesRequest($apiKey['key'], (string) new Ulid());
+
+        echo $response->getBody()->getContents();
 
         self::assertSame(404, $response->getStatusCode());
     }
@@ -45,29 +47,29 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
         $apiKey = $apiKeyProvider->get('user@example.com');
 
         $label = md5((string) rand());
-        $id = $this->createFileSource($apiKey->key, $label);
+        $id = $this->createFileSource($apiKey['key'], $label);
 
-        $listResponse = $this->applicationClient->makeFileSourceFilesRequest($apiKey->key, $id);
+        $listResponse = $this->applicationClient->makeFileSourceFilesRequest($apiKey['key'], $id);
         $this->assertListResponse($listResponse, []);
 
         $this->applicationClient->makeCreateFileSourceFileRequest(
-            $apiKey->key,
+            $apiKey['key'],
             $id,
             'fileZ.yaml',
             md5((string) rand())
         );
 
-        $listResponse = $this->applicationClient->makeFileSourceFilesRequest($apiKey->key, $id);
+        $listResponse = $this->applicationClient->makeFileSourceFilesRequest($apiKey['key'], $id);
         $this->assertListResponse($listResponse, ['fileZ.yaml']);
 
         $this->applicationClient->makeCreateFileSourceFileRequest(
-            $apiKey->key,
+            $apiKey['key'],
             $id,
             'fileA.yaml',
             md5((string) rand())
         );
 
-        $listResponse = $this->applicationClient->makeFileSourceFilesRequest($apiKey->key, $id);
+        $listResponse = $this->applicationClient->makeFileSourceFilesRequest($apiKey['key'], $id);
         $this->assertListResponse($listResponse, ['fileA.yaml', 'fileZ.yaml']);
     }
 

@@ -16,6 +16,7 @@ trait AssertGitSourceTrait
         string $hostUrl,
         string $path,
         bool $expectedHasCredentials,
+        string $expectedUserId,
     ): void {
         Assert::assertSame(200, $response->getStatusCode());
         Assert::assertSame('application/json', $response->getHeaderLine('content-type'));
@@ -25,17 +26,17 @@ trait AssertGitSourceTrait
 
         $expectedId = is_string($expectedId) ? $expectedId : $responseData['id'];
 
-        Assert::assertSame(
-            [
-                'id' => $expectedId,
-                'label' => $label,
-                'type' => 'git',
-                'host_url' => $hostUrl,
-                'path' => $path,
-                'has_credentials' => $expectedHasCredentials,
-            ],
-            $responseData
-        );
+        $expectedResponseData = [
+            'id' => $expectedId,
+            'label' => $label,
+            'type' => 'git',
+            'host_url' => $hostUrl,
+            'path' => $path,
+            'has_credentials' => $expectedHasCredentials,
+            'user_id' => $expectedUserId,
+        ];
+
+        Assert::assertEquals($expectedResponseData, $responseData);
     }
 
     public function assertDeletedGitSource(
@@ -45,6 +46,7 @@ trait AssertGitSourceTrait
         string $expectedHostUrl,
         string $expectedPath,
         bool $expectedHasCredentials,
+        string $expectedUserId,
     ): void {
         Assert::assertSame(200, $response->getStatusCode());
         Assert::assertSame('application/json', $response->getHeaderLine('content-type'));
@@ -55,17 +57,17 @@ trait AssertGitSourceTrait
         $deletedAt = $responseData['deleted_at'] ?? null;
         Assert::assertIsInt($deletedAt);
 
-        Assert::assertSame(
-            [
-                'id' => $expectedId,
-                'label' => $expectedLabel,
-                'type' => 'git',
-                'deleted_at' => $deletedAt,
-                'host_url' => $expectedHostUrl,
-                'path' => $expectedPath,
-                'has_credentials' => $expectedHasCredentials,
-            ],
-            $responseData
-        );
+        $expectedResponseData = [
+            'id' => $expectedId,
+            'label' => $expectedLabel,
+            'type' => 'git',
+            'host_url' => $expectedHostUrl,
+            'path' => $expectedPath,
+            'has_credentials' => $expectedHasCredentials,
+            'deleted_at' => $deletedAt,
+            'user_id' => $expectedUserId,
+        ];
+
+        Assert::assertEquals($expectedResponseData, $responseData);
     }
 }

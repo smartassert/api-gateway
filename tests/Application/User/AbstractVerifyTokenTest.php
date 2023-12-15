@@ -7,11 +7,11 @@ namespace App\Tests\Application\User;
 use App\Tests\Application\AbstractApplicationTestCase;
 use App\Tests\Application\UnauthorizedUserDataProviderTrait;
 use SmartAssert\TestAuthenticationProviderBundle\FrontendTokenProvider;
-use SmartAssert\TestAuthenticationProviderBundle\UserProvider;
 
 abstract class AbstractVerifyTokenTest extends AbstractApplicationTestCase
 {
     use UnauthorizedUserDataProviderTrait;
+    use AssertUserResponseTrait;
 
     /**
      * @dataProvider createBadMethodDataProvider
@@ -57,23 +57,8 @@ abstract class AbstractVerifyTokenTest extends AbstractApplicationTestCase
         \assert($frontendTokenProvider instanceof FrontendTokenProvider);
         $frontendToken = $frontendTokenProvider->get('user@example.com');
 
-        $verifyResponse = $this->applicationClient->makeVerifyUserTokenRequest($frontendToken->token);
+        $verifyResponse = $this->applicationClient->makeVerifyUserTokenRequest($frontendToken['token']);
 
-        self::assertSame(200, $verifyResponse->getStatusCode());
-        self::assertSame('application/json', $verifyResponse->getHeaderLine('content-type'));
-
-        $verifyResponseData = json_decode($verifyResponse->getBody()->getContents(), true);
-        self::assertIsArray($verifyResponseData);
-        self::assertArrayHasKey('user', $verifyResponseData);
-
-        $userData = $verifyResponseData['user'];
-        self::assertIsArray($userData);
-
-        $userProvider = self::getContainer()->get(UserProvider::class);
-        \assert($userProvider instanceof UserProvider);
-        $user = $userProvider->get('user@example.com');
-
-        self::assertSame($user->id, $userData['id']);
-        self::assertSame($user->userIdentifier, $userData['user-identifier']);
+        $this->assertUserResponse($verifyResponse, 200, 'user@example.com');
     }
 }
