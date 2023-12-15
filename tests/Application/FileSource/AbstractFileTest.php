@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Application\FileSource;
 
 use App\Tests\Application\AbstractApplicationTestCase;
+use App\Tests\Application\AssertBadRequestTrait;
 use App\Tests\Application\CreateSourceTrait;
 use App\Tests\Application\UnauthorizedUserDataProviderTrait;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
@@ -14,6 +15,7 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
 {
     use UnauthorizedUserDataProviderTrait;
     use CreateSourceTrait;
+    use AssertBadRequestTrait;
 
     /**
      * @dataProvider unauthorizedUserDataProvider
@@ -160,19 +162,7 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
             $content
         );
 
-        self::assertSame(400, $failedCreateResponse->getStatusCode());
-        self::assertSame('application/json', $failedCreateResponse->getHeaderLine('content-type'));
-
-        self::assertSame(
-            [
-                'class' => 'duplicate',
-                'field' => [
-                    'name' => 'filename',
-                    'value' => $filename,
-                ],
-            ],
-            json_decode($failedCreateResponse->getBody()->getContents(), true)
-        );
+        $this->assertDuplicateObjectResponse($failedCreateResponse, 'filename', $filename);
     }
 
     public function testAddReadUpdateRemoveSuccess(): void

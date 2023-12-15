@@ -59,6 +59,44 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
         );
     }
 
+    public function testCreateIsIdempotent(): void
+    {
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
+
+        $label = md5((string) rand());
+
+        $firstResponse = $this->applicationClient->makeCreateFileSourceRequest($apiKey['key'], $label);
+        self::assertSame(200, $firstResponse->getStatusCode());
+
+        $secondResponse = $this->applicationClient->makeCreateFileSourceRequest($apiKey['key'], $label);
+        self::assertSame(200, $secondResponse->getStatusCode());
+
+        self::assertSame($firstResponse->getBody()->getContents(), $secondResponse->getBody()->getContents());
+    }
+
+    public function testCreateDuplicateLabel(): void
+    {
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
+
+        $label = md5((string) rand());
+
+        $createGitSourceResponse = $this->applicationClient->makeCreateGitSourceRequest(
+            $apiKey['key'],
+            $label,
+            'host-url',
+            'path',
+            null
+        );
+        self::assertSame(200, $createGitSourceResponse->getStatusCode());
+
+        $createFileSourceResponse = $this->applicationClient->makeCreateFileSourceRequest($apiKey['key'], $label);
+        $this->assertDuplicateObjectResponse($createFileSourceResponse, 'label', $label);
+    }
+
     public function testCreateSuccess(): void
     {
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);

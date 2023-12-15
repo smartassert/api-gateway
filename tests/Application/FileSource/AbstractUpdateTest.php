@@ -120,6 +120,27 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         );
     }
 
+    public function testUpdateDuplicateLabel(): void
+    {
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
+
+        $firstSourceLabel = md5((string) rand());
+        $this->createFileSource($apiKey['key'], $firstSourceLabel);
+
+        $secondSourceLabel = md5((string) rand());
+        $secondSourceId = $this->createFileSource($apiKey['key'], $secondSourceLabel);
+
+        $response = $this->applicationClient->makeUpdateFileSourceRequest(
+            $apiKey['key'],
+            $secondSourceId,
+            $firstSourceLabel
+        );
+
+        $this->assertDuplicateObjectResponse($response, 'label', $firstSourceLabel);
+    }
+
     public function testUpdateSuccess(): void
     {
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);

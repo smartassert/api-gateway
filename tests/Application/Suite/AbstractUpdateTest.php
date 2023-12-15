@@ -117,6 +117,29 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         self::assertSame(405, $updateResponse->getStatusCode());
     }
 
+    public function testCreateDuplicateLabel(): void
+    {
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
+
+        $label = md5((string) rand());
+        $sourceId = $this->createFileSource($apiKey['key'], md5((string) rand()));
+
+        $this->createSuite($apiKey['key'], $sourceId, $label, ['test1.yaml']);
+        $suiteId = $this->createSuite($apiKey['key'], $sourceId, md5((string) rand()), ['test2.yaml']);
+
+        $updateResponse = $this->applicationClient->makeUpdateSuiteRequest(
+            $apiKey['key'],
+            $suiteId,
+            $sourceId,
+            $label,
+            []
+        );
+
+        $this->assertDuplicateObjectResponse($updateResponse, 'label', $label);
+    }
+
     /**
      * @dataProvider updateSuiteDataProvider
      *
