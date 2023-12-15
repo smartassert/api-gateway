@@ -34,20 +34,9 @@ readonly class AuthorizationHeaderParametersTranslator implements EventSubscribe
     public function translateAuthorizationHeaderParameters(RequestEvent $event): void
     {
         $request = $event->getRequest();
-        if (!$request->headers->has('translate-authorization-to')) {
-            return;
-        }
 
         $translateAuthorizationTo = trim((string) $request->headers->get('translate-authorization-to'));
-        if ('' === $translateAuthorizationTo) {
-            return;
-        }
-
         if ('api-token' !== $translateAuthorizationTo) {
-            return;
-        }
-
-        if (!$request->headers->has('authorization')) {
             return;
         }
 
@@ -60,16 +49,15 @@ readonly class AuthorizationHeaderParametersTranslator implements EventSubscribe
         $parameters = $authorizationHeader;
         if (str_contains($parameters, ' ')) {
             $authorizationComponents = explode(' ', $parameters, 2);
-            $scheme = $authorizationComponents[0] ?? null;
-            $parameters = $authorizationComponents[1] ?? null;
+            $scheme = (string) ($authorizationComponents[0] ?? null);
+            $parameters = (string) ($authorizationComponents[1] ?? null);
         }
 
-        if (!is_string($parameters) || '' === $parameters) {
+        if ('' === $parameters) {
             return;
         }
 
-        $apiToken = $this->apiTokenProvider->get($parameters);
-        $authorizationHeader = $apiToken;
+        $authorizationHeader = $this->apiTokenProvider->get($parameters);
         if (is_string($scheme)) {
             $authorizationHeader = $scheme . ' ' . $authorizationHeader;
         }
