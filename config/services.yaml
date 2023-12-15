@@ -14,9 +14,6 @@ services:
             $userService: '@app.service.user'
 
     _instanceof:
-        App\ServiceExceptionResponseFactory\HandlerInterface:
-            tags: ['app.service_exception_response_factory.handler']
-
         App\ServiceProxy\Service:
             tags: ['app.service']
 
@@ -59,10 +56,6 @@ services:
 
     Psr\Http\Client\ClientInterface:
         class: GuzzleHttp\Client
-
-    App\ServiceExceptionResponseFactory\Factory:
-        arguments:
-            - !tagged 'app.service_exception_response_factory.handler'
 
     app.service.source:
         class: App\ServiceProxy\Service

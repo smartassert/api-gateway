@@ -7,18 +7,12 @@ namespace App\EventListener;
 use App\Exception\ServiceException;
 use App\Exception\UndefinedServiceException;
 use App\Response\ErrorResponse;
-use App\ServiceExceptionResponseFactory\Factory;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 
 readonly class KernelExceptionEventSubscriber implements EventSubscriberInterface
 {
-    public function __construct(
-        private Factory $serviceExceptionResponseFactory,
-    ) {
-    }
-
     /**
      * @return array<class-string, array<mixed>>
      */
@@ -48,7 +42,17 @@ readonly class KernelExceptionEventSubscriber implements EventSubscriberInterfac
         }
 
         if ($throwable instanceof ServiceException) {
-            $response = $this->serviceExceptionResponseFactory->create($throwable);
+            $response = new ErrorResponse(
+                'service-communication-failure',
+                500,
+                [
+                    'service' => $throwable->serviceName,
+                    'error' => [
+                        'code' => $throwable->previousException->getCode(),
+                        'message' => $throwable->previousException->getMessage(),
+                    ],
+                ]
+            );
         }
 
         if ($response instanceof Response) {
