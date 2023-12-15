@@ -14,6 +14,11 @@ readonly class Client
     ) {
     }
 
+    public function makeUndefinedServiceRequest(string $url): ResponseInterface
+    {
+        return $this->client->makeRequest('GET', $url);
+    }
+
     public function makeCreateUserTokenRequest(
         ?string $userIdentifier,
         ?string $password,
