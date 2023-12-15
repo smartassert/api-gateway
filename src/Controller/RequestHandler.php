@@ -26,23 +26,12 @@ readonly class RequestHandler
     #[Route(path: '/{serviceName<[a-z]+>}/{action<.+>}')]
     public function handle(Service $service, Request $request): Response
     {
+        $acceptableContentTypes = $request->getAcceptableContentTypes();
+
         return $this->serviceProxy->proxy(
             $service,
             $this->requestFactory->create($service, $request),
-            $this->getAcceptableContentTypes($request)
+            [] === $acceptableContentTypes ? ['application/json'] : $acceptableContentTypes
         );
-    }
-
-    /**
-     * @return string[]
-     */
-    private function getAcceptableContentTypes(Request $request): array
-    {
-        $acceptableContentTypes = $request->getAcceptableContentTypes();
-        if ([] === $acceptableContentTypes) {
-            $acceptableContentTypes = ['application/json'];
-        }
-
-        return $acceptableContentTypes;
     }
 }
