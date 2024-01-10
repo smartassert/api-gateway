@@ -17,19 +17,48 @@ trait AssertBadRequestTrait
         string $expectedErrorType,
         array $expectedFieldData,
     ): void {
+        $responseData = $this->assertResponse($response);
+
+        self::assertEquals(
+            [
+                'class' => 'bad_request',
+                'type' => $expectedErrorType,
+                'field' => $expectedFieldData,
+            ],
+            $responseData
+        );
+    }
+
+    public function assertDuplicateObjectResponse(
+        ResponseInterface $response,
+        string $expectedField,
+        string $expectedValue
+    ): void {
+        $responseData = $this->assertResponse($response);
+
+        self::assertEquals(
+            [
+                'class' => 'duplicate',
+                'field' => [
+                    'name' => $expectedField,
+                    'value' => $expectedValue,
+                ],
+            ],
+            $responseData
+        );
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    private function assertResponse(ResponseInterface $response): array
+    {
         Assert::assertSame(400, $response->getStatusCode());
         Assert::assertSame('application/json', $response->getHeaderLine('content-type'));
 
         $responseData = json_decode($response->getBody()->getContents(), true);
         Assert::assertIsArray($responseData);
 
-        Assert::assertArrayHasKey('class', $responseData);
-        Assert::assertSame('bad_request', $responseData['class']);
-
-        Assert::assertArrayHasKey('type', $responseData);
-        Assert::assertSame($expectedErrorType, $responseData['type']);
-
-        Assert::assertArrayHasKey('field', $responseData);
-        Assert::assertSame($expectedFieldData, $responseData['field']);
+        return $responseData;
     }
 }

@@ -88,6 +88,37 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
         );
     }
 
+    public function testCreateDuplicateLabel(): void
+    {
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
+
+        $label = md5((string) rand());
+        $sourceId = $this->createFileSource($apiKey['key'], md5((string) rand()));
+
+        $firstCreateResponse = $this->applicationClient->makeCreateSuiteRequest(
+            $apiKey['key'],
+            $sourceId,
+            $label,
+            [
+                'test1.yaml',
+            ]
+        );
+        self::assertSame(200, $firstCreateResponse->getStatusCode());
+
+        $secondCreateResponse = $this->applicationClient->makeCreateSuiteRequest(
+            $apiKey['key'],
+            $sourceId,
+            $label,
+            [
+                'test2.yaml',
+            ]
+        );
+
+        $this->assertDuplicateObjectResponse($secondCreateResponse, 'label', $label);
+    }
+
     /**
      * @dataProvider createSuiteDataProvider
      *

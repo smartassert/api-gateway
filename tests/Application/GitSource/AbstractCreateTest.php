@@ -7,6 +7,7 @@ namespace App\Tests\Application\GitSource;
 use App\Tests\Application\AbstractApplicationTestCase;
 use App\Tests\Application\AssertBadRequestTrait;
 use App\Tests\Application\UnauthorizedUserDataProviderTrait;
+use App\Tests\Services\ApplicationClient\Client;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 use SmartAssert\TestAuthenticationProviderBundle\UserProvider;
 
@@ -60,6 +61,59 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
         );
 
         $this->assertBadRequest($response, 'empty', $expectedInvalidFieldData);
+    }
+
+    /**
+     * @dataProvider createDuplicateLabelDataProvider
+     *
+     * @param callable(Client, string, string): void $existingSourceCreator
+     */
+    public function testCreateDuplicateLabel(callable $existingSourceCreator): void
+    {
+        $label = md5((string) rand());
+
+        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
+        \assert($apiKeyProvider instanceof ApiKeyProvider);
+        $apiKey = $apiKeyProvider->get('user@example.com');
+
+        $existingSourceCreator($this->applicationClient, $apiKey['key'], $label);
+
+        $response = $this->applicationClient->makeCreateGitSourceRequest(
+            $apiKey['key'],
+            $label,
+            md5((string) rand()),
+            md5((string) rand()),
+            null
+        );
+
+        $this->assertDuplicateObjectResponse($response, 'label', $label);
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function createDuplicateLabelDataProvider(): array
+    {
+        return [
+            'file source has label' => [
+                'existingSourceCreator' => function (Client $applicationClient, string $apiKey, string $label): void {
+                    $response = $applicationClient->makeCreateFileSourceRequest($apiKey, $label);
+                    self::assertSame(200, $response->getStatusCode());
+                },
+            ],
+            'git source has label' => [
+                'existingSourceCreator' => function (Client $applicationClient, string $apiKey, string $label): void {
+                    $response = $applicationClient->makeCreateGitSourceRequest(
+                        $apiKey,
+                        $label,
+                        md5((string) rand()),
+                        md5((string) rand()),
+                        null
+                    );
+                    self::assertSame(200, $response->getStatusCode());
+                },
+            ],
+        ];
     }
 
     /**
