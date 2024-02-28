@@ -46,13 +46,13 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
     /**
      * @dataProvider createUpdateGitSourceBadRequestDataProvider
      *
-     * @param array<mixed> $expectedInvalidFieldData
+     * @param array<mixed> $expectedInvalidParameterData
      */
     public function testUpdateBadRequest(
         ?string $label,
         ?string $hostUrl,
         ?string $path,
-        array $expectedInvalidFieldData
+        array $expectedInvalidParameterData
     ): void {
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
         \assert($apiKeyProvider instanceof ApiKeyProvider);
@@ -74,7 +74,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
             $path
         );
 
-        $this->assertBadRequest($updateResponse, 'empty', $expectedInvalidFieldData);
+        $this->assertBadRequest($updateResponse, 'wrong_size', $expectedInvalidParameterData);
     }
 
     /**
