@@ -60,7 +60,15 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
         );
 
         $listResponse = $this->applicationClient->makeFileSourceFilesRequest($apiKey['key'], $id);
-        $this->assertListResponse($listResponse, ['fileZ.yaml']);
+        $this->assertListResponse(
+            $listResponse,
+            [
+                [
+                    'path' => 'fileZ.yaml',
+                    'size' => 32,
+                ],
+            ]
+        );
 
         $this->applicationClient->makeCreateFileSourceFileRequest(
             $apiKey['key'],
@@ -70,11 +78,23 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
         );
 
         $listResponse = $this->applicationClient->makeFileSourceFilesRequest($apiKey['key'], $id);
-        $this->assertListResponse($listResponse, ['fileA.yaml', 'fileZ.yaml']);
+        $this->assertListResponse(
+            $listResponse,
+            [
+                [
+                    'path' => 'fileA.yaml',
+                    'size' => 32,
+                ],
+                [
+                    'path' => 'fileZ.yaml',
+                    'size' => 32,
+                ],
+            ]
+        );
     }
 
     /**
-     * @param string[] $expectedFiles
+     * @param array<mixed> $expectedFiles
      */
     private function assertListResponse(ResponseInterface $response, array $expectedFiles): void
     {
