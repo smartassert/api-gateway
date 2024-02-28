@@ -108,7 +108,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
 
         $this->assertBadRequest(
             $response,
-            'empty',
+            'wrong_size',
             [
                 'name' => 'label',
                 'value' => '',

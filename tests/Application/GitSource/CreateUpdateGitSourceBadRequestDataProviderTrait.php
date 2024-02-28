@@ -16,7 +16,7 @@ trait CreateUpdateGitSourceBadRequestDataProviderTrait
                 'label' => null,
                 'hostUrl' => md5((string) rand()),
                 'path' => md5((string) rand()),
-                'expectedInvalidFieldData' => [
+                'expectedInvalidParameterData' => [
                     'name' => 'label',
                     'value' => '',
                     'requirements' => [
@@ -29,7 +29,7 @@ trait CreateUpdateGitSourceBadRequestDataProviderTrait
                 'label' => md5((string) rand()),
                 'hostUrl' => null,
                 'path' => md5((string) rand()),
-                'expectedInvalidFieldData' => [
+                'expectedInvalidParameterData' => [
                     'name' => 'host-url',
                     'value' => '',
                     'requirements' => [
@@ -42,7 +42,7 @@ trait CreateUpdateGitSourceBadRequestDataProviderTrait
                 'label' => md5((string) rand()),
                 'hostUrl' => md5((string) rand()),
                 'path' => null,
-                'expectedInvalidFieldData' => [
+                'expectedInvalidParameterData' => [
                     'name' => 'path',
                     'value' => '',
                     'requirements' => [

@@ -10,12 +10,12 @@ use Psr\Http\Message\ResponseInterface;
 trait AssertBadRequestTrait
 {
     /**
-     * @param array<mixed> $expectedFieldData
+     * @param array<mixed> $expectedParameterData
      */
     public function assertBadRequest(
         ResponseInterface $response,
         string $expectedErrorType,
-        array $expectedFieldData,
+        array $expectedParameterData,
     ): void {
         $responseData = $this->assertResponse($response);
 
@@ -23,7 +23,7 @@ trait AssertBadRequestTrait
             [
                 'class' => 'bad_request',
                 'type' => $expectedErrorType,
-                'field' => $expectedFieldData,
+                'parameter' => $expectedParameterData,
             ],
             $responseData
         );
@@ -31,7 +31,7 @@ trait AssertBadRequestTrait
 
     public function assertDuplicateObjectResponse(
         ResponseInterface $response,
-        string $expectedField,
+        string $expectedParameter,
         string $expectedValue
     ): void {
         $responseData = $this->assertResponse($response);
@@ -39,8 +39,8 @@ trait AssertBadRequestTrait
         self::assertEquals(
             [
                 'class' => 'duplicate',
-                'field' => [
-                    'name' => $expectedField,
+                'parameter' => [
+                    'name' => $expectedParameter,
                     'value' => $expectedValue,
                 ],
             ],
