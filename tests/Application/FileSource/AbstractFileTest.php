@@ -87,7 +87,7 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
             md5((string) rand()) . '.yaml'
         );
 
-        self::assertSame(404, $response->getStatusCode());
+        self::assertSame(403, $response->getStatusCode());
     }
 
     public function testReadFileNotFound(): void
@@ -120,7 +120,7 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
             md5((string) rand()) . '.yaml'
         );
 
-        self::assertSame(404, $response->getStatusCode());
+        self::assertSame(403, $response->getStatusCode());
     }
 
     public function testRemoveFileNotFound(): void

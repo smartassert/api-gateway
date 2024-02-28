@@ -40,7 +40,7 @@ abstract class AbstractDeleteTest extends AbstractApplicationTestCase
 
         $response = $this->applicationClient->makeSourceActRequest('DELETE', $apiKey['key'], (string) new Ulid());
 
-        self::assertSame(404, $response->getStatusCode());
+        self::assertSame(403, $response->getStatusCode());
     }
 
     public function testDeleteFileSourceSuccess(): void

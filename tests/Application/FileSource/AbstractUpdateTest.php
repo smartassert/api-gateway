@@ -61,7 +61,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
             md5((string) rand())
         );
 
-        self::assertSame(404, $response->getStatusCode());
+        self::assertSame(403, $response->getStatusCode());
     }
 
     public function testUpdateDeletedSource(): void

@@ -43,7 +43,7 @@ abstract class AbstractDeleteTest extends AbstractApplicationTestCase
 
         $response = $this->applicationClient->makeDeleteSuiteRequest($apiKey['key'], $suiteId);
 
-        self::assertSame(404, $response->getStatusCode());
+        self::assertSame(403, $response->getStatusCode());
     }
 
     /**

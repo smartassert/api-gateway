@@ -40,7 +40,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
 
         $response = $this->applicationClient->makeUpdateGitSourceRequest($apiKey['key'], (string) new Ulid());
 
-        self::assertSame(404, $response->getStatusCode());
+        self::assertSame(403, $response->getStatusCode());
     }
 
     /**
