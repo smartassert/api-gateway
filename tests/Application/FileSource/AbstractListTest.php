@@ -37,7 +37,7 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
 
         echo $response->getBody()->getContents();
 
-        self::assertSame(404, $response->getStatusCode());
+        self::assertSame(403, $response->getStatusCode());
     }
 
     public function testListSuccess(): void

@@ -33,7 +33,7 @@ readonly class ServiceProxy
         }
 
         $statusCode = $response->getStatusCode();
-        if (in_array($statusCode, [401, 404])) {
+        if (in_array($statusCode, [401, 403, 404])) {
             return new Response(null, $statusCode, ['content-type' => null]);
         }
 

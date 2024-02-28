@@ -62,7 +62,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
             $tests,
         );
 
-        self::assertSame(404, $response->getStatusCode());
+        self::assertSame(403, $response->getStatusCode());
     }
 
     public function testUpdateBadRequest(): void
