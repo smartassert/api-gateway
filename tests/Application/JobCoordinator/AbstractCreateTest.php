@@ -7,7 +7,6 @@ namespace App\Tests\Application\JobCoordinator;
 use App\Tests\Application\AbstractApplicationTestCase;
 use App\Tests\Application\AssertBadRequestTrait;
 use App\Tests\Application\UnauthorizedUserDataProviderTrait;
-use Psr\Http\Message\ResponseInterface;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 use Symfony\Component\Uid\Ulid;
 
@@ -101,14 +100,6 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
             $maximumDurationInSeconds
         );
 
-        $this->assertRetrievedJob($response, $suiteId, $maximumDurationInSeconds);
-    }
-
-    private function assertRetrievedJob(
-        ResponseInterface $response,
-        string $expectedSuiteId,
-        int $expectedMaximumDurationInSeconds,
-    ): void {
         self::assertSame(200, $response->getStatusCode());
         self::assertSame('application/json', $response->getHeaderLine('content-type'));
 
@@ -116,7 +107,7 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
         self::assertIsArray($responseData);
 
         self::assertTrue(Ulid::isValid($responseData['id']));
-        self::assertSame($expectedSuiteId, $responseData['suite_id']);
-        self::assertSame($expectedMaximumDurationInSeconds, $responseData['maximum_duration_in_seconds']);
+        self::assertSame($suiteId, $responseData['suite_id']);
+        self::assertSame($maximumDurationInSeconds, $responseData['maximum_duration_in_seconds']);
     }
 }
