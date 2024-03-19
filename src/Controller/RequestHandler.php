@@ -23,7 +23,7 @@ readonly class RequestHandler
     /**
      * @throws ServiceException
      */
-    #[Route(path: '/{serviceName<[a-z]+>}/{action<.+>}')]
+    #[Route(path: '/{serviceName<[a-z-]+>}/{action<.+>}')]
     public function handle(Service $service, Request $request): Response
     {
         $acceptableContentTypes = $request->getAcceptableContentTypes();
