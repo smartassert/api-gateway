@@ -50,29 +50,34 @@ abstract class AbstractListApiKeysTest extends AbstractApplicationTestCase
         self::assertSame(401, $response->getStatusCode());
     }
 
-    public function testListSuccess(): void
+    public function testListSuccessNoApiKeys(): void
     {
         $frontendTokenProvider = self::getContainer()->get(FrontendTokenProvider::class);
         \assert($frontendTokenProvider instanceof FrontendTokenProvider);
         $frontendToken = $frontendTokenProvider->get('user@example.com');
 
         $listResponse = $this->applicationClient->makeListUserApiKeysRequest($frontendToken['token']);
-
         self::assertSame(200, $listResponse->getStatusCode());
         self::assertSame('application/json', $listResponse->getHeaderLine('content-type'));
 
         $listResponseData = json_decode($listResponse->getBody()->getContents(), true);
-        self::assertIsArray($listResponseData);
+        self::assertSame([], $listResponseData);
+    }
 
-        $apKeyData = $listResponseData[0];
-        self::assertIsArray($apKeyData);
+    public function testListSuccessDefaultApiKeyOnly(): void
+    {
+        $frontendTokenProvider = self::getContainer()->get(FrontendTokenProvider::class);
+        \assert($frontendTokenProvider instanceof FrontendTokenProvider);
+        $frontendToken = $frontendTokenProvider->get('user@example.com');
 
-        self::assertArrayHasKey('label', $apKeyData);
-        self::assertNull($apKeyData['label']);
+        $getUserApiKeyResponse = $this->applicationClient->makeGetUserDefaultApiKeyRequest($frontendToken['token']);
+        \assert(200 === $getUserApiKeyResponse->getStatusCode());
 
-        self::assertArrayHasKey('key', $apKeyData);
-        $key = $apKeyData['key'];
-        self::assertIsString($key);
-        self::assertNotEmpty($key);
+        $listResponse = $this->applicationClient->makeListUserApiKeysRequest($frontendToken['token']);
+        self::assertSame(200, $listResponse->getStatusCode());
+        self::assertSame('application/json', $listResponse->getHeaderLine('content-type'));
+
+        $listResponseData = json_decode($listResponse->getBody()->getContents(), true);
+        self::assertSame([], $listResponseData);
     }
 }
