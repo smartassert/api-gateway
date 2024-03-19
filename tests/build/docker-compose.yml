@@ -150,6 +150,7 @@ services:
         DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/job-coordinator?serverVersion=12&charset=utf8
         AUTHENTICATION_BASE_URL: http://users-http
         SOURCES_BASE_URL: http://sources-http
+        JOB_COORDINATOR_BASE_URL: http://job-coordinator-http
     container_name: app
     restart: unless-stopped
     depends_on:
