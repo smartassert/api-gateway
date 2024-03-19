@@ -10,7 +10,7 @@ use App\Tests\Application\UnauthorizedUserDataProviderTrait;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 use Symfony\Component\Uid\Ulid;
 
-abstract class AbstractCreateTest extends AbstractApplicationTestCase
+abstract class AbstractGetTest extends AbstractApplicationTestCase
 {
     use UnauthorizedUserDataProviderTrait;
     use AssertBadRequestTrait;
@@ -18,26 +18,25 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
     /**
      * @dataProvider unauthorizedUserDataProvider
      */
-    public function testCreateUnauthorizedUser(?string $token): void
+    public function testGetUnauthorizedUser(?string $token): void
     {
-        $response = $this->applicationClient->makeCreateJobCoordinatorJobRequest($token, (string) new Ulid(), rand());
+        $response = $this->applicationClient->makeGetJobCoordinatorJobRequest($token, (string) new Ulid());
 
         self::assertSame(401, $response->getStatusCode());
     }
 
     /**
-     * @dataProvider createBadMethodDataProvider
+     * @dataProvider getBadMethodDataProvider
      */
-    public function testCreateBadMethod(string $method): void
+    public function testGetBadMethod(string $method): void
     {
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
         \assert($apiKeyProvider instanceof ApiKeyProvider);
         $apiKey = $apiKeyProvider->get('user@example.com');
 
-        $response = $this->applicationClient->makeCreateJobCoordinatorJobRequest(
+        $response = $this->applicationClient->makeGetJobCoordinatorJobRequest(
             $apiKey['key'],
             (string) new Ulid(),
-            rand(),
             $method
         );
 
@@ -47,7 +46,7 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
     /**
      * @return array<mixed>
      */
-    public function createBadMethodDataProvider(): array
+    public function getBadMethodDataProvider(): array
     {
         return [
             'PUT' => [
@@ -59,33 +58,7 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
         ];
     }
 
-    public function testCreateBadRequest(): void
-    {
-        $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
-        \assert($apiKeyProvider instanceof ApiKeyProvider);
-        $apiKey = $apiKeyProvider->get('user@example.com');
-
-        $response = $this->applicationClient->makeCreateJobCoordinatorJobRequest(
-            $apiKey['key'],
-            (string) new Ulid(),
-            0
-        );
-
-        $this->assertBadRequest(
-            $response,
-            'wrong_size',
-            [
-                'name' => 'maximum_duration_in_seconds',
-                'value' => 0,
-                'requirements' => [
-                    'data_type' => 'integer',
-                    'size' => ['minimum' => 1, 'maximum' => 2147483647],
-                ],
-            ]
-        );
-    }
-
-    public function testCreateSuccess(): void
+    public function testGetSuccess(): void
     {
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
         \assert($apiKeyProvider instanceof ApiKeyProvider);
@@ -94,11 +67,20 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
         $suiteId = (string) new Ulid();
         $maximumDurationInSeconds = rand(1, 10000);
 
-        $response = $this->applicationClient->makeCreateJobCoordinatorJobRequest(
+        $createResponse = $this->applicationClient->makeCreateJobCoordinatorJobRequest(
             $apiKey['key'],
             $suiteId,
             $maximumDurationInSeconds
         );
+        self::assertSame(200, $createResponse->getStatusCode());
+
+        $createResponseData = json_decode($createResponse->getBody()->getContents(), true);
+        \assert(is_array($createResponseData));
+
+        $jobId = $createResponseData['id'] ?? null;
+        \assert(is_string($jobId));
+
+        $response = $this->applicationClient->makeGetJobCoordinatorJobRequest($apiKey['key'], $jobId);
 
         self::assertSame(200, $response->getStatusCode());
         self::assertSame('application/json', $response->getHeaderLine('content-type'));
