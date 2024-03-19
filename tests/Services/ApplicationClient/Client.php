@@ -343,6 +343,35 @@ readonly class Client
         return $this->client->makeRequest($method, $url, $headers);
     }
 
+    public function makeCreateJobCoordinatorJobRequest(
+        ?string $apiKey,
+        ?string $suiteId,
+        ?int $maximumDurationInSeconds,
+        string $method = 'POST'
+    ): ResponseInterface {
+        $headers = [];
+        if (is_string($apiKey)) {
+            $headers['Authorization'] = 'Bearer ' . $apiKey;
+            $headers['Translate-Authorization-To'] = 'api-token';
+        }
+
+        $payload = [];
+        if (is_int($maximumDurationInSeconds)) {
+            $payload['maximum_duration_in_seconds'] = $maximumDurationInSeconds;
+        }
+
+        if (('POST' === $method || 'PUT' === $method) && [] !== $payload) {
+            $headers['Content-Type'] = 'application/x-www-form-urlencoded';
+        }
+
+        $url = '/job-coordinator';
+        if (is_string($suiteId)) {
+            $url .= '/' . $suiteId;
+        }
+
+        return $this->client->makeRequest($method, $url, $headers, http_build_query($payload));
+    }
+
     private function makeFileSourceFileRequest(
         ?string $apiKey,
         string $method,
