@@ -55,10 +55,10 @@ abstract class AbstractVerifyTokenTest extends AbstractApplicationTestCase
     {
         $frontendTokenProvider = self::getContainer()->get(FrontendTokenProvider::class);
         \assert($frontendTokenProvider instanceof FrontendTokenProvider);
-        $frontendToken = $frontendTokenProvider->get('user@example.com');
+        $frontendToken = $frontendTokenProvider->get('user1@example.com');
 
         $verifyResponse = $this->applicationClient->makeVerifyUserTokenRequest($frontendToken['token']);
 
-        $this->assertUserResponse($verifyResponse, 200, 'user@example.com');
+        $this->assertUserResponse($verifyResponse, 200, 'user1@example.com');
     }
 }

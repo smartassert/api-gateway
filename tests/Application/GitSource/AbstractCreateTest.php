@@ -48,7 +48,7 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
     ): void {
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
         \assert($apiKeyProvider instanceof ApiKeyProvider);
-        $apiKey = $apiKeyProvider->get('user@example.com');
+        $apiKey = $apiKeyProvider->get('user1@example.com');
 
         $credentials = null;
 
@@ -74,7 +74,7 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
 
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
         \assert($apiKeyProvider instanceof ApiKeyProvider);
-        $apiKey = $apiKeyProvider->get('user@example.com');
+        $apiKey = $apiKeyProvider->get('user1@example.com');
 
         $existingSourceCreator($this->applicationClient, $apiKey['key'], $label);
 
@@ -127,11 +127,11 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
     ): void {
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
         \assert($apiKeyProvider instanceof ApiKeyProvider);
-        $apiKey = $apiKeyProvider->get('user@example.com');
+        $apiKey = $apiKeyProvider->get('user1@example.com');
 
         $userProvider = self::getContainer()->get(UserProvider::class);
         \assert($userProvider instanceof UserProvider);
-        $user = $userProvider->get('user@example.com');
+        $user = $userProvider->get('user1@example.com');
 
         $response = $this->applicationClient->makeCreateGitSourceRequest(
             $apiKey['key'],

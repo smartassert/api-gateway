@@ -19,7 +19,7 @@ abstract class AbstractCreateUserTest extends AbstractApplicationTestCase
     {
         $response = $this->applicationClient->makeCreateUserRequest(
             'primary_admin_token',
-            'user@example.com',
+            'user1@example.com',
             'password',
             $method
         );
@@ -61,7 +61,7 @@ abstract class AbstractCreateUserTest extends AbstractApplicationTestCase
 
     public function testCreateUserUserAlreadyExists(): void
     {
-        $userIdentifier = 'user@example.com';
+        $userIdentifier = 'user1@example.com';
         $password = 'password';
 
         $createTokenResponse = $this->applicationClient->makeCreateUserTokenRequest($userIdentifier, $password);
