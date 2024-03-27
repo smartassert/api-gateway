@@ -75,35 +75,19 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
         $jobSummaries = [];
 
         $jobSummaries[] = $this->getJobSummaryFromResponse(
-            $this->applicationClient->makeCreateJobCoordinatorJobRequest(
-                $user1ApiKey['key'],
-                $suite1Id,
-                rand(1, 10000)
-            )
+            $this->applicationClient->makeCreateJobCoordinatorJobRequest($user1ApiKey['key'], $suite1Id, rand(1, 10000))
         );
 
         $jobSummaries[] = $this->getJobSummaryFromResponse(
-            $this->applicationClient->makeCreateJobCoordinatorJobRequest(
-                $user1ApiKey['key'],
-                $suite2Id,
-                rand(1, 10000)
-            )
+            $this->applicationClient->makeCreateJobCoordinatorJobRequest($user1ApiKey['key'], $suite2Id, rand(1, 10000))
         );
 
         $jobSummaries[] = $this->getJobSummaryFromResponse(
-            $this->applicationClient->makeCreateJobCoordinatorJobRequest(
-                $user1ApiKey['key'],
-                $suite1Id,
-                rand(1, 10000)
-            )
+            $this->applicationClient->makeCreateJobCoordinatorJobRequest($user1ApiKey['key'], $suite1Id, rand(1, 10000))
         );
 
         $jobSummaries[] = $this->getJobSummaryFromResponse(
-            $this->applicationClient->makeCreateJobCoordinatorJobRequest(
-                $user2ApiKey['key'],
-                $suite1Id,
-                rand(1, 10000)
-            )
+            $this->applicationClient->makeCreateJobCoordinatorJobRequest($user2ApiKey['key'], $suite1Id, rand(1, 10000))
         );
 
         $response = $this->applicationClient->makeListJobCoordinatorJobsRequest($user1ApiKey['key'], $suite1Id);
