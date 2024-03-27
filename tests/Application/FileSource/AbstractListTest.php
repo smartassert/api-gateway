@@ -31,7 +31,7 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
     {
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
         \assert($apiKeyProvider instanceof ApiKeyProvider);
-        $apiKey = $apiKeyProvider->get('user@example.com');
+        $apiKey = $apiKeyProvider->get('user1@example.com');
 
         $response = $this->applicationClient->makeFileSourceFilesRequest($apiKey['key'], (string) new Ulid());
 
@@ -44,7 +44,7 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
     {
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
         \assert($apiKeyProvider instanceof ApiKeyProvider);
-        $apiKey = $apiKeyProvider->get('user@example.com');
+        $apiKey = $apiKeyProvider->get('user1@example.com');
 
         $label = md5((string) rand());
         $id = $this->createFileSource($apiKey['key'], $label);

@@ -16,7 +16,7 @@ abstract class AbstractCreateTokenTest extends AbstractApplicationTestCase
     public function testCreateBadMethod(string $method): void
     {
         $response = $this->applicationClient->makeCreateUserTokenRequest(
-            'user@example.com',
+            'user1@example.com',
             'password',
             $method
         );
@@ -72,15 +72,15 @@ abstract class AbstractCreateTokenTest extends AbstractApplicationTestCase
                 'password' => '',
             ],
             'valid user identifier, no password' => [
-                'userIdentifier' => 'user@example.com',
+                'userIdentifier' => 'user1@example.com',
                 'password' => null,
             ],
             'valid user identifier, empty password' => [
-                'userIdentifier' => 'user@example.com',
+                'userIdentifier' => 'user1@example.com',
                 'password' => '',
             ],
             'valid user identifier, invalid password' => [
-                'userIdentifier' => 'user@example.com',
+                'userIdentifier' => 'user1@example.com',
                 'password' => md5((string) rand()),
             ],
         ];
@@ -88,7 +88,7 @@ abstract class AbstractCreateTokenTest extends AbstractApplicationTestCase
 
     public function testCreateSuccess(): void
     {
-        $response = $this->applicationClient->makeCreateUserTokenRequest('user@example.com', 'password');
+        $response = $this->applicationClient->makeCreateUserTokenRequest('user1@example.com', 'password');
         $this->assertRefreshTokenResponse($response);
     }
 }

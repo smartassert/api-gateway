@@ -32,7 +32,7 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
     {
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
         \assert($apiKeyProvider instanceof ApiKeyProvider);
-        $apiKey = $apiKeyProvider->get('user@example.com');
+        $apiKey = $apiKeyProvider->get('user1@example.com');
 
         $response = $this->applicationClient->makeCreateJobCoordinatorJobRequest(
             $apiKey['key'],
@@ -63,7 +63,7 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
     {
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
         \assert($apiKeyProvider instanceof ApiKeyProvider);
-        $apiKey = $apiKeyProvider->get('user@example.com');
+        $apiKey = $apiKeyProvider->get('user1@example.com');
 
         $response = $this->applicationClient->makeCreateJobCoordinatorJobRequest(
             $apiKey['key'],
@@ -89,7 +89,7 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
     {
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
         \assert($apiKeyProvider instanceof ApiKeyProvider);
-        $apiKey = $apiKeyProvider->get('user@example.com');
+        $apiKey = $apiKeyProvider->get('user1@example.com');
 
         $suiteId = (string) new Ulid();
         $maximumDurationInSeconds = rand(1, 10000);

@@ -54,7 +54,7 @@ abstract class AbstractListApiKeysTest extends AbstractApplicationTestCase
     {
         $frontendTokenProvider = self::getContainer()->get(FrontendTokenProvider::class);
         \assert($frontendTokenProvider instanceof FrontendTokenProvider);
-        $frontendToken = $frontendTokenProvider->get('user@example.com');
+        $frontendToken = $frontendTokenProvider->get('user1@example.com');
 
         $listResponse = $this->applicationClient->makeListUserApiKeysRequest($frontendToken['token']);
         self::assertSame(200, $listResponse->getStatusCode());
@@ -68,7 +68,7 @@ abstract class AbstractListApiKeysTest extends AbstractApplicationTestCase
     {
         $frontendTokenProvider = self::getContainer()->get(FrontendTokenProvider::class);
         \assert($frontendTokenProvider instanceof FrontendTokenProvider);
-        $frontendToken = $frontendTokenProvider->get('user@example.com');
+        $frontendToken = $frontendTokenProvider->get('user1@example.com');
 
         $getUserApiKeyResponse = $this->applicationClient->makeGetUserDefaultApiKeyRequest($frontendToken['token']);
         \assert(200 === $getUserApiKeyResponse->getStatusCode());

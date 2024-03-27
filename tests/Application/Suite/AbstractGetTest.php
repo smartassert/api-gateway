@@ -36,7 +36,7 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
     {
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
         \assert($apiKeyProvider instanceof ApiKeyProvider);
-        $apiKey = $apiKeyProvider->get('user@example.com');
+        $apiKey = $apiKeyProvider->get('user1@example.com');
 
         $suiteId = (string) new Ulid();
         \assert('' !== $suiteId);
@@ -58,7 +58,7 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
     {
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
         \assert($apiKeyProvider instanceof ApiKeyProvider);
-        $apiKey = $apiKeyProvider->get('user@example.com');
+        $apiKey = $apiKeyProvider->get('user1@example.com');
 
         $sourceId = $this->createFileSource($apiKey['key'], md5((string) rand()));
         $suiteId = $this->createSuite($apiKey['key'], $sourceId, $label, $tests);

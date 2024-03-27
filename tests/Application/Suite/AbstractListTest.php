@@ -39,7 +39,7 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
 
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
         \assert($apiKeyProvider instanceof ApiKeyProvider);
-        $apiKey = $apiKeyProvider->get('user@example.com');
+        $apiKey = $apiKeyProvider->get('user1@example.com');
 
         $listResponse = $this->applicationClient->makeListSuitesRequest($apiKey['key']);
         $this->assertListResponse($listResponse, []);

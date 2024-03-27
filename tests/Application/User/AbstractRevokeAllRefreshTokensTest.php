@@ -72,7 +72,7 @@ abstract class AbstractRevokeAllRefreshTokensTest extends AbstractApplicationTes
     {
         $frontendTokenProvider = self::getContainer()->get(FrontendTokenProvider::class);
         \assert($frontendTokenProvider instanceof FrontendTokenProvider);
-        $frontendToken = $frontendTokenProvider->get('user@example.com');
+        $frontendToken = $frontendTokenProvider->get('user1@example.com');
 
         $refreshResponse = $this->applicationClient->makeRefreshUserTokenRequest($frontendToken['refresh_token']);
 
@@ -81,7 +81,7 @@ abstract class AbstractRevokeAllRefreshTokensTest extends AbstractApplicationTes
 
         $userProvider = self::getContainer()->get(UserProvider::class);
         \assert($userProvider instanceof UserProvider);
-        $user = $userProvider->get('user@example.com');
+        $user = $userProvider->get('user1@example.com');
 
         $revokeResponse = $this->applicationClient->makeRevokeAllRefreshTokensForUserRequest(
             'primary_admin_token',

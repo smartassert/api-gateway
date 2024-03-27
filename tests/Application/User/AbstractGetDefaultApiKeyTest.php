@@ -54,7 +54,7 @@ abstract class AbstractGetDefaultApiKeyTest extends AbstractApplicationTestCase
     {
         $frontendTokenProvider = self::getContainer()->get(FrontendTokenProvider::class);
         \assert($frontendTokenProvider instanceof FrontendTokenProvider);
-        $frontendToken = $frontendTokenProvider->get('user@example.com');
+        $frontendToken = $frontendTokenProvider->get('user1@example.com');
 
         $apiKeyResponse = $this->applicationClient->makeGetUserDefaultApiKeyRequest($frontendToken['token']);
 

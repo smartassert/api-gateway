@@ -43,7 +43,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
     {
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
         \assert($apiKeyProvider instanceof ApiKeyProvider);
-        $apiKey = $apiKeyProvider->get('user@example.com');
+        $apiKey = $apiKeyProvider->get('user1@example.com');
 
         $suiteId = (string) new Ulid();
         \assert('' !== $suiteId);
@@ -69,7 +69,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
     {
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
         \assert($apiKeyProvider instanceof ApiKeyProvider);
-        $apiKey = $apiKeyProvider->get('user@example.com');
+        $apiKey = $apiKeyProvider->get('user1@example.com');
 
         $sourceId = $this->createFileSource($apiKey['key'], md5((string) rand()));
         $suiteId = $this->createSuite($apiKey['key'], $sourceId, md5((string) rand()), []);
@@ -100,7 +100,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
     {
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
         \assert($apiKeyProvider instanceof ApiKeyProvider);
-        $apiKey = $apiKeyProvider->get('user@example.com');
+        $apiKey = $apiKeyProvider->get('user1@example.com');
 
         $sourceId = $this->createFileSource($apiKey['key'], md5((string) rand()));
         $suiteId = $this->createSuite($apiKey['key'], $sourceId, md5((string) rand()), []);
@@ -121,7 +121,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
     {
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
         \assert($apiKeyProvider instanceof ApiKeyProvider);
-        $apiKey = $apiKeyProvider->get('user@example.com');
+        $apiKey = $apiKeyProvider->get('user1@example.com');
 
         $label = md5((string) rand());
         $sourceId = $this->createFileSource($apiKey['key'], md5((string) rand()));
@@ -154,7 +154,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
     ): void {
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);
         \assert($apiKeyProvider instanceof ApiKeyProvider);
-        $apiKey = $apiKeyProvider->get('user@example.com');
+        $apiKey = $apiKeyProvider->get('user1@example.com');
 
         $sourceId = $this->createFileSource($apiKey['key'], md5((string) rand()));
         $suiteId = $this->createSuite($apiKey['key'], $sourceId, $originalLabel, $originalTests);
