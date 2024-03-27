@@ -391,6 +391,22 @@ readonly class Client
         return $this->client->makeRequest($method, $url, $headers);
     }
 
+    public function makeListJobCoordinatorJobsRequest(
+        ?string $apiKey,
+        string $suiteId,
+        string $method = 'GET'
+    ): ResponseInterface {
+        $headers = [];
+        if (is_string($apiKey)) {
+            $headers['Authorization'] = 'Bearer ' . $apiKey;
+            $headers['Translate-Authorization-To'] = 'api-token';
+        }
+
+        $url = '/job-coordinator/' . $suiteId . '/list';
+
+        return $this->client->makeRequest($method, $url, $headers);
+    }
+
     private function makeFileSourceFileRequest(
         ?string $apiKey,
         string $method,
