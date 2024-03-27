@@ -71,9 +71,7 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
 
         $suite1Id = (string) new Ulid();
         $suite2Id = (string) new Ulid();
-        //        $maximumDurationInSeconds = rand(1, 10000);
 
-        //        $jobIds = [];
         $jobSummaries = [];
 
         $jobSummaries[] = $this->getJobSummaryFromResponse(
