@@ -423,7 +423,7 @@ readonly class Client
     private function makeGitSourceMutationRequest(
         ?string $apiKey,
         string $method,
-        string $sourceId = null,
+        ?string $sourceId = null,
         ?string $label = null,
         ?string $hostUrl = null,
         ?string $path = null,

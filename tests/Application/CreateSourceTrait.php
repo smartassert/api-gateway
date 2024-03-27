@@ -11,7 +11,7 @@ trait CreateSourceTrait
     /**
      * @return non-empty-string
      */
-    public function createFileSource(string $apiKey, string $label = null): string
+    public function createFileSource(string $apiKey, ?string $label = null): string
     {
         $label = is_string($label) ? $label : md5((string) rand());
 
