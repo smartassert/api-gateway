@@ -49,7 +49,7 @@ readonly class AuthorizationHeaderParametersTranslator implements EventSubscribe
         $parameters = $authorizationHeader;
         if (str_contains($parameters, ' ')) {
             $authorizationComponents = explode(' ', $parameters, 2);
-            $scheme = (string) ($authorizationComponents[0] ?? null);
+            $scheme = $authorizationComponents[0];
             $parameters = (string) ($authorizationComponents[1] ?? null);
         }
 
