@@ -6,15 +6,14 @@ namespace App\Tests\Application\User;
 
 use App\Tests\Application\AbstractApplicationTestCase;
 use App\Tests\Application\UnauthorizedUserDataProviderTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 abstract class AbstractCreateUserTest extends AbstractApplicationTestCase
 {
     use UnauthorizedUserDataProviderTrait;
     use AssertUserResponseTrait;
 
-    /**
-     * @dataProvider createBadMethodDataProvider
-     */
+    #[DataProvider('createBadMethodDataProvider')]
     public function testCreateUserBadMethod(string $method): void
     {
         $response = $this->applicationClient->makeCreateUserRequest(
@@ -45,9 +44,7 @@ abstract class AbstractCreateUserTest extends AbstractApplicationTestCase
         ];
     }
 
-    /**
-     * @dataProvider unauthorizedUserDataProvider
-     */
+    #[DataProvider('unauthorizedUserDataProvider')]
     public function testCreateUserUnauthorizedUser(?string $token): void
     {
         $response = $this->applicationClient->makeCreateUserRequest(

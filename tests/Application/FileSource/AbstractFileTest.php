@@ -8,6 +8,7 @@ use App\Tests\Application\AbstractApplicationTestCase;
 use App\Tests\Application\AssertBadRequestTrait;
 use App\Tests\Application\CreateSourceTrait;
 use App\Tests\Application\UnauthorizedUserDataProviderTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 use Symfony\Component\Uid\Ulid;
 
@@ -17,9 +18,7 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
     use CreateSourceTrait;
     use AssertBadRequestTrait;
 
-    /**
-     * @dataProvider unauthorizedUserDataProvider
-     */
+    #[DataProvider('unauthorizedUserDataProvider')]
     public function testCreateUnauthorizedUser(?string $token): void
     {
         $response = $this->applicationClient->makeCreateFileSourceFileRequest(
@@ -32,9 +31,7 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
         self::assertSame(401, $response->getStatusCode());
     }
 
-    /**
-     * @dataProvider unauthorizedUserDataProvider
-     */
+    #[DataProvider('unauthorizedUserDataProvider')]
     public function testReadUnauthorizedUser(?string $token): void
     {
         $response = $this->applicationClient->makeReadFileSourceFileRequest(
@@ -46,9 +43,7 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
         self::assertSame(401, $response->getStatusCode());
     }
 
-    /**
-     * @dataProvider unauthorizedUserDataProvider
-     */
+    #[DataProvider('unauthorizedUserDataProvider')]
     public function testUpdateUnauthorizedUser(?string $token): void
     {
         $response = $this->applicationClient->makeUpdateFileSourceFileRequest(
@@ -61,9 +56,7 @@ abstract class AbstractFileTest extends AbstractApplicationTestCase
         self::assertSame(401, $response->getStatusCode());
     }
 
-    /**
-     * @dataProvider unauthorizedUserDataProvider
-     */
+    #[DataProvider('unauthorizedUserDataProvider')]
     public function testDeleteUnauthorizedUser(?string $token): void
     {
         $response = $this->applicationClient->makeDeleteFileSourceFileRequest(

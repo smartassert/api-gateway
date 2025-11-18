@@ -6,6 +6,7 @@ namespace App\Tests\Application\User;
 
 use App\Tests\Application\AbstractApplicationTestCase;
 use App\Tests\Application\UnauthorizedUserDataProviderTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
 use SmartAssert\TestAuthenticationProviderBundle\FrontendTokenProvider;
 
 abstract class AbstractRefreshTokenTest extends AbstractApplicationTestCase
@@ -13,9 +14,7 @@ abstract class AbstractRefreshTokenTest extends AbstractApplicationTestCase
     use UnauthorizedUserDataProviderTrait;
     use AssertRefreshTokenResponseTrait;
 
-    /**
-     * @dataProvider refreshBadMethodDataProvider
-     */
+    #[DataProvider('refreshBadMethodDataProvider')]
     public function testRefreshBadMethod(string $method): void
     {
         $response = $this->applicationClient->makeRefreshUserTokenRequest(md5((string) rand()), $method);
@@ -41,9 +40,7 @@ abstract class AbstractRefreshTokenTest extends AbstractApplicationTestCase
         ];
     }
 
-    /**
-     * @dataProvider unauthorizedUserDataProvider
-     */
+    #[DataProvider('unauthorizedUserDataProvider')]
     public function testRefreshUnauthorizedUser(?string $token): void
     {
         $response = $this->applicationClient->makeRefreshUserTokenRequest($token);

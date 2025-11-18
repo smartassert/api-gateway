@@ -10,6 +10,7 @@ use App\Tests\Application\FileSource\AssertFileSourceTrait;
 use App\Tests\Application\GitSource\AssertGitSourceTrait;
 use App\Tests\Application\GitSource\CreateGitSourceDataProviderTrait;
 use App\Tests\Application\UnauthorizedUserDataProviderTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 use SmartAssert\TestAuthenticationProviderBundle\UserProvider;
 use Symfony\Component\Uid\Ulid;
@@ -22,9 +23,7 @@ abstract class AbstractDeleteTest extends AbstractApplicationTestCase
     use CreateSourceTrait;
     use CreateGitSourceDataProviderTrait;
 
-    /**
-     * @dataProvider unauthorizedUserDataProvider
-     */
+    #[DataProvider('unauthorizedUserDataProvider')]
     public function testDeleteUnauthorizedUser(?string $token): void
     {
         $response = $this->applicationClient->makeSourceActRequest('DELETE', $token, (string) new Ulid());
@@ -63,9 +62,7 @@ abstract class AbstractDeleteTest extends AbstractApplicationTestCase
         $this->assertDeletedFileSource($deleteResponse, $label, $user['id'], $id);
     }
 
-    /**
-     * @dataProvider createGitSourceDataProvider
-     */
+    #[DataProvider('createGitSourceDataProvider')]
     public function testDeleteGitSourceSuccess(string $label, string $hostUrl, string $path, ?string $credentials): void
     {
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);

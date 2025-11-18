@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace App\Tests\Application\User;
 
 use App\Tests\Application\AbstractApplicationTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 abstract class AbstractCreateTokenTest extends AbstractApplicationTestCase
 {
     use AssertRefreshTokenResponseTrait;
 
-    /**
-     * @dataProvider createBadMethodDataProvider
-     */
+    #[DataProvider('createBadMethodDataProvider')]
     public function testCreateBadMethod(string $method): void
     {
         $response = $this->applicationClient->makeCreateUserTokenRequest(
@@ -39,9 +38,7 @@ abstract class AbstractCreateTokenTest extends AbstractApplicationTestCase
         ];
     }
 
-    /**
-     * @dataProvider unauthorizedUserDataProvider
-     */
+    #[DataProvider('unauthorizedUserDataProvider')]
     public function testCreateUnauthorizedUser(?string $userIdentifier, ?string $password): void
     {
         $response = $this->applicationClient->makeCreateUserTokenRequest($userIdentifier, $password);

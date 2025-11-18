@@ -10,6 +10,7 @@ use App\Tests\Application\CreateSourceTrait;
 use App\Tests\Application\CreateSuiteTrait;
 use App\Tests\Application\UnauthorizedUserDataProviderTrait;
 use App\Tests\Services\DataRepository;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Psr\Http\Message\ResponseInterface;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 
@@ -20,9 +21,7 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
     use CreateSourceTrait;
     use CreateSuiteTrait;
 
-    /**
-     * @dataProvider unauthorizedUserDataProvider
-     */
+    #[DataProvider('unauthorizedUserDataProvider')]
     public function testListUnauthorizedUser(?string $token): void
     {
         $response = $this->applicationClient->makeListSuitesRequest($token);

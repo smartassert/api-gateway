@@ -7,6 +7,7 @@ namespace App\Tests\Application\JobCoordinator;
 use App\Tests\Application\AbstractApplicationTestCase;
 use App\Tests\Application\AssertBadRequestTrait;
 use App\Tests\Application\UnauthorizedUserDataProviderTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Psr\Http\Message\ResponseInterface;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 use Symfony\Component\Uid\Ulid;
@@ -16,9 +17,7 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
     use UnauthorizedUserDataProviderTrait;
     use AssertBadRequestTrait;
 
-    /**
-     * @dataProvider unauthorizedUserDataProvider
-     */
+    #[DataProvider('unauthorizedUserDataProvider')]
     public function testListUnauthorizedUser(?string $token): void
     {
         $response = $this->applicationClient->makeListJobCoordinatorJobsRequest($token, (string) new Ulid());
@@ -26,9 +25,7 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
         self::assertSame(401, $response->getStatusCode());
     }
 
-    /**
-     * @dataProvider badMethodDataProvider
-     */
+    #[DataProvider('badMethodDataProvider')]
     public function testListBadMethod(string $method): void
     {
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);

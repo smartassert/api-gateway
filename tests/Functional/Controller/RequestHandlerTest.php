@@ -9,6 +9,7 @@ use App\Tests\Exception\Http\ClientException;
 use App\Tests\Functional\GetClientAdapterTrait;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface as HttpClientInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -18,10 +19,9 @@ class RequestHandlerTest extends AbstractApplicationTestCase
     use GetClientAdapterTrait;
 
     /**
-     * @dataProvider serviceExceptionDataProvider
-     *
      * @param array<mixed> $expectedData
      */
+    #[DataProvider('serviceExceptionDataProvider')]
     public function testHandleHandlesException(
         \Exception|ResponseInterface $httpFixture,
         int $expectedStatusCode,

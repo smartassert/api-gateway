@@ -6,15 +6,14 @@ namespace App\Tests\Application\User;
 
 use App\Tests\Application\AbstractApplicationTestCase;
 use App\Tests\Application\UnauthorizedUserDataProviderTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
 use SmartAssert\TestAuthenticationProviderBundle\FrontendTokenProvider;
 
 abstract class AbstractGetDefaultApiKeyTest extends AbstractApplicationTestCase
 {
     use UnauthorizedUserDataProviderTrait;
 
-    /**
-     * @dataProvider badMethodDataProvider
-     */
+    #[DataProvider('badMethodDataProvider')]
     public function testGetDefaultApiKeyBadMethod(string $method): void
     {
         $response = $this->applicationClient->makeGetUserDefaultApiKeyRequest('token', $method);
@@ -40,9 +39,7 @@ abstract class AbstractGetDefaultApiKeyTest extends AbstractApplicationTestCase
         ];
     }
 
-    /**
-     * @dataProvider unauthorizedUserDataProvider
-     */
+    #[DataProvider('unauthorizedUserDataProvider')]
     public function testGetDefaultApiKeyUnauthorizedUser(?string $token): void
     {
         $response = $this->applicationClient->makeGetUserDefaultApiKeyRequest($token);

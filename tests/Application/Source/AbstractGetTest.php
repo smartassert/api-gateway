@@ -10,6 +10,7 @@ use App\Tests\Application\FileSource\AssertFileSourceTrait;
 use App\Tests\Application\GitSource\AssertGitSourceTrait;
 use App\Tests\Application\GitSource\CreateGitSourceDataProviderTrait;
 use App\Tests\Application\UnauthorizedUserDataProviderTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 use SmartAssert\TestAuthenticationProviderBundle\UserProvider;
 use Symfony\Component\Uid\Ulid;
@@ -22,9 +23,7 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
     use CreateGitSourceDataProviderTrait;
     use AssertGitSourceTrait;
 
-    /**
-     * @dataProvider unauthorizedUserDataProvider
-     */
+    #[DataProvider('unauthorizedUserDataProvider')]
     public function testGetUnauthorizedUser(?string $token): void
     {
         $response = $this->applicationClient->makeSourceActRequest('GET', $token, (string) new Ulid());
@@ -72,9 +71,7 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
         $this->assertRetrievedFileSource($response, $label, $user['id'], $id);
     }
 
-    /**
-     * @dataProvider createGitSourceDataProvider
-     */
+    #[DataProvider('createGitSourceDataProvider')]
     public function testGetGitSourceSuccess(string $label, string $hostUrl, string $path, ?string $credentials): void
     {
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);

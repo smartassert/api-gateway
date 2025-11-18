@@ -7,6 +7,7 @@ namespace App\Tests\Application\FileSource;
 use App\Tests\Application\AbstractApplicationTestCase;
 use App\Tests\Application\CreateSourceTrait;
 use App\Tests\Application\UnauthorizedUserDataProviderTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Psr\Http\Message\ResponseInterface;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 use Symfony\Component\Uid\Ulid;
@@ -17,9 +18,7 @@ abstract class AbstractListTest extends AbstractApplicationTestCase
     use AssertFileSourceTrait;
     use CreateSourceTrait;
 
-    /**
-     * @dataProvider unauthorizedUserDataProvider
-     */
+    #[DataProvider('unauthorizedUserDataProvider')]
     public function testListUnauthorizedUser(?string $token): void
     {
         $response = $this->applicationClient->makeFileSourceFilesRequest($token, (string) new Ulid());

@@ -7,6 +7,7 @@ namespace App\Tests\Application\FileSource;
 use App\Tests\Application\AbstractApplicationTestCase;
 use App\Tests\Application\AssertBadRequestTrait;
 use App\Tests\Application\UnauthorizedUserDataProviderTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 use SmartAssert\TestAuthenticationProviderBundle\UserProvider;
 
@@ -16,9 +17,7 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
     use AssertFileSourceTrait;
     use AssertBadRequestTrait;
 
-    /**
-     * @dataProvider unauthorizedUserDataProvider
-     */
+    #[DataProvider('unauthorizedUserDataProvider')]
     public function testCreateUnauthorizedUser(?string $token): void
     {
         $response = $this->applicationClient->makeCreateFileSourceRequest($token, md5((string) rand()));

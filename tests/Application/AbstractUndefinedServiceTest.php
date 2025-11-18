@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace App\Tests\Application;
 
 use App\Tests\Application\User\AssertRefreshTokenResponseTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 abstract class AbstractUndefinedServiceTest extends AbstractApplicationTestCase
 {
     use AssertRefreshTokenResponseTrait;
 
     /**
-     * @dataProvider makeRequestForUndefinedServiceDataProvider
-     *
      * @param array{service: string, action: string} $expectedResponseDataContext
      */
+    #[DataProvider('makeRequestForUndefinedServiceDataProvider')]
     public function testMakeRequestForUndefinedService(string $url, array $expectedResponseDataContext): void
     {
         $response = $this->applicationClient->makeUndefinedServiceRequest($url);

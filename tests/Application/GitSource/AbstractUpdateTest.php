@@ -9,6 +9,7 @@ use App\Tests\Application\AssertBadRequestTrait;
 use App\Tests\Application\CreateSourceTrait;
 use App\Tests\Application\UnauthorizedUserDataProviderTrait;
 use App\Tests\Services\ApplicationClient\Client;
+use PHPUnit\Framework\Attributes\DataProvider;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 use SmartAssert\TestAuthenticationProviderBundle\UserProvider;
 use Symfony\Component\Uid\Ulid;
@@ -22,9 +23,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
     use AssertBadRequestTrait;
     use CreateSourceTrait;
 
-    /**
-     * @dataProvider unauthorizedUserDataProvider
-     */
+    #[DataProvider('unauthorizedUserDataProvider')]
     public function testUpdateUnauthorizedUser(?string $token): void
     {
         $response = $this->applicationClient->makeUpdateGitSourceRequest($token, (string) new Ulid());
@@ -44,10 +43,9 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
     }
 
     /**
-     * @dataProvider createUpdateGitSourceBadRequestDataProvider
-     *
      * @param array<mixed> $expectedInvalidParameterData
      */
+    #[DataProvider('createUpdateGitSourceBadRequestDataProvider')]
     public function testUpdateBadRequest(
         ?string $label,
         ?string $hostUrl,
@@ -78,10 +76,9 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
     }
 
     /**
-     * @dataProvider updateDuplicateLabelDataProvider
-     *
      * @param callable(Client, string, string): void $existingSourceCreator
      */
+    #[DataProvider('updateDuplicateLabelDataProvider')]
     public function testUpdateDuplicateLabel(callable $existingSourceCreator): void
     {
         $label = md5((string) rand());
@@ -139,9 +136,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         ];
     }
 
-    /**
-     * @dataProvider updateGitSourceDataProvider
-     */
+    #[DataProvider('updateGitSourceDataProvider')]
     public function testUpdateSuccess(
         string $label,
         string $hostUrl,
