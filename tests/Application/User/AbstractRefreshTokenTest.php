@@ -26,7 +26,7 @@ abstract class AbstractRefreshTokenTest extends AbstractApplicationTestCase
     /**
      * @return array<mixed>
      */
-    public function refreshBadMethodDataProvider(): array
+    public static function refreshBadMethodDataProvider(): array
     {
         return [
             'GET' => [
@@ -44,9 +44,9 @@ abstract class AbstractRefreshTokenTest extends AbstractApplicationTestCase
     /**
      * @dataProvider unauthorizedUserDataProvider
      */
-    public function testRefreshUnauthorizedUser(?string $refreshToken): void
+    public function testRefreshUnauthorizedUser(?string $token): void
     {
-        $response = $this->applicationClient->makeRefreshUserTokenRequest($refreshToken);
+        $response = $this->applicationClient->makeRefreshUserTokenRequest($token);
 
         self::assertSame(401, $response->getStatusCode());
     }

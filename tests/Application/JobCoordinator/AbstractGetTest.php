@@ -46,7 +46,7 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
     /**
      * @return array<mixed>
      */
-    public function getBadMethodDataProvider(): array
+    public static function getBadMethodDataProvider(): array
     {
         return [
             'PUT' => [

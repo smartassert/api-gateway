@@ -36,7 +36,7 @@ abstract class AbstractUndefinedServiceTest extends AbstractApplicationTestCase
     /**
      * @return array<mixed>
      */
-    public function makeRequestForUndefinedServiceDataProvider(): array
+    public static function makeRequestForUndefinedServiceDataProvider(): array
     {
         $serviceName = str_replace(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], '', md5((string) rand()));
         $action = md5((string) rand());

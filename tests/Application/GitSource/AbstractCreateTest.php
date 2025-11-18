@@ -92,7 +92,7 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
     /**
      * @return array<mixed>
      */
-    public function createDuplicateLabelDataProvider(): array
+    public static function createDuplicateLabelDataProvider(): array
     {
         return [
             'file source has label' => [

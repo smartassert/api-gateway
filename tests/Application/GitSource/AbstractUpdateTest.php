@@ -115,7 +115,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
     /**
      * @return array<mixed>
      */
-    public function updateDuplicateLabelDataProvider(): array
+    public static function updateDuplicateLabelDataProvider(): array
     {
         return [
             'file source has label' => [
@@ -191,7 +191,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
     /**
      * @return array<mixed>
      */
-    public function updateGitSourceDataProvider(): array
+    public static function updateGitSourceDataProvider(): array
     {
         return [
             'without credentials' => [

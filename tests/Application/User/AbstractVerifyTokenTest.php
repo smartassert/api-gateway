@@ -26,7 +26,7 @@ abstract class AbstractVerifyTokenTest extends AbstractApplicationTestCase
     /**
      * @return array<mixed>
      */
-    public function createBadMethodDataProvider(): array
+    public static function createBadMethodDataProvider(): array
     {
         return [
             'POST' => [

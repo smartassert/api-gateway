@@ -64,19 +64,21 @@ class RequestHandlerTest extends AbstractApplicationTestCase
     /**
      * @return array<mixed>
      */
-    public function serviceExceptionDataProvider(): array
+    public static function serviceExceptionDataProvider(): array
     {
         return array_merge(
-            $this->serviceBadResponseContentTypeDataProvider('source', 'application/json'),
-            $this->serviceHttpFailureDataProvider('source'),
+            self::serviceBadResponseContentTypeDataProvider('source', 'application/json'),
+            self::serviceHttpFailureDataProvider('source'),
         );
     }
 
     /**
      * @return array<mixed>
      */
-    private function serviceBadResponseContentTypeDataProvider(string $serviceName, string $expectedContentType): array
-    {
+    private static function serviceBadResponseContentTypeDataProvider(
+        string $serviceName,
+        string $expectedContentType
+    ): array {
         return [
             '200, text/html content type' => [
                 'httpFixture' => new Response(
@@ -103,7 +105,7 @@ class RequestHandlerTest extends AbstractApplicationTestCase
     /**
      * @return array<mixed>
      */
-    private function serviceHttpFailureDataProvider(string $serviceName): array
+    private static function serviceHttpFailureDataProvider(string $serviceName): array
     {
         $exceptionMessage = md5((string) rand());
         $exceptionCode = rand();

@@ -171,7 +171,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
     /**
      * @return array<mixed>
      */
-    public function updateSuiteDataProvider(): array
+    public static function updateSuiteDataProvider(): array
     {
         return [
             'no tests => no tests' => [

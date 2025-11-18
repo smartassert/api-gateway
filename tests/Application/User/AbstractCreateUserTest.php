@@ -30,7 +30,7 @@ abstract class AbstractCreateUserTest extends AbstractApplicationTestCase
     /**
      * @return array<mixed>
      */
-    public function createBadMethodDataProvider(): array
+    public static function createBadMethodDataProvider(): array
     {
         return [
             'GET' => [
@@ -48,10 +48,10 @@ abstract class AbstractCreateUserTest extends AbstractApplicationTestCase
     /**
      * @dataProvider unauthorizedUserDataProvider
      */
-    public function testCreateUserUnauthorizedUser(?string $adminToken): void
+    public function testCreateUserUnauthorizedUser(?string $token): void
     {
         $response = $this->applicationClient->makeCreateUserRequest(
-            $adminToken,
+            $token,
             md5((string) rand()),
             md5((string) rand())
         );

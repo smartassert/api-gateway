@@ -30,7 +30,7 @@ abstract class AbstractRevokeAllRefreshTokensTest extends AbstractApplicationTes
     /**
      * @return array<mixed>
      */
-    public function badMethodDataProvider(): array
+    public static function badMethodDataProvider(): array
     {
         return [
             'GET' => [
@@ -48,10 +48,10 @@ abstract class AbstractRevokeAllRefreshTokensTest extends AbstractApplicationTes
     /**
      * @dataProvider unauthorizedUserDataProvider
      */
-    public function testRevokeRefreshTokenUnauthorizedUser(?string $adminToken): void
+    public function testRevokeRefreshTokenUnauthorizedUser(?string $token): void
     {
         $response = $this->applicationClient->makeRevokeAllRefreshTokensForUserRequest(
-            $adminToken,
+            $token,
             md5((string) rand()),
         );
 

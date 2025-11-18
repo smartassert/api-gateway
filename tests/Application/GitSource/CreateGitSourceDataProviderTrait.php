@@ -9,7 +9,7 @@ trait CreateGitSourceDataProviderTrait
     /**
      * @return array<mixed>
      */
-    public function createGitSourceDataProvider(): array
+    public static function createGitSourceDataProvider(): array
     {
         return [
             'without credentials' => [

@@ -27,7 +27,7 @@ abstract class AbstractCreateTokenTest extends AbstractApplicationTestCase
     /**
      * @return array<mixed>
      */
-    public function createBadMethodDataProvider(): array
+    public static function createBadMethodDataProvider(): array
     {
         return [
             'PUT' => [
@@ -52,7 +52,7 @@ abstract class AbstractCreateTokenTest extends AbstractApplicationTestCase
     /**
      * @return array<mixed>
      */
-    public function unauthorizedUserDataProvider(): array
+    public static function unauthorizedUserDataProvider(): array
     {
         return [
             'no user identifier, no password' => [

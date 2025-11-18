@@ -9,7 +9,7 @@ trait CreateUpdateGitSourceBadRequestDataProviderTrait
     /**
      * @return array<mixed>
      */
-    public function createUpdateGitSourceBadRequestDataProvider(): array
+    public static function createUpdateGitSourceBadRequestDataProvider(): array
     {
         return [
             'label missing' => [

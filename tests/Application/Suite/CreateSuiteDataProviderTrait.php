@@ -9,7 +9,7 @@ trait CreateSuiteDataProviderTrait
     /**
      * @return array<mixed>
      */
-    public function createSuiteDataProvider(): array
+    public static function createSuiteDataProvider(): array
     {
         return [
             'no tests' => [

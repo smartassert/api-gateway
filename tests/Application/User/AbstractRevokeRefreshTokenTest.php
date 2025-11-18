@@ -30,7 +30,7 @@ abstract class AbstractRevokeRefreshTokenTest extends AbstractApplicationTestCas
     /**
      * @return array<mixed>
      */
-    public function badMethodDataProvider(): array
+    public static function badMethodDataProvider(): array
     {
         return [
             'GET' => [
