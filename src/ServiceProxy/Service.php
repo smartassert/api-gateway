@@ -9,8 +9,7 @@ readonly class Service
     public function __construct(
         private string $name,
         private string $baseUrl,
-    ) {
-    }
+    ) {}
 
     public function is(string $name): bool
     {

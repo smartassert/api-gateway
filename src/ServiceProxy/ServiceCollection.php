@@ -11,8 +11,7 @@ readonly class ServiceCollection
      */
     public function __construct(
         private iterable $services,
-    ) {
-    }
+    ) {}
 
     public function get(string $name): ?Service
     {

@@ -17,8 +17,7 @@ readonly class RequestHandler
     public function __construct(
         private RequestFactory $requestFactory,
         private ServiceProxy $serviceProxy,
-    ) {
-    }
+    ) {}
 
     /**
      * @throws ServiceException
