@@ -20,8 +20,6 @@ readonly class ApiTokenProvider
     /**
      * @param non-empty-string $apiKey
      *
-     * @return ?string
-     *
      * @throws ServiceException
      */
     public function get(string $apiKey): ?string
