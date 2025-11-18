@@ -15,8 +15,7 @@ readonly class ServiceResolver implements ValueResolverInterface
 {
     public function __construct(
         private ServiceCollection $serviceCollection,
-    ) {
-    }
+    ) {}
 
     /**
      * @return iterable<Service>

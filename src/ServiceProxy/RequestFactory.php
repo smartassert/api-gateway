@@ -13,8 +13,7 @@ readonly class RequestFactory
 {
     public function __construct(
         private StreamFactoryInterface $streamFactory,
-    ) {
-    }
+    ) {}
 
     public function create(Service $service, Request $inbound): RequestInterface
     {

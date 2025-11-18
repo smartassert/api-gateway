@@ -14,8 +14,7 @@ readonly class ApiTokenProvider
     public function __construct(
         private ServiceProxy $serviceProxy,
         private Service $userService,
-    ) {
-    }
+    ) {}
 
     /**
      * @param non-empty-string $apiKey

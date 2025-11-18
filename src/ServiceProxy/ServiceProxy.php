@@ -16,8 +16,7 @@ readonly class ServiceProxy
 {
     public function __construct(
         private ClientInterface $httpClient,
-    ) {
-    }
+    ) {}
 
     /**
      * @param string[] $acceptableContentTypes

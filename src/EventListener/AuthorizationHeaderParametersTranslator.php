@@ -13,8 +13,7 @@ readonly class AuthorizationHeaderParametersTranslator implements EventSubscribe
 {
     public function __construct(
         private ApiTokenProvider $apiTokenProvider,
-    ) {
-    }
+    ) {}
 
     /**
      * @return array<string, array<mixed>>
