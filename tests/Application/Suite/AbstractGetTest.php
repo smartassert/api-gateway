@@ -39,7 +39,6 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
         $apiKey = $apiKeyProvider->get('user1@example.com');
 
         $suiteId = (string) new Ulid();
-        \assert('' !== $suiteId);
 
         $label = md5((string) rand());
         $tests = [];
