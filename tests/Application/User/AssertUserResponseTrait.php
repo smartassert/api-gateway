@@ -20,7 +20,6 @@ trait AssertUserResponseTrait
         $responseData = json_decode($response->getBody()->getContents(), true);
         Assert::assertIsArray($responseData);
 
-        Assert::assertIsArray($responseData);
         Assert::assertArrayHasKey('id', $responseData);
         Assert::assertSame($expectedUserIdentifier, $responseData['user-identifier']);
     }

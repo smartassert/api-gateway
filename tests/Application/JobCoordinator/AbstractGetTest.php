@@ -88,6 +88,7 @@ abstract class AbstractGetTest extends AbstractApplicationTestCase
         $responseData = json_decode($response->getBody()->getContents(), true);
         self::assertIsArray($responseData);
 
+        self::assertIsString($responseData['id']);
         self::assertTrue(Ulid::isValid($responseData['id']));
         self::assertSame($suiteId, $responseData['suite_id']);
         self::assertSame($maximumDurationInSeconds, $responseData['maximum_duration_in_seconds']);
