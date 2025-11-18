@@ -39,7 +39,6 @@ abstract class AbstractDeleteTest extends AbstractApplicationTestCase
         $apiKey = $apiKeyProvider->get('user1@example.com');
 
         $suiteId = (string) new Ulid();
-        \assert('' !== $suiteId);
 
         $response = $this->applicationClient->makeDeleteSuiteRequest($apiKey['key'], $suiteId);
 

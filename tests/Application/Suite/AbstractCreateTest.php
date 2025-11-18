@@ -41,7 +41,6 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
         $apiKey = $apiKeyProvider->get('user1@example.com');
 
         $sourceId = (string) new Ulid();
-        \assert('' !== $sourceId);
 
         $label = md5((string) rand());
         $tests = [];

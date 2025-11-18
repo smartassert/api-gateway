@@ -26,7 +26,6 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
     public function testUpdateUnauthorizedUser(?string $token): void
     {
         $suiteId = (string) new Ulid();
-        \assert('' !== $suiteId);
 
         $response = $this->applicationClient->makeUpdateSuiteRequest(
             $token,
@@ -46,10 +45,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
         $apiKey = $apiKeyProvider->get('user1@example.com');
 
         $suiteId = (string) new Ulid();
-        \assert('' !== $suiteId);
-
         $sourceId = (string) new Ulid();
-        \assert('' !== $sourceId);
 
         $label = md5((string) rand());
         $tests = [];
