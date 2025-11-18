@@ -10,14 +10,14 @@
         "ext-pdo": "*",
         "guzzlehttp/guzzle": "^7.8",
         "smartassert/security-token-extractor": "^1.0",
-        "symfony/console": "7.1.*",
-        "symfony/dotenv": "7.1.*",
+        "symfony/console": "7.2.*",
+        "symfony/dotenv": "7.2.*",
         "symfony/flex": "^2",
-        "symfony/framework-bundle": "7.1.*",
+        "symfony/framework-bundle": "7.2.*",
         "symfony/monolog-bundle": "^3.8",
-        "symfony/psr-http-message-bridge": "7.1.*",
-        "symfony/runtime": "7.1.*",
-        "symfony/yaml": "7.1.*"
+        "symfony/psr-http-message-bridge": "7.2.*",
+        "symfony/runtime": "7.2.*",
+        "symfony/yaml": "7.2.*"
     },
     "require-dev": {
         "mockery/mockery": "^1.6",
@@ -31,8 +31,8 @@
         "smartassert/test-authenticaton-provider-bundle": "^5.0",
         "squizlabs/php_codesniffer": "^4.0",
         "symfony/maker-bundle": "^1.50",
-        "symfony/phpunit-bridge": "7.1.*",
-        "symfony/uid": "7.1.*"
+        "symfony/phpunit-bridge": "7.2.*",
+        "symfony/uid": "7.2.*"
     },
     "config": {
         "audit": {
@@ -165,7 +165,7 @@
     "extra": {
         "symfony": {
             "allow-contrib": false,
-            "require": "7.1.*"
+            "require": "7.2.*"
         }
     }
 }
