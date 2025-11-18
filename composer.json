@@ -20,7 +20,7 @@
         "symfony/yaml": "7.3.*"
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^3.66",
+        "friendsofphp/php-cs-fixer": "^3.89",
         "mockery/mockery": "^1.6",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan": "^2.1",
