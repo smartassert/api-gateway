@@ -11,7 +11,7 @@ $finder = (new PhpCsFixer\Finder())
 
 return (new PhpCsFixer\Config())
     ->setRules([
-        '@PSR12' => true,
+        '@PER-CS' => true,
         '@PhpCsFixer' => true,
         'concat_space' => [
             'spacing' => 'one',
