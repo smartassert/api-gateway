@@ -9,6 +9,7 @@ use App\Tests\Application\AssertBadRequestTrait;
 use App\Tests\Application\CreateSourceTrait;
 use App\Tests\Application\CreateSuiteTrait;
 use App\Tests\Application\UnauthorizedUserDataProviderTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 use Symfony\Component\Uid\Ulid;
 
@@ -20,9 +21,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
     use CreateSourceTrait;
     use CreateSuiteTrait;
 
-    /**
-     * @dataProvider unauthorizedUserDataProvider
-     */
+    #[DataProvider('unauthorizedUserDataProvider')]
     public function testUpdateUnauthorizedUser(?string $token): void
     {
         $suiteId = (string) new Ulid();
@@ -137,11 +136,10 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
     }
 
     /**
-     * @dataProvider updateSuiteDataProvider
-     *
      * @param non-empty-string[] $originalTests
      * @param non-empty-string[] $newTests
      */
+    #[DataProvider('updateSuiteDataProvider')]
     public function testUpdateSuccess(
         string $originalLabel,
         array $originalTests,
@@ -171,7 +169,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
     /**
      * @return array<mixed>
      */
-    public function updateSuiteDataProvider(): array
+    public static function updateSuiteDataProvider(): array
     {
         return [
             'no tests => no tests' => [

@@ -9,7 +9,7 @@ trait UnauthorizedUserDataProviderTrait
     /**
      * @return array<mixed>
      */
-    public function unauthorizedUserDataProvider(): array
+    public static function unauthorizedUserDataProvider(): array
     {
         return [
             'no token' => [

@@ -8,6 +8,7 @@ use App\Tests\Application\AbstractApplicationTestCase;
 use App\Tests\Application\AssertBadRequestTrait;
 use App\Tests\Application\CreateSourceTrait;
 use App\Tests\Application\UnauthorizedUserDataProviderTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 use SmartAssert\TestAuthenticationProviderBundle\UserProvider;
 use Symfony\Component\Uid\Ulid;
@@ -19,9 +20,7 @@ abstract class AbstractUpdateTest extends AbstractApplicationTestCase
     use AssertBadRequestTrait;
     use CreateSourceTrait;
 
-    /**
-     * @dataProvider unauthorizedUserDataProvider
-     */
+    #[DataProvider('unauthorizedUserDataProvider')]
     public function testUpdateUnauthorizedUser(?string $token): void
     {
         $response = $this->applicationClient->makeUpdateFileSourceRequest(

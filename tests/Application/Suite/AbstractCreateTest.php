@@ -8,6 +8,7 @@ use App\Tests\Application\AbstractApplicationTestCase;
 use App\Tests\Application\AssertBadRequestTrait;
 use App\Tests\Application\CreateSourceTrait;
 use App\Tests\Application\UnauthorizedUserDataProviderTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 use Symfony\Component\Uid\Ulid;
 
@@ -19,9 +20,7 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
     use CreateSourceTrait;
     use CreateSuiteDataProviderTrait;
 
-    /**
-     * @dataProvider unauthorizedUserDataProvider
-     */
+    #[DataProvider('unauthorizedUserDataProvider')]
     public function testCreateUnauthorizedUser(?string $token): void
     {
         $response = $this->applicationClient->makeCreateSuiteRequest(
@@ -119,10 +118,9 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
     }
 
     /**
-     * @dataProvider createSuiteDataProvider
-     *
      * @param non-empty-string[] $tests
      */
+    #[DataProvider('createSuiteDataProvider')]
     public function testCreateSuccess(string $label, array $tests): void
     {
         $apiKeyProvider = self::getContainer()->get(ApiKeyProvider::class);

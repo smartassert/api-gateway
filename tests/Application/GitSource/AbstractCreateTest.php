@@ -8,6 +8,7 @@ use App\Tests\Application\AbstractApplicationTestCase;
 use App\Tests\Application\AssertBadRequestTrait;
 use App\Tests\Application\UnauthorizedUserDataProviderTrait;
 use App\Tests\Services\ApplicationClient\Client;
+use PHPUnit\Framework\Attributes\DataProvider;
 use SmartAssert\TestAuthenticationProviderBundle\ApiKeyProvider;
 use SmartAssert\TestAuthenticationProviderBundle\UserProvider;
 
@@ -19,9 +20,7 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
     use AssertGitSourceTrait;
     use AssertBadRequestTrait;
 
-    /**
-     * @dataProvider unauthorizedUserDataProvider
-     */
+    #[DataProvider('unauthorizedUserDataProvider')]
     public function testCreateUnauthorizedUser(?string $token): void
     {
         $response = $this->applicationClient->makeCreateGitSourceRequest(
@@ -36,10 +35,9 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
     }
 
     /**
-     * @dataProvider createUpdateGitSourceBadRequestDataProvider
-     *
      * @param array<mixed> $expectedInvalidParameterData
      */
+    #[DataProvider('createUpdateGitSourceBadRequestDataProvider')]
     public function testCreateBadRequest(
         ?string $label,
         ?string $hostUrl,
@@ -64,10 +62,9 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
     }
 
     /**
-     * @dataProvider createDuplicateLabelDataProvider
-     *
      * @param callable(Client, string, string): void $existingSourceCreator
      */
+    #[DataProvider('createDuplicateLabelDataProvider')]
     public function testCreateDuplicateLabel(callable $existingSourceCreator): void
     {
         $label = md5((string) rand());
@@ -92,7 +89,7 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
     /**
      * @return array<mixed>
      */
-    public function createDuplicateLabelDataProvider(): array
+    public static function createDuplicateLabelDataProvider(): array
     {
         return [
             'file source has label' => [
@@ -116,9 +113,7 @@ abstract class AbstractCreateTest extends AbstractApplicationTestCase
         ];
     }
 
-    /**
-     * @dataProvider createGitSourceDataProvider
-     */
+    #[DataProvider('createGitSourceDataProvider')]
     public function testCreateSuccess(
         string $label,
         string $hostUrl,

@@ -6,6 +6,7 @@ namespace App\Tests\Application\User;
 
 use App\Tests\Application\AbstractApplicationTestCase;
 use App\Tests\Application\UnauthorizedUserDataProviderTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
 use SmartAssert\TestAuthenticationProviderBundle\FrontendTokenProvider;
 
 abstract class AbstractVerifyTokenTest extends AbstractApplicationTestCase
@@ -13,9 +14,7 @@ abstract class AbstractVerifyTokenTest extends AbstractApplicationTestCase
     use UnauthorizedUserDataProviderTrait;
     use AssertUserResponseTrait;
 
-    /**
-     * @dataProvider createBadMethodDataProvider
-     */
+    #[DataProvider('createBadMethodDataProvider')]
     public function testVerifyBadMethod(string $method): void
     {
         $response = $this->applicationClient->makeVerifyUserTokenRequest('token', $method);
@@ -26,7 +25,7 @@ abstract class AbstractVerifyTokenTest extends AbstractApplicationTestCase
     /**
      * @return array<mixed>
      */
-    public function createBadMethodDataProvider(): array
+    public static function createBadMethodDataProvider(): array
     {
         return [
             'POST' => [
@@ -41,9 +40,7 @@ abstract class AbstractVerifyTokenTest extends AbstractApplicationTestCase
         ];
     }
 
-    /**
-     * @dataProvider unauthorizedUserDataProvider
-     */
+    #[DataProvider('unauthorizedUserDataProvider')]
     public function testVerifyUnauthorizedUser(?string $token): void
     {
         $response = $this->applicationClient->makeVerifyUserTokenRequest($token);
