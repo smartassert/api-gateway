@@ -77,4 +77,4 @@ services:
 
     App\ServiceProxy\ServiceCollection:
         arguments:
-            - !tagged 'app.service'
+            - !tagged_iterator 'app.service'
