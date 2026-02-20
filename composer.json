@@ -30,6 +30,7 @@
         "phpunit/phpunit": "^13",
         "smartassert/symfony-test-client": "^3.0",
         "smartassert/test-authenticaton-provider-bundle": "^6.0",
+        "squizlabs/php_codesniffer": "^4.0",
         "symfony/maker-bundle": "^1.50",
         "symfony/phpunit-bridge": "8.0.*",
         "symfony/uid": "8.0.*"
@@ -75,6 +76,7 @@
         ],
         "cs-fixer-dry-run": "./vendor/bin/php-cs-fixer check --allow-risky=yes --verbose --show-progress none",
         "cs-fixer-fix": "./vendor/bin/php-cs-fixer fix --allow-risky=yes --diff",
+        "cs-phpcs": "XDEBUG_MODE=off ./vendor/bin/phpcs",
         "static-analysis": "XDEBUG_MODE=off ./vendor/bin/phpstan analyse --ansi",
         "test-unit": "XDEBUG_MODE=off ./vendor/bin/phpunit --colors=always tests/Unit",
         "test-functional": "XDEBUG_MODE=off ./vendor/bin/phpunit --colors=always tests/Functional",
