@@ -406,6 +406,37 @@ readonly class Client
         return $this->client->makeRequest($method, $url, $headers);
     }
 
+    public function makeListResultsEventsRequest(
+        ?string $apiKey,
+        string $label,
+        ?string $reference,
+        ?string $type,
+        string $method = 'GET'
+    ): ResponseInterface {
+        $headers = [];
+        if (is_string($apiKey)) {
+            $headers['Authorization'] = 'Bearer ' . $apiKey;
+            $headers['Translate-Authorization-To'] = 'api-token';
+        }
+
+        $url = '/results/event/list/' . $label;
+
+        $urlArguments = [];
+        if (is_string($reference)) {
+            $urlArguments[] = $reference;
+        }
+
+        if (is_string($type)) {
+            $urlArguments[] = $type;
+        }
+
+        if ([] !== $urlArguments) {
+            $url .= '?' . http_build_query($urlArguments);
+        }
+
+        return $this->client->makeRequest($method, $url, $headers);
+    }
+
     private function makeFileSourceFileRequest(
         ?string $apiKey,
         string $method,

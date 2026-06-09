@@ -75,6 +75,12 @@ services:
             $name: 'job-coordinator'
             $baseUrl: '%env(string:JOB_COORDINATOR_BASE_URL)%'
 
+    app.service.results:
+        class: App\ServiceProxy\Service
+        arguments:
+            $name: 'results'
+            $baseUrl: '%env(string:RESULTS_BASE_URL)%'
+
     App\ServiceProxy\ServiceCollection:
         arguments:
             - !tagged_iterator 'app.service'
