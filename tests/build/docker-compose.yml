@@ -152,6 +152,7 @@ services:
         AUTHENTICATION_BASE_URL: http://users-http
         SOURCES_BASE_URL: http://sources-http
         JOB_COORDINATOR_BASE_URL: http://job-coordinator-http
+        RESULTS_BASE_URL: http://results-http
     container_name: app
     restart: unless-stopped
     depends_on:
