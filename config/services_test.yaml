@@ -32,3 +32,24 @@ services:
     arguments:
       $config:
         handler: '@GuzzleHttp\Handler\MockHandler'
+
+  SmartAssert\ServiceClient\Client: ~
+
+  SmartAssert\ServiceClient\ResponseFactory\ResponseFactory:
+    factory: ['SmartAssert\ServiceClient\ResponseFactory\ResponseFactory', 'createFactory']
+
+  SmartAssert\ServiceClient\ExceptionFactory\CurlExceptionFactory: ~
+
+  SmartAssert\ResultsClient\EventFactory: ~
+
+  SmartAssert\ResultsClient\ResourceReferenceFactory: ~
+
+  SmartAssert\ResultsClient\ClientInterface:
+    class: SmartAssert\ResultsClient\Client
+    public: true
+    arguments:
+      $baseUrl: 'http://localhost:9082'
+
+  SmartAssert\ResultsClient\AddEventClientInterface:
+    class: SmartAssert\ResultsClient\AddEventClient
+    public: true
