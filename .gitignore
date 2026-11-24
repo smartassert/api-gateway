@@ -26,3 +26,4 @@ composer.lock
 ###< friendsofphp/php-cs-fixer ###
 
 .phpcs-cache
+/config/reference.php
